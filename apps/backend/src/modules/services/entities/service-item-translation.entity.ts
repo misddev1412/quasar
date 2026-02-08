@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { ServiceItem } from './service-item.entity';
+import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
 
 @Entity('service_item_translations')
 @Index(['service_item_id', 'locale'], { unique: true })

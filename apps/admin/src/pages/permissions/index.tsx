@@ -7,7 +7,48 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
-import { Permission, PermissionFiltersType, PermissionStatistics } from '@admin/types/permission';
+import { Permission, PermissionFiltersType, PermissionListApiResponse, PermissionPaginatedPayload } from '@admin/types/permission';
+
+type BackendPermissionAction =
+  | 'CREATE'
+  | 'READ'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'EXECUTE'
+  | 'APPROVE'
+  | 'REJECT'
+  | 'PUBLISH'
+  | 'ARCHIVE';
+
+type BackendPermissionScope = 'OWN' | 'DEPARTMENT' | 'ORGANIZATION' | 'ANY';
+
+const toBackendPermissionAction = (value?: string): BackendPermissionAction | undefined => {
+  if (!value) return undefined;
+  const normalized = value.toUpperCase();
+  const allowed: BackendPermissionAction[] = [
+    'CREATE',
+    'READ',
+    'UPDATE',
+    'DELETE',
+    'EXECUTE',
+    'APPROVE',
+    'REJECT',
+    'PUBLISH',
+    'ARCHIVE',
+  ];
+  return allowed.includes(normalized as BackendPermissionAction)
+    ? (normalized as BackendPermissionAction)
+    : undefined;
+};
+
+const toBackendPermissionScope = (value?: string): BackendPermissionScope | undefined => {
+  if (!value) return undefined;
+  const normalized = value.toUpperCase();
+  const allowed: BackendPermissionScope[] = ['OWN', 'DEPARTMENT', 'ORGANIZATION', 'ANY'];
+  return allowed.includes(normalized as BackendPermissionScope)
+    ? (normalized as BackendPermissionScope)
+    : undefined;
+};
 import { FiHome } from 'react-icons/fi';
 
 interface PermissionIndexPageProps { }
@@ -82,8 +123,8 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
   // Use the real permission API endpoint with pagination
   const { data, isLoading, error, refetch, isFetching } = trpc.adminPermission.getAllPermissions.useQuery({
     resource: filters.resource,
-    action: filters.action as any, // Type cast since filter values are strings but API expects enum
-    scope: filters.scope as any,   // Type cast since filter values are strings but API expects enum
+    action: toBackendPermissionAction(filters.action),
+    scope: toBackendPermissionScope(filters.scope),
     isActive: filters.isActive,
     search: filters.search,
     page: filters.page,
@@ -92,19 +133,19 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
   // Process real API data
   const processedData = useMemo(() => {
-    if (!data || !(data as any)?.data) return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
-
-    const responseData = (data as any).data;
+    const responseData = (data as PermissionListApiResponse | undefined)?.data;
+    if (!responseData) return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
 
     // Check if the response is paginated (has meta property) or is a simple array
-    if (responseData.data && responseData.meta) {
+    if (!Array.isArray(responseData) && 'data' in responseData && 'meta' in responseData) {
+      const paginated = responseData as PermissionPaginatedPayload;
       // Paginated response
       return {
-        items: responseData.data || [],
-        total: responseData.meta.total || 0,
-        page: responseData.meta.page || 1,
-        limit: responseData.meta.limit || 10,
-        totalPages: responseData.meta.totalPages || 0,
+        items: paginated.data || [],
+        total: paginated.meta.total || 0,
+        page: paginated.meta.page || 1,
+        limit: paginated.meta.limit || 10,
+        totalPages: paginated.meta.totalPages || 0,
       };
     } else {
       // Legacy non-paginated response - apply client-side pagination for backward compatibility
@@ -112,7 +153,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
       // Apply client-side filters (these should now be handled server-side, but keeping for safety)
       if (filters.search) {
-        permissions = permissions.filter((p: any) =>
+        permissions = permissions.filter((p) =>
           p.name.toLowerCase().includes(filters.search!.toLowerCase()) ||
           p.description?.toLowerCase().includes(filters.search!.toLowerCase()) ||
           p.resource.toLowerCase().includes(filters.search!.toLowerCase())
@@ -120,15 +161,15 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       }
 
       if (filters.resource) {
-        permissions = permissions.filter((p: any) => p.resource === filters.resource);
+        permissions = permissions.filter((p) => p.resource === filters.resource);
       }
 
       if (filters.action) {
-        permissions = permissions.filter((p: any) => p.action === filters.action);
+        permissions = permissions.filter((p) => p.action === filters.action);
       }
 
       if (filters.scope) {
-        permissions = permissions.filter((p: any) => p.scope === filters.scope);
+        permissions = permissions.filter((p) => p.scope === filters.scope);
       }
 
       // Client-side pagination
@@ -151,21 +192,24 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
   // Calculate statistics from real data
   const statistics: StatisticData[] = useMemo(() => {
-    const responseData = (data as any)?.data;
-    let permissions = [];
+    const responseData = (data as PermissionListApiResponse | undefined)?.data;
+    let permissions: Permission[] = [];
+    let total = 0;
 
-    if (responseData?.data && responseData?.meta) {
+    if (responseData && !Array.isArray(responseData) && 'data' in responseData && 'meta' in responseData) {
       // For paginated response, we need to use the total from meta for accurate statistics
       // But we can only calculate active/inactive from the current page data
-      permissions = responseData.data || [];
+      const paginated = responseData as PermissionPaginatedPayload;
+      permissions = paginated.data || [];
+      total = paginated.meta.total || permissions.length;
     } else {
       // For non-paginated response
       permissions = Array.isArray(responseData) ? responseData : [];
+      total = permissions.length;
     }
 
-    const total = responseData?.meta?.total || permissions.length;
-    const active = permissions.filter((p: any) => p.isActive !== false).length;
-    const inactive = permissions.filter((p: any) => p.isActive === false).length;
+    const active = permissions.filter((p) => p.isActive !== false).length;
+    const inactive = permissions.filter((p) => p.isActive === false).length;
 
     return [
       {
@@ -195,7 +239,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       {
         id: 'resources',
         title: t('permissions.statistics.resources', 'Resources'),
-        value: [...new Set(permissions.map((p: any) => p.resource))].length.toString(),
+        value: [...new Set(permissions.map((p) => p.resource))].length.toString(),
         icon: <FiSettings className="w-5 h-5" />,
         trend: { value: 0, isPositive: true, label: '+0%' },
         color: 'purple',
@@ -230,12 +274,13 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
       // Refresh the data to show updated status
       refetch();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : undefined;
       // Show error toast with detailed information
       addToast({
         type: 'error',
         title: 'Failed to update permission status',
-        description: e?.message || 'An error occurred while updating the permission status. Please try again.'
+        description: message || 'An error occurred while updating the permission status. Please try again.'
       });
     }
   }, [updatePermissionMutation, addToast, refetch]);
@@ -256,11 +301,12 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       });
 
       refetch();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : undefined;
       addToast({
         type: 'error',
         title: 'Delete failed',
-        description: e?.message || 'Failed to delete permission. Please try again.'
+        description: message || 'Failed to delete permission. Please try again.'
       });
     }
   }, [deletePermissionMutation, addToast, refetch]);
@@ -362,11 +408,12 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
         default:
           console.warn('Unknown bulk action:', action);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : undefined;
       addToast({
         type: 'error',
         title: 'Bulk action failed',
-        description: e?.message || `Failed to perform bulk ${action}. Please try again.`
+        description: message || `Failed to perform bulk ${action}. Please try again.`
       });
     }
   }, [selectedPermissions, addToast]);
@@ -613,7 +660,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>
-            {(error as any)?.message || t('messages.failed_to_load_permissions', 'Failed to load permissions')}
+            {error?.message || t('messages.failed_to_load_permissions', 'Failed to load permissions')}
           </AlertDescription>
         </Alert>
       </StandardListPage>

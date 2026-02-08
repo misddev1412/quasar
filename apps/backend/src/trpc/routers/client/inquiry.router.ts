@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Mutation, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { InquiryService, CreateInquiryDto } from '../../../modules/support/services/inquiry.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { InquiryService, CreateInquiryDto } from '@backend/modules/support/services/inquiry.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared';
 
 const inquirySubmitSchema = z.object({

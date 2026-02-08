@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { subDays, startOfDay, endOfDay, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
-import { VisitorRepository } from '../../repositories/visitor.repository';
-import { VisitorType, VisitorSource, SessionStatus, PageViewType } from '../../entities';
+import { VisitorRepository } from '@backend/modules/visitor/repositories/visitor.repository';
+import { VisitorType, VisitorSource, SessionStatus, PageViewType } from '@backend/modules/visitor/entities';
 
 @Injectable()
 export class AdminVisitorStatisticsService {

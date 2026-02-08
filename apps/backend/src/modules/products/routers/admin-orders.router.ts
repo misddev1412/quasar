@@ -2,12 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminOrderService } from '../services/admin-order.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
+import { AdminOrderService } from '@backend/modules/products/services/admin-order.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { OrderStatus, PaymentStatus, OrderSource } from '@backend/modules/products/entities/order.entity';
 
 export const orderStatusSchema = z.nativeEnum(OrderStatus);
 export const paymentStatusSchema = z.nativeEnum(PaymentStatus);

@@ -4,13 +4,13 @@ import {
   CreateNotificationPreferenceDto,
   UpdateNotificationPreferenceDto,
   NotificationPreferenceFilter,
-} from '../repositories/notification-preference.repository';
+} from '@backend/modules/notifications/repositories/notification-preference.repository';
 import {
   NotificationPreferenceEntity,
   NotificationChannel,
   NotificationFrequency,
-} from '../entities/notification-preference.entity';
-import { NotificationType } from '../entities/notification.entity';
+} from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 
 export interface NotificationPreferenceSettings {
   type: NotificationType;

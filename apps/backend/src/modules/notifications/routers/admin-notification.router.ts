@@ -2,17 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { NotificationService } from '../services/notification.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { NotificationType } from '../entities/notification.entity';
-import { CreateNotificationDto } from '../repositories/notification.repository';
-import { SendNotificationToUserDto, BulkNotificationDto } from '../services/notification.service';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannel } from '../entities/notification-preference.entity';
-import { NotificationEventFlowService } from '../services/notification-event-flow.service';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { CreateNotificationDto } from '@backend/modules/notifications/repositories/notification.repository';
+import { SendNotificationToUserDto, BulkNotificationDto } from '@backend/modules/notifications/services/notification.service';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationEventFlowService } from '@backend/modules/notifications/services/notification-event-flow.service';
 
 export const notificationTypeSchema = z.nativeEnum(NotificationType);
 

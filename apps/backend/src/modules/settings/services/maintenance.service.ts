@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { SettingService } from './setting.service';
+import { SettingService } from '@backend/modules/settings/services/setting.service';
 import * as bcrypt from 'bcryptjs';
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 

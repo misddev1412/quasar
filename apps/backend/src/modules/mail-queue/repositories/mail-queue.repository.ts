@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MailQueue, MailQueueStatus } from '../entities/mail-queue.entity';
+import { MailQueue, MailQueueStatus } from '@backend/modules/mail-queue/entities/mail-queue.entity';
 
 export interface EnqueueMailPayload {
   emailFlowId?: string | null;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { CustomerRedemption } from '../entities/customer-redemption.entity';
+import { CustomerRedemption } from '@backend/modules/loyalty/entities/customer-redemption.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
 
 @Injectable()

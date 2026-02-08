@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ThemeRepository } from '../repositories/theme.repository';
-import { ThemeEntity } from '../entities/theme.entity';
+import { ThemeRepository } from '@backend/modules/themes/repositories/theme.repository';
+import { ThemeEntity } from '@backend/modules/themes/entities/theme.entity';
 
 @Injectable()
 export class PublicThemesService {

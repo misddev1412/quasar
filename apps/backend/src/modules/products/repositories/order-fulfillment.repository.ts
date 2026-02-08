@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, Between, Like, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OrderFulfillment, FulfillmentStatus, PriorityLevel } from '../entities/order-fulfillment.entity';
+import { OrderFulfillment, FulfillmentStatus, PriorityLevel } from '@backend/modules/products/entities/order-fulfillment.entity';
 
 export interface OrderFulfillmentFilters {
   orderId?: string;

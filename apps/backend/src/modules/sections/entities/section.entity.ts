@@ -1,8 +1,8 @@
 import { Column, Entity, OneToMany, Index, ManyToMany } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { SectionType } from '@shared/enums/section.enums';
-import { SectionTranslationEntity } from './section-translation.entity';
-import { ComponentConfigEntity } from '../../component-configs/entities/component-config.entity';
+import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
+import { ComponentConfigEntity } from '@backend/modules/component-configs/entities/component-config.entity';
 
 @Entity('sections')
 @Index(['page', 'position'])

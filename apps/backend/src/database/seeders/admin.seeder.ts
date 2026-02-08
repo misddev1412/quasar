@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../modules/user/entities/user.entity';
-import { Role } from '../../modules/user/entities/role.entity';
-import { UserProfile } from '../../modules/user/entities/user-profile.entity';
-import { UserRole as UserRoleEntity } from '../../modules/user/entities/user-role.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
+import { UserProfile } from '@backend/modules/user/entities/user-profile.entity';
+import { UserRole as UserRoleEntity } from '@backend/modules/user/entities/user-role.entity';
 import { UserRole } from '@shared/enums/user.enums';
 import * as bcrypt from 'bcryptjs';
 

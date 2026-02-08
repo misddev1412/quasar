@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ClientUserService } from '../../../modules/user/services/client/client-user.service';
+import { ClientUserService } from '@backend/modules/user/services/client/client-user.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../middlewares/auth.middleware';
-import { UserInjectionMiddleware } from '../../middlewares/user-injection.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { UserInjectionMiddleware } from '@backend/trpc/middlewares/user-injection.middleware';
 import { UserRole } from '@shared';
-import { apiResponseSchema } from '../../schemas/response.schemas';
-import { AuthenticatedContext } from '../../context';
-import { CustomerRepository } from '../../../modules/products/repositories/customer.repository';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { CustomerRepository } from '@backend/modules/products/repositories/customer.repository';
 
 // Zod schemas for validation
 const clientRegisterSchema = z.object({

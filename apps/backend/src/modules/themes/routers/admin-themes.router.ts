@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminThemesService } from '../services/admin-themes.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminThemesService } from '@backend/modules/themes/services/admin-themes.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import type { CreateThemeDto, UpdateThemeDto } from '../dto/theme.dto';
+import type { CreateThemeDto, UpdateThemeDto } from '@backend/modules/themes/dto/theme.dto';
 
 const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/, {
   message: 'Color must be a valid hex value (e.g. #000000)',

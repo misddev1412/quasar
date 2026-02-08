@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { WorkerExportService } from './worker-export.service';
-import { ExportJobPayload } from '../interfaces/export-payload.interface';
-import { ExportQueueService } from './export-queue.service';
+import { WorkerExportService } from '@backend/modules/export/services/worker-export.service';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
+import { ExportQueueService } from '@backend/modules/export/services/export-queue.service';
 
 export type ExportExecutionMode = 'direct' | 'queue' | 'local-async';
 

@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Brand } from './brand.entity';
+import { Brand } from '@backend/modules/products/entities/brand.entity';
 
 @Entity('brand_translations')
 @Index(['brand_id', 'locale'], { unique: true })

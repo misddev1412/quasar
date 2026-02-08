@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SettingRepository } from '../repositories/setting.repository';
-import { CreateSettingDto, UpdateSettingDto, BulkUpdateSettingsDto } from '../dto/setting.dto';
-import { SettingEntity } from '../entities/setting.entity';
+import { SettingRepository } from '@backend/modules/settings/repositories/setting.repository';
+import { CreateSettingDto, UpdateSettingDto, BulkUpdateSettingsDto } from '@backend/modules/settings/dto/setting.dto';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
-import { TranslationService } from '../../translation/services/translation.service';
+import { TranslationService } from '@backend/modules/translation/services/translation.service';
 import { SupportedLocale } from '@shared';
-import { DEFAULT_LOCALE } from '../../shared/utils/locale.util';
+import { DEFAULT_LOCALE } from '@backend/modules/shared/utils/locale.util';
 import * as bcrypt from 'bcryptjs';
 
 const MAINTENANCE_PASSWORD_KEY = 'storefront.maintenance_password';

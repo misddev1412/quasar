@@ -2,11 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AttributeRepository } from '../repositories/attribute.repository';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AttributeType } from '../entities/attribute.entity';
+import { AttributeRepository } from '@backend/modules/products/repositories/attribute.repository';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AttributeType } from '@backend/modules/products/entities/attribute.entity';
 
 export const getAttributesQuerySchema = z.object({
   page: z.number().min(1).default(1),

@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { MediaService } from '../services/media.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { MediaService } from '@backend/modules/storage/services/media.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import {
   mediaListQuerySchema,
   updateMediaSchema,
   deleteMultipleMediaSchema,
   createMediaSchema,
-} from '../dto/media.dto';
+} from '@backend/modules/storage/dto/media.dto';
 
 // Upload file schema for form data
 const uploadMediaSchema = z.object({

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { NotificationTelegramConfigRepository, CreateTelegramConfigDto } from '../repositories/notification-telegram-config.repository';
-import { NotificationTelegramConfigEntity } from '../entities/notification-telegram-config.entity';
+import { NotificationTelegramConfigRepository, CreateTelegramConfigDto } from '@backend/modules/notifications/repositories/notification-telegram-config.repository';
+import { NotificationTelegramConfigEntity } from '@backend/modules/notifications/entities/notification-telegram-config.entity';
 
 @Injectable()
 export class NotificationTelegramConfigService {

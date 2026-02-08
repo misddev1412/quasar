@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminShippingProviderService } from '../services/admin-shipping-provider.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { CreateShippingProviderDto } from '../dto/create-shipping-provider.dto';
-import { UpdateShippingProviderDto } from '../dto/update-shipping-provider.dto';
+import { AdminShippingProviderService } from '@backend/modules/products/services/admin-shipping-provider.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { CreateShippingProviderDto } from '@backend/modules/products/dto/create-shipping-provider.dto';
+import { UpdateShippingProviderDto } from '@backend/modules/products/dto/update-shipping-provider.dto';
 
 const listShippingProvidersSchema = z.object({
   page: z.number().min(1).default(1),

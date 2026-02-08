@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SettingEntity } from '../settings/entities/setting.entity';
-import { Media } from './entities/media.entity';
-import { MediaRelation } from './entities/media-relation.entity';
-import { StorageService } from './services/storage.service';
-import { FileUploadService } from './services/file-upload.service';
-import { MediaService } from './services/media.service';
-import { UploadController } from './controllers/upload.controller';
-import { AdminStorageRouter } from './routers/admin-storage.router';
-import { AdminMediaRouter } from './routers/admin-media.router';
-import { SharedModule } from '../shared/shared.module';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
+import { Media } from '@backend/modules/storage/entities/media.entity';
+import { MediaRelation } from '@backend/modules/storage/entities/media-relation.entity';
+import { StorageService } from '@backend/modules/storage/services/storage.service';
+import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { MediaService } from '@backend/modules/storage/services/media.service';
+import { UploadController } from '@backend/modules/storage/controllers/upload.controller';
+import { AdminStorageRouter } from '@backend/modules/storage/routers/admin-storage.router';
+import { AdminMediaRouter } from '@backend/modules/storage/routers/admin-media.router';
+import { SharedModule } from '@backend/modules/shared/shared.module';
 
 @Module({
   imports: [

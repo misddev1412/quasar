@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { EmailFlowService } from '../services/email-flow.service';
+import { EmailFlowService } from '@backend/modules/email-flow/services/email-flow.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Zod schemas for mail channel priority operations
 const createMailChannelPrioritySchema = z.object({

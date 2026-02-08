@@ -17,13 +17,13 @@ import {
 import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-import { GetCurrentUserId } from '../decorators/current-user.decorator';
+import { JwtAuthGuard } from '@backend/auth/guards/jwt-auth.guard';
+import { GetCurrentUserId } from '@backend/modules/storage/decorators/current-user.decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { FileUploadService } from '../services/file-upload.service';
-import { MediaService } from '../services/media.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { StorageService } from '../services/storage.service';
+import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { MediaService } from '@backend/modules/storage/services/media.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { StorageService } from '@backend/modules/storage/services/storage.service';
 import * as multer from 'multer';
 
 // Multer configuration for memory storage

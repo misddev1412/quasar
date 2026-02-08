@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { BaseRepository, PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
-import { Permission } from '../entities/permission.entity';
-import { RolePermission } from '../entities/role-permission.entity';
-import { Role } from '../entities/role.entity';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
+import { RolePermission } from '@backend/modules/user/entities/role-permission.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
 import {
   IPermissionRepository,
   CreatePermissionDto,
   UpdatePermissionDto,
   CreateRolePermissionDto,
   PermissionFilter
-} from '../interfaces/permission-repository.interface';
+} from '@backend/modules/user/interfaces/permission-repository.interface';
 
 @Injectable()
 export class PermissionRepository extends BaseRepository<Permission> implements IPermissionRepository {

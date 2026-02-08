@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminVisitorStatisticsService } from '../services/admin/admin-visitor-statistics.service';
+import { AdminVisitorStatisticsService } from '@backend/modules/visitor/services/admin/admin-visitor-statistics.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const GetOverallStatsSchema = z.object({

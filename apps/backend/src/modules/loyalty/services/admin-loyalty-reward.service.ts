@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
-import { LoyaltyRewardRepository } from '../repositories/loyalty-reward.repository';
-import { LoyaltyReward, RewardType, DiscountType } from '../entities/loyalty-reward.entity';
+import { LoyaltyRewardRepository } from '@backend/modules/loyalty/repositories/loyalty-reward.repository';
+import { LoyaltyReward, RewardType, DiscountType } from '@backend/modules/loyalty/entities/loyalty-reward.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 
 export interface CreateLoyaltyRewardDto {

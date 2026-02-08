@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { InventoryItem } from './inventory-item.entity';
-import { Warehouse } from './warehouse.entity';
-import { WarehouseLocation } from './warehouse-location.entity';
+import { InventoryItem } from '@backend/modules/products/entities/inventory-item.entity';
+import { Warehouse } from '@backend/modules/products/entities/warehouse.entity';
+import { WarehouseLocation } from '@backend/modules/products/entities/warehouse-location.entity';
 
 export enum MovementType {
   IN = 'IN',

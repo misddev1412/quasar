@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Supplier } from './supplier.entity';
+import { Supplier } from '@backend/modules/products/entities/supplier.entity';
 
 @Entity('supplier_translations')
 @Unique(['supplier_id', 'locale'])

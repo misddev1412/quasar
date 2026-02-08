@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { FirebaseConfigRepository } from '../repositories/firebase-config.repository';
-import { FirebaseConfigEntity } from '../entities/firebase-config.entity';
+import { FirebaseConfigRepository } from '@backend/modules/firebase/repositories/firebase-config.repository';
+import { FirebaseConfigEntity } from '@backend/modules/firebase/entities/firebase-config.entity';
 
 export interface CreateFirebaseConfigDto {
   name: string;

@@ -9,7 +9,7 @@ import {
   CustomerTransactionType,
   LedgerAccountType,
   LedgerEntryDirection,
-} from '../entities/customer-transaction.entity';
+} from '@backend/modules/user/entities/customer-transaction.entity';
 
 export interface TransactionStats {
   totalVolume: number;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as XLSX from 'xlsx';
-import { CategoryRepository } from '../repositories/category.repository';
-import { Category } from '../entities/category.entity';
+import { CategoryRepository } from '@backend/modules/products/repositories/category.repository';
+import { Category } from '@backend/modules/products/entities/category.entity';
 import { SupportedLocale } from '@shared';
 
 export interface ImportCategoriesFromExcelParams {

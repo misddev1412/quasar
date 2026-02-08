@@ -2,12 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { ClientSiteContentService } from '../services/client-site-content.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { ClientSiteContentService } from '@backend/modules/site-content/services/client-site-content.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { SiteContentCategory } from '@shared/enums/site-content.enums';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { SiteContentEntity } from '../entities/site-content.entity';
+import { SiteContentEntity } from '@backend/modules/site-content/entities/site-content.entity';
 
 const listSiteContentQuerySchema = z.object({
   page: z.number().int().min(1).default(1),

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SettingEntity } from '../../modules/settings/entities/setting.entity';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
 import { DEFAULT_FOOTER_CONFIG } from '@shared/types/footer.types';
 import { DEFAULT_FLOATING_WIDGET_ACTIONS } from '@shared/types/floating-widget.types';
 

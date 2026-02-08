@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { DeliveryMethodService } from '../services/delivery-method.service';
-import { ResponseService } from '../../shared/services/response.service';
+import { DeliveryMethodService } from '@backend/modules/products/services/delivery-method.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 const deliveryOptionsInputSchema = z.object({
   orderAmount: z.number().min(0).default(0),

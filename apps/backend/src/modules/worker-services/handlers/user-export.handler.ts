@@ -1,10 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { BaseExportHandler, ExportPageResult } from '../../export/handlers/base-export.handler';
-import { ExportHandlerRegistry } from '../../export/services/export-handler.registry';
-import { ExportColumnDefinition } from '../../export/entities/data-export-job.entity';
-import { UserRepository, UserFilters } from '../../user/repositories/user.repository';
-import { User } from '../../user/entities/user.entity';
-import { USER_EXPORT_COLUMNS } from '../../user/export/user-export.columns';
+import { BaseExportHandler, ExportPageResult } from '@backend/modules/export/handlers/base-export.handler';
+import { ExportHandlerRegistry } from '@backend/modules/export/services/export-handler.registry';
+import { ExportColumnDefinition } from '@backend/modules/export/entities/data-export-job.entity';
+import { UserRepository, UserFilters } from '@backend/modules/user/repositories/user.repository';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { USER_EXPORT_COLUMNS } from '@backend/modules/user/export/user-export.columns';
 
 @Injectable()
 export class UserExportHandler extends BaseExportHandler<Record<string, any>, User> implements OnModuleInit {

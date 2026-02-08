@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ComponentConfigsService } from '../services/component-configs.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { ComponentConfigsService } from '@backend/modules/component-configs/services/component-configs.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import {
   createComponentConfigSchema,
@@ -14,8 +14,8 @@ import {
   type CreateComponentConfigDto,
   type UpdateComponentConfigDto,
   type ListComponentConfigDto,
-} from '../dto/component-config.dto';
-import { AuthenticatedContext } from '../../../trpc/context';
+} from '@backend/modules/component-configs/dto/component-config.dto';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 const byIdSchema = z.object({
   id: z.string().uuid(),

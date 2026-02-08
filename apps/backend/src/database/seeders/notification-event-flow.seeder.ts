@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { NotificationEventFlow } from '../../modules/notifications/entities/notification-event-flow.entity';
-import { NotificationEvent } from '../../modules/notifications/entities/notification-event.enum';
-import { NotificationChannel } from '../../modules/notifications/entities/notification-preference.entity';
-import { Role } from '../../modules/user/entities/role.entity';
-import { UserRole as UserRoleEntity } from '../../modules/user/entities/user-role.entity';
+import { NotificationEventFlow } from '@backend/modules/notifications/entities/notification-event-flow.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
+import { UserRole as UserRoleEntity } from '@backend/modules/user/entities/user-role.entity';
 import { UserRole } from '@shared';
 
 interface FlowDefinition {

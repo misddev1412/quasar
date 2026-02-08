@@ -1,4 +1,4 @@
-import { S3StorageConfig } from '../interfaces/storage.interface';
+import { S3StorageConfig } from '@backend/modules/storage/interfaces/storage.interface';
 
 export const trimTrailingSlash = (value?: string): string => {
   if (!value) {

@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Ctx, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ProductRepository } from '../../../modules/products/repositories/product.repository';
-import { CategoryRepository } from '../../../modules/products/repositories/category.repository';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { ProductRepository } from '@backend/modules/products/repositories/product.repository';
+import { CategoryRepository } from '@backend/modules/products/repositories/category.repository';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import {
   productListQuerySchema,
   productListResponseSchema,
   productDetailResponseSchema
-} from '../../schemas/product.schemas';
+} from '@backend/trpc/schemas/product.schemas';
 import { ProductStatus } from '@backend/modules/products/entities/product.entity';
-import { AdminCurrencyService } from '../../../modules/products/services/admin-currency.service';
-import { AuthenticatedContext } from '../../context';
+import { AdminCurrencyService } from '@backend/modules/products/services/admin-currency.service';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { SupportedLocale } from '@shared';
 
 @Router({ alias: 'clientProducts' })

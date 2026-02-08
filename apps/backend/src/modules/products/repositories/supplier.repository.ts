@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions } from 'typeorm';
-import { Supplier } from '../entities/supplier.entity';
-import { SupplierTranslation } from '../entities/supplier-translation.entity';
+import { Supplier } from '@backend/modules/products/entities/supplier.entity';
+import { SupplierTranslation } from '@backend/modules/products/entities/supplier-translation.entity';
 
 export interface SupplierFilters {
   search?: string;

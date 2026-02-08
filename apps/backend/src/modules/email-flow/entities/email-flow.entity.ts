@@ -2,8 +2,8 @@ import { Entity, Column, Index, ManyToOne, JoinColumn, OneToMany } from 'typeorm
 import { BaseEntity } from '@shared';
 import { IsString, IsBoolean, IsOptional, MaxLength, MinLength } from 'class-validator';
 import { Expose } from 'class-transformer';
-import { MailProvider } from '../../mail-provider/entities/mail-provider.entity';
-import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
+import { MailProvider } from '@backend/modules/mail-provider/entities/mail-provider.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
 
 @Entity('mail_channel_priorities')
 @Index('IDX_MAIL_CHANNEL_PRIORITY_NAME', ['name'], { unique: true })

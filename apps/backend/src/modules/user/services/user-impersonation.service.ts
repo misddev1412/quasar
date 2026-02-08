@@ -5,15 +5,15 @@ import {
   ForbiddenException,
   BadRequestException
 } from '@nestjs/common';
-import { UserRepository } from '../repositories/user.repository';
-import { UserImpersonationRepository } from '../repositories/user-impersonation.repository';
-import { UserActivityTrackingService } from './user-activity-tracking.service';
-import { AuthService } from '../../../auth/auth.service';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { UserImpersonationRepository } from '@backend/modules/user/repositories/user-impersonation.repository';
+import { UserActivityTrackingService } from '@backend/modules/user/services/user-activity-tracking.service';
+import { AuthService } from '@backend/auth/auth.service';
 import { UserRole } from '@shared';
-import { ActivityType } from '../entities/user-activity.entity';
-import { UserSessionRepository } from '../repositories/user-session.repository';
-import { SessionStatus } from '../entities/user-session.entity';
-import { ImpersonationStatus } from '../entities/user-impersonation-log.entity';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
+import { SessionStatus } from '@backend/modules/user/entities/user-session.entity';
+import { ImpersonationStatus } from '@backend/modules/user/entities/user-impersonation-log.entity';
 
 export interface AuthUser {
   id: string;

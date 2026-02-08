@@ -40,14 +40,30 @@ interface OrderItem {
 }
 
 interface OrderFiltersType {
-  status?: string;
-  paymentStatus?: string;
-  source?: string;
+  status?: Order['status'];
+  paymentStatus?: Order['paymentStatus'];
+  source?: Order['source'];
   dateFrom?: string;
   dateTo?: string;
   minAmount?: number;
   maxAmount?: number;
 }
+
+type ApiEnvelope<T> = { data?: T };
+
+type OrdersListPayload = {
+  items?: Order[];
+  total?: number;
+};
+
+type OrderStatsPayload = {
+  totalOrders?: number;
+  recentOrders?: number;
+  totalRevenue?: number;
+  recentRevenue?: number;
+  averageOrderValue?: number;
+  statusStats?: Partial<Record<Order['status'], number>>;
+};
 
 const formatAmount = (value: unknown) => {
   const numericValue = typeof value === 'number'
@@ -81,9 +97,9 @@ const OrdersPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
   const [filters, setFilters] = useState<OrderFiltersType>({
-    status: searchParams.get('status') as any || undefined,
-    paymentStatus: searchParams.get('paymentStatus') as any || undefined,
-    source: searchParams.get('source') as any || undefined,
+    status: (searchParams.get('status') as Order['status']) || undefined,
+    paymentStatus: (searchParams.get('paymentStatus') as Order['paymentStatus']) || undefined,
+    source: (searchParams.get('source') as Order['source']) || undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'orderDate');
@@ -142,9 +158,9 @@ const OrdersPage: React.FC = () => {
     page,
     limit,
     search: debouncedSearchValue || undefined,
-    status: filters.status as any,
-    paymentStatus: filters.paymentStatus as any,
-    source: filters.source as any,
+    status: filters.status,
+    paymentStatus: filters.paymentStatus,
+    source: filters.source,
     dateFrom: filters.dateFrom,
     dateTo: filters.dateTo,
     minAmount: filters.minAmount,
@@ -283,9 +299,8 @@ const OrdersPage: React.FC = () => {
 
   // Prepare statistics data
   const statisticsData: StatisticData[] = useMemo(() => {
-    if (!(statsData as any)?.data) return [];
-
-    const stats = (statsData as any).data;
+    const stats = (statsData as ApiEnvelope<OrderStatsPayload> | undefined)?.data;
+    if (!stats) return [];
     return [
       {
         id: 'totalOrders',
@@ -336,7 +351,7 @@ const OrdersPage: React.FC = () => {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-gray-900">#{order.orderNumber}</span>
-            <Badge variant={getStatusBadgeVariant(order.status) as any}>
+            <Badge variant={getStatusBadgeVariant(order.status) as 'warning' | 'info' | 'success' | 'destructive' | 'secondary'}>
               {t(`orders.status_types.${order.status}`)}
             </Badge>
           </div>
@@ -365,7 +380,7 @@ const OrdersPage: React.FC = () => {
       accessor: (order) => (
         <div className="text-sm">
           <div className="mb-1">
-            <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus) as any}>
+            <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus) as 'warning' | 'info' | 'success' | 'destructive' | 'secondary'}>
               {t(`orders.payment_status_types.${order.paymentStatus}`)}
             </Badge>
           </div>
@@ -646,7 +661,7 @@ const OrdersPage: React.FC = () => {
         <Table<Order>
           tableId="orders-table"
           columns={visibleColumnsArray}
-          data={(ordersData as any)?.data?.items || []}
+          data={((ordersData as ApiEnvelope<OrdersListPayload> | undefined)?.data?.items) || []}
           searchValue={searchValue}
           onSearchChange={handleSearch}
           onFilterClick={() => setShowFilters(!showFilters)}
@@ -665,8 +680,8 @@ const OrdersPage: React.FC = () => {
           // Enhanced pagination with page size selection
           pagination={{
             currentPage: page,
-            totalPages: Math.ceil(((ordersData as any)?.data?.total || 0) / limit),
-            totalItems: (ordersData as any)?.data?.total || 0,
+            totalPages: Math.ceil((((ordersData as ApiEnvelope<OrdersListPayload> | undefined)?.data?.total) || 0) / limit),
+            totalItems: ((ordersData as ApiEnvelope<OrdersListPayload> | undefined)?.data?.total) || 0,
             itemsPerPage: limit,
             onPageChange: handlePageChange,
             onItemsPerPageChange: handlePageSizeChange,

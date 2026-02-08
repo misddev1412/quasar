@@ -8,7 +8,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { ProductBundleItemEntity } from './product-bundle-item.entity';
+import { ProductBundleItemEntity } from '@backend/modules/product-bundles/entities/product-bundle-item.entity';
 
 @Entity('product_bundles')
 export class ProductBundleEntity extends BaseEntity {

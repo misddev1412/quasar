@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { DeliveryMethodRepository, CreateDeliveryMethodDto, UpdateDeliveryMethodDto, DeliveryMethodFilters } from '../repositories/delivery-method.repository';
-import { DeliveryMethod, DeliveryMethodType, CostCalculationType } from '../entities/delivery-method.entity';
+import { DeliveryMethodRepository, CreateDeliveryMethodDto, UpdateDeliveryMethodDto, DeliveryMethodFilters } from '@backend/modules/products/repositories/delivery-method.repository';
+import { DeliveryMethod, DeliveryMethodType, CostCalculationType } from '@backend/modules/products/entities/delivery-method.entity';
 
 export interface DeliveryMethodListResponse {
   items: DeliveryMethod[];

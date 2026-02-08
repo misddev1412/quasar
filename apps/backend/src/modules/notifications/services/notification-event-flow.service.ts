@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationEventFlowRepository, NotificationEventFlowFilters, UpsertNotificationEventFlowDto } from '../repositories/notification-event-flow.repository';
-import { NotificationEventFlow } from '../entities/notification-event-flow.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannel } from '../entities/notification-preference.entity';
-import { UserRepository } from '../../user/repositories/user.repository';
+import { NotificationEventFlowRepository, NotificationEventFlowFilters, UpsertNotificationEventFlowDto } from '@backend/modules/notifications/repositories/notification-event-flow.repository';
+import { NotificationEventFlow } from '@backend/modules/notifications/entities/notification-event-flow.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
 import { PaginatedResult } from '@shared/types/common.types';
 
 export interface RecipientSummary {

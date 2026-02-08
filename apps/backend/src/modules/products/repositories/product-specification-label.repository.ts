@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductSpecificationLabel } from '../entities/product-specification-label.entity';
+import { ProductSpecificationLabel } from '@backend/modules/products/entities/product-specification-label.entity';
 
 export interface SearchSpecificationLabelsParams {
   page?: number;

@@ -3,9 +3,9 @@ import { Router, Query, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { SettingService } from '@backend/modules/settings/services/setting.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { getSettingByKeySchema } from '@backend/modules/settings/dto/setting.dto';
-import { AuthenticatedContext } from '../../context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 @Router({ alias: 'settings' })
 @Injectable()

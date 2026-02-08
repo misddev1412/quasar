@@ -2,10 +2,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { SupplierRepository } from '../repositories/supplier.repository';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { SupplierRepository } from '@backend/modules/products/repositories/supplier.repository';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 export const getSuppliersQuerySchema = z.object({
   page: z.number().min(1).default(1),

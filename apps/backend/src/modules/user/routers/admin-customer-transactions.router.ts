@@ -1,20 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { ResponseService } from '../../shared/services/response.service';
-import { AdminCustomerTransactionService } from '../services/admin/admin-customer-transaction.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AdminCustomerTransactionService } from '@backend/modules/user/services/admin/admin-customer-transaction.service';
 import {
   CustomerTransactionStatus,
   CustomerTransactionType,
   LedgerAccountType,
   LedgerEntryDirection,
   TransactionChannel,
-} from '../entities/customer-transaction.entity';
-import { CreateCustomerTransactionDto } from '../dto/admin/admin-customer-transaction.dto';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+} from '@backend/modules/user/entities/customer-transaction.entity';
+import { CreateCustomerTransactionDto } from '@backend/modules/user/dto/admin/admin-customer-transaction.dto';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 const transactionTypeSchema = z.nativeEnum(CustomerTransactionType);

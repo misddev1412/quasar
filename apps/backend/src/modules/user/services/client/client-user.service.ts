@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from '../../repositories/user.repository';
-import { AuthService } from '../../../../auth/auth.service';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { AuthService } from '@backend/auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { User } from '../../entities/user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 import { ApiStatusCodes, UserRole } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { 
@@ -11,7 +11,7 @@ import {
   ClientUpdateProfileDto,
   ClientUserResponseDto,
   ClientAuthResponseDto
-} from '../../dto/client/client-user.dto';
+} from '@backend/modules/user/dto/client/client-user.dto';
 
 @Injectable()
 export class ClientUserService {

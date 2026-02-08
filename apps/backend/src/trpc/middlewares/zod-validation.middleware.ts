@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
-import { AuthenticatedContext } from '../context';
-import { isZodError, formatZodError } from '../utils/zod-error-formatter';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { isZodError, formatZodError } from '@backend/trpc/utils/zod-error-formatter';
 
 /**
  * Middleware to handle Zod validation errors

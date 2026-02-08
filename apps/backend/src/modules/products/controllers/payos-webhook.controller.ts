@@ -1,9 +1,9 @@
 import { Body, Controller, Headers, Logger, Post, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderStatus, PaymentStatus } from '../entities/order.entity';
-import { CustomerTransaction, CustomerTransactionStatus } from '../../user/entities/customer-transaction.entity';
-import { PayosService } from '../services/payos.service';
+import { Order, OrderStatus, PaymentStatus } from '@backend/modules/products/entities/order.entity';
+import { CustomerTransaction, CustomerTransactionStatus } from '@backend/modules/user/entities/customer-transaction.entity';
+import { PayosService } from '@backend/modules/products/services/payos.service';
 
 @Controller('payment-webhooks/payos')
 export class PayosWebhookController {

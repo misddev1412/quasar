@@ -3,11 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ModuleRef } from '@nestjs/core';
 import { ContextOptions, TRPCContext } from 'nestjs-trpc';
 import { SupportedLocale, UserRole } from '@shared';
-import { resolveLocaleFromRequest } from '../modules/shared/utils/locale.util';
-import { Permission } from '../modules/user/entities/permission.entity';
-import { PermissionRepository } from '../modules/user/repositories/permission.repository';
-import { JwtPayload } from '../auth/auth.service';
-import { UserRepository } from '../modules/user/repositories/user.repository';
+import { resolveLocaleFromRequest } from '@backend/modules/shared/utils/locale.util';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
+import { PermissionRepository } from '@backend/modules/user/repositories/permission.repository';
+import { JwtPayload } from '@backend/auth/auth.service';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
 
 export interface AuthUser {
   id: string;

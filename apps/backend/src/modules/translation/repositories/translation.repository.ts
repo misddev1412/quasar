@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { Translation } from '../entities/translation.entity';
-import { TranslationRepositoryInterface } from '../interfaces/translation-repository.interface';
+import { Translation } from '@backend/modules/translation/entities/translation.entity';
+import { TranslationRepositoryInterface } from '@backend/modules/translation/interfaces/translation-repository.interface';
 
 @Injectable()
 export class TranslationRepository extends BaseRepository<Translation> implements TranslationRepositoryInterface {

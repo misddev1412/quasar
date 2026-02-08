@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseExportHandler } from '../handlers/base-export.handler';
+import { BaseExportHandler } from '@backend/modules/export/handlers/base-export.handler';
 
 @Injectable()
 export class ExportHandlerRegistry {

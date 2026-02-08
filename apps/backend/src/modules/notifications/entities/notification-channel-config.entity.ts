@@ -6,8 +6,8 @@ import {
   UpdateDateColumn,
   Unique,
 } from 'typeorm';
-import { NotificationChannel } from './notification-preference.entity';
-import { NotificationEvent } from './notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 @Entity('notification_channel_configs')
 @Unique(['eventKey'])

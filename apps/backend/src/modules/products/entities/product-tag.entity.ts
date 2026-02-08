@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 @Entity('product_tags')
 export class ProductTag extends BaseEntity {

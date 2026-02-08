@@ -2,11 +2,11 @@ import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../entities/user.entity';
-import { UserLoginProvider, AuthProvider } from '../entities/user-login-provider.entity';
-import { UserService } from './user.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { FirebaseAuthService as FirebaseService } from '../../firebase/services/firebase-auth.service';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { UserLoginProvider, AuthProvider } from '@backend/modules/user/entities/user-login-provider.entity';
+import { UserService } from '@backend/modules/user/services/user.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { FirebaseAuthService as FirebaseService } from '@backend/modules/firebase/services/firebase-auth.service';
 
 export interface FirebaseLoginDto {
   firebaseIdToken: string;

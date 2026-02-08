@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { ProductBundleEntity } from '../entities/product-bundle.entity';
-import { ProductBundleItemEntity, BundleItemMode } from '../entities/product-bundle-item.entity';
-import { Category } from '../../products/entities/category.entity';
-import { Product } from '../../products/entities/product.entity';
+import { ProductBundleEntity } from '@backend/modules/product-bundles/entities/product-bundle.entity';
+import { ProductBundleItemEntity, BundleItemMode } from '@backend/modules/product-bundles/entities/product-bundle-item.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 import slugify from 'slugify';
 
 @Injectable()

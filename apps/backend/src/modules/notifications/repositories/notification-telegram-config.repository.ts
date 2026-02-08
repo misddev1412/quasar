@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationTelegramConfigEntity } from '../entities/notification-telegram-config.entity';
+import { NotificationTelegramConfigEntity } from '@backend/modules/notifications/entities/notification-telegram-config.entity';
 
 export interface CreateTelegramConfigDto {
   name: string;

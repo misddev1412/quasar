@@ -1,9 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { BaseExportHandler, ExportPageResult } from '../../export/handlers/base-export.handler';
-import { ExportHandlerRegistry } from '../../export/services/export-handler.registry';
-import { OrderRepository, OrderFilters } from '../../products/repositories/order.repository';
-import { Order, OrderStatus, PaymentStatus, OrderSource } from '../../products/entities/order.entity';
-import { ORDER_EXPORT_COLUMNS } from '../../products/export/order-export.columns';
+import { BaseExportHandler, ExportPageResult } from '@backend/modules/export/handlers/base-export.handler';
+import { ExportHandlerRegistry } from '@backend/modules/export/services/export-handler.registry';
+import { OrderRepository, OrderFilters } from '@backend/modules/products/repositories/order.repository';
+import { Order, OrderStatus, PaymentStatus, OrderSource } from '@backend/modules/products/entities/order.entity';
+import { ORDER_EXPORT_COLUMNS } from '@backend/modules/products/export/order-export.columns';
 
 @Injectable()
 export class OrderExportHandler extends BaseExportHandler<Record<string, any>, Order> implements OnModuleInit {

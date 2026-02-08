@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { MailQueueRepository, EnqueueMailPayload } from '../repositories/mail-queue.repository';
-import { MailQueue } from '../entities/mail-queue.entity';
+import { MailQueueRepository, EnqueueMailPayload } from '@backend/modules/mail-queue/repositories/mail-queue.repository';
+import { MailQueue } from '@backend/modules/mail-queue/entities/mail-queue.entity';
 
 @Injectable()
 export class MailQueueService {

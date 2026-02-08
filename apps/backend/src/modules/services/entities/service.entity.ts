@@ -1,9 +1,9 @@
 import { Entity, Column, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { ServiceTranslation } from './service-translation.entity';
-import { ServiceItem } from './service-item.entity';
-import { Currency } from '../../products/entities/currency.entity';
+import { ServiceTranslation } from '@backend/modules/services/entities/service-translation.entity';
+import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
+import { Currency } from '@backend/modules/products/entities/currency.entity';
 
 @Entity('services')
 export class Service extends BaseEntity {

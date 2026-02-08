@@ -2,8 +2,8 @@
  * Worker Service Payloads
  * These interfaces define the structure of messages processed by worker queues
  */
-import { ExportJobPayload } from '../../export/interfaces/export-payload.interface';
-import { ExportFormat } from '../../export/entities/data-export-job.entity';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
+import { ExportFormat } from '@backend/modules/export/entities/data-export-job.entity';
 
 // Email Payloads
 export interface EmailPayload {

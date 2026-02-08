@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SiteContentEntity } from '../../modules/site-content/entities/site-content.entity';
+import { SiteContentEntity } from '@backend/modules/site-content/entities/site-content.entity';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 
 @Injectable()

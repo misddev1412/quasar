@@ -1,4 +1,4 @@
-import { formatZodError, isZodError } from './utils/zod-error-formatter';
+import { formatZodError, isZodError } from '@backend/trpc/utils/zod-error-formatter';
 
 /**
  * Map TRPC error code to HTTP status code

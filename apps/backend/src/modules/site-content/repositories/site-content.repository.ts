@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseRepository, SortOrder } from '@shared';
 import { PaginatedResult } from '@shared/types/common.types';
-import { SiteContentEntity } from '../entities/site-content.entity';
+import { SiteContentEntity } from '@backend/modules/site-content/entities/site-content.entity';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 
 export interface SiteContentListParams {

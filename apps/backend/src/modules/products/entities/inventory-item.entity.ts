@@ -1,10 +1,10 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { ProductVariant } from './product-variant.entity';
-import { Warehouse } from './warehouse.entity';
-import { WarehouseLocation } from './warehouse-location.entity';
-import { StockMovement } from './stock-movement.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { Warehouse } from '@backend/modules/products/entities/warehouse.entity';
+import { WarehouseLocation } from '@backend/modules/products/entities/warehouse-location.entity';
+import { StockMovement } from '@backend/modules/products/entities/stock-movement.entity';
 
 @Entity('inventory_items')
 export class InventoryItem extends BaseEntity {

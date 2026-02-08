@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ServicesService } from '../../../modules/services/services.service';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { apiResponseSchema, paginatedResponseSchema } from '../../schemas/response.schemas';
-import { ServiceFilterSchema } from '../../../modules/services/dto/service.dto';
+import { ServicesService } from '@backend/modules/services/services.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { ServiceFilterSchema } from '@backend/modules/services/dto/service.dto';
 
 const getServiceByIdSchema = z.object({
   id: z.string().uuid(),

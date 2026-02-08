@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, OneToMany, PrimaryColumn, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Country } from './country.entity';
+import { Country } from '@backend/modules/products/entities/country.entity';
 
 export enum AdministrativeDivisionType {
   PROVINCE = 'PROVINCE',

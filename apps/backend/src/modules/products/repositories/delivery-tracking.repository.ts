@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, Between, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeliveryTracking, TrackingStatus } from '../entities/delivery-tracking.entity';
+import { DeliveryTracking, TrackingStatus } from '@backend/modules/products/entities/delivery-tracking.entity';
 
 export interface DeliveryTrackingFilters {
   fulfillmentId?: string;

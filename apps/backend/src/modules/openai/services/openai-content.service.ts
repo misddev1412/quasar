@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { AdminProductService } from '../../products/services/admin-product.service';
-import { OpenAiConfigService } from './openai-config.service';
-import { MediaService } from '../../storage/services/media.service';
+import { AdminProductService } from '@backend/modules/products/services/admin-product.service';
+import { OpenAiConfigService } from '@backend/modules/openai/services/openai-config.service';
+import { MediaService } from '@backend/modules/storage/services/media.service';
 
 export interface GenerateSeoArticleInput {
   topic: string;

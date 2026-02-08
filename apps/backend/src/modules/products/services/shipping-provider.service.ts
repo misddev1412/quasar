@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { ShippingProviderRepository, ShippingProviderFilters, PaginatedShippingProviders } from '../repositories/shipping-provider.repository';
+import { ShippingProviderRepository, ShippingProviderFilters, PaginatedShippingProviders } from '@backend/modules/products/repositories/shipping-provider.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ApiStatusCodes } from '@shared';
-import { ShippingProvider, ShippingProviderStatus } from '../entities/shipping-provider.entity';
+import { ShippingProvider, ShippingProviderStatus } from '@backend/modules/products/entities/shipping-provider.entity';
 
 export interface CreateShippingProviderDto {
   name: string;

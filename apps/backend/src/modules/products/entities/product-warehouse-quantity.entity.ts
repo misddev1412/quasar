@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { Warehouse } from './warehouse.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { Warehouse } from '@backend/modules/products/entities/warehouse.entity';
 
 @Entity('product_warehouse_quantities')
 @Index(['productId', 'warehouseId'], { unique: true })

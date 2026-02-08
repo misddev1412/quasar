@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { FirebaseConfigService } from './firebase-config.service';
+import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
 import * as admin from 'firebase-admin';
-import { NotificationEvent } from '../../notifications/entities/notification-event.enum';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 export interface RealtimeOrderNotificationPayload {
   id: string;

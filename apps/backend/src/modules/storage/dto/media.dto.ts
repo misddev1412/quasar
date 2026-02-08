@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MediaType } from '../entities/media.entity';
+import { MediaType } from '@backend/modules/storage/entities/media.entity';
 
 // Create Media DTO
 export const createMediaSchema = z.object({

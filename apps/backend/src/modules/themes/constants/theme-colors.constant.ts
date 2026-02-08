@@ -1,4 +1,4 @@
-import { ThemeColorConfigDto, ThemeColorModesDto } from '../dto/theme.dto';
+import { ThemeColorConfigDto, ThemeColorModesDto } from '@backend/modules/themes/dto/theme.dto';
 
 export const DEFAULT_LIGHT_THEME_COLORS: ThemeColorConfigDto = {
   bodyBackgroundColor: '#ffffff',

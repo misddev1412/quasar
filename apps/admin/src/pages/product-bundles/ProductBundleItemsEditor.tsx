@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useFieldArray, useFormContext, Controller } from 'react-hook-form';
+import { useFieldArray, useFormContext, Controller, type Control, type FieldErrors, type UseFormRegister, type UseFormWatch } from 'react-hook-form';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -14,8 +14,53 @@ import { trpc, trpcClient } from '@admin/utils/trpc'; // Ensure correct import p
 import { FormInput, Select, AsyncSearchSelect, Button } from '@admin/components/common';
 
 // Sortable Item Component
-// Fix for TS2786: 'SortableContext' cannot be used as a JSX component
-const SortableList = SortableContext as any;
+// Local alias keeps JSX usage compatible with current dnd-kit typings.
+const SortableList = SortableContext as unknown as React.ComponentType<{
+    items: string[];
+    strategy: typeof verticalListSortingStrategy;
+    children: React.ReactNode;
+}>;
+
+type SelectOption = { label: string; value: string };
+
+type ProductBundleItemForm = {
+    label: string;
+    mode: 'category' | 'product';
+    categoryIds: string[];
+    productIds: string[];
+};
+
+type ProductBundleFormContext = {
+    items: ProductBundleItemForm[];
+};
+
+type CategorySummary = { id: string; name: string };
+type ProductSummary = { id: string; name: string };
+
+type ListQueryResponse<T> = {
+    data?: {
+        items?: T[];
+    };
+    items?: T[];
+};
+
+interface SortableItemProps {
+    id: string;
+    index: number;
+    remove: (index: number) => void;
+    control: Control<ProductBundleFormContext>;
+    register: UseFormRegister<ProductBundleFormContext>;
+    t: (key: string, fallback?: string) => string;
+    categoryOptions: SelectOption[];
+    productOptions: SelectOption[];
+    watch: UseFormWatch<ProductBundleFormContext>;
+    errors: FieldErrors<ProductBundleFormContext>;
+    styles: Record<string, unknown>;
+    loadCategoryOptions: (inputValue: string) => Promise<SelectOption[]>;
+    loadProductOptions: (inputValue: string) => Promise<SelectOption[]>;
+    getCategoryOptionsForValue: (ids: string[]) => SelectOption[];
+    getProductOptionsForValue: (ids: string[]) => SelectOption[];
+}
 
 const SortableItem = ({
     id,
@@ -33,7 +78,7 @@ const SortableItem = ({
     loadProductOptions,
     getCategoryOptionsForValue,
     getProductOptionsForValue,
-}: any) => {
+}: SortableItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
     const style = {
@@ -115,8 +160,9 @@ const SortableItem = ({
                                     loadOptions={loadCategoryOptions}
                                     cacheOptions={false}
                                     value={getCategoryOptionsForValue(value || [])}
-                                    onChange={(newValue: any) => {
-                                        onChange(newValue.map((v: any) => v.value));
+                                    onChange={(newValue) => {
+                                        const typedValue = (newValue || []) as SelectOption[];
+                                        onChange(typedValue.map((v) => v.value));
                                     }}
                                     placeholder={t('product_bundles.select_categories_placeholder', 'Select categories...')}
                                     styles={styles}
@@ -135,8 +181,9 @@ const SortableItem = ({
                                     loadOptions={loadProductOptions}
                                     cacheOptions={false}
                                     value={getProductOptionsForValue(value || [])}
-                                    onChange={(newValue: any) => {
-                                        onChange(newValue.map((v: any) => v.value));
+                                    onChange={(newValue) => {
+                                        const typedValue = (newValue || []) as SelectOption[];
+                                        onChange(typedValue.map((v) => v.value));
                                     }}
                                     placeholder={t('product_bundles.select_products_placeholder', 'Select products...')}
                                     styles={styles}
@@ -152,7 +199,7 @@ const SortableItem = ({
 
 export const ProductBundleItemsEditor: React.FC = () => {
     // We use useFormContext instead of passing props
-    const { control, register, watch, formState: { errors } } = useFormContext();
+    const { control, register, watch, formState: { errors } } = useFormContext<ProductBundleFormContext>();
     const { t } = useTranslationWithBackend();
 
 
@@ -181,34 +228,38 @@ export const ProductBundleItemsEditor: React.FC = () => {
     const RESULT_LIMIT = 10;
 
     // Fetch Categories and Products (latest 10)
-    const { data: categories } = (trpc as any).adminProductCategories.getAll.useQuery({
+    const { data: categories } = (trpc as unknown as {
+        adminProductCategories: { getAll: { useQuery: (input: Record<string, unknown>) => { data?: ListQueryResponse<CategorySummary> } } };
+    }).adminProductCategories.getAll.useQuery({
         limit: RESULT_LIMIT,
         page: 1,
         sortBy: 'createdAt',
         sortOrder: 'DESC',
     });
-    const { data: products } = (trpc as any).adminProducts.list.useQuery({
+    const { data: products } = (trpc as unknown as {
+        adminProducts: { list: { useQuery: (input: Record<string, unknown>) => { data?: ListQueryResponse<ProductSummary> } } };
+    }).adminProducts.list.useQuery({
         limit: RESULT_LIMIT,
         page: 1,
     });
 
-    const categoryItems = (categories as any)?.data?.items || (categories as any)?.items || [];
-    const productItems = (products as any)?.data?.items || (products as any)?.items || [];
+    const categoryItems = categories?.data?.items || categories?.items || [];
+    const productItems = products?.data?.items || products?.items || [];
 
-    const categoryOptions = categoryItems.map((c: any) => ({ label: c.name, value: c.id }));
-    const productOptions = productItems.map((p: any) => ({ label: p.name, value: p.id }));
+    const categoryOptions: SelectOption[] = categoryItems.map((c) => ({ label: c.name, value: c.id }));
+    const productOptions: SelectOption[] = productItems.map((p) => ({ label: p.name, value: p.id }));
 
     const categoryOptionCache = useRef(new Map<string, string>());
     const productOptionCache = useRef(new Map<string, string>());
 
     useEffect(() => {
-        categoryOptions.forEach((opt: any) => {
+        categoryOptions.forEach((opt) => {
             categoryOptionCache.current.set(opt.value, opt.label);
         });
     }, [categoryOptions]);
 
     useEffect(() => {
-        productOptions.forEach((opt: any) => {
+        productOptions.forEach((opt) => {
             productOptionCache.current.set(opt.value, opt.label);
         });
     }, [productOptions]);
@@ -235,7 +286,9 @@ export const ProductBundleItemsEditor: React.FC = () => {
             }
 
             try {
-                const result = await (trpcClient as any).adminProductCategories.getAll.query({
+                const result = await (trpcClient as unknown as {
+                    adminProductCategories: { getAll: { query: (input: Record<string, unknown>) => Promise<ListQueryResponse<CategorySummary>> } };
+                }).adminProductCategories.getAll.query({
                     limit: RESULT_LIMIT,
                     page: 1,
                     search,
@@ -243,8 +296,8 @@ export const ProductBundleItemsEditor: React.FC = () => {
                     sortOrder: 'DESC',
                 });
                 const items = result?.data?.items || result?.items || [];
-                const options = items.map((c: any) => ({ label: c.name, value: c.id }));
-                options.forEach((opt: any) => {
+                const options: SelectOption[] = items.map((c) => ({ label: c.name, value: c.id }));
+                options.forEach((opt) => {
                     categoryOptionCache.current.set(opt.value, opt.label);
                 });
                 return options;
@@ -263,14 +316,16 @@ export const ProductBundleItemsEditor: React.FC = () => {
             }
 
             try {
-                const result = await (trpcClient as any).adminProducts.list.query({
+                const result = await (trpcClient as unknown as {
+                    adminProducts: { list: { query: (input: Record<string, unknown>) => Promise<ListQueryResponse<ProductSummary>> } };
+                }).adminProducts.list.query({
                     limit: RESULT_LIMIT,
                     page: 1,
                     search,
                 });
                 const items = result?.data?.items || result?.items || [];
-                const options = items.map((p: any) => ({ label: p.name, value: p.id }));
-                options.forEach((opt: any) => {
+                const options: SelectOption[] = items.map((p) => ({ label: p.name, value: p.id }));
+                options.forEach((opt) => {
                     productOptionCache.current.set(opt.value, opt.label);
                 });
                 return options;
@@ -282,18 +337,18 @@ export const ProductBundleItemsEditor: React.FC = () => {
     );
 
     const selectStyles = {
-        multiValue: (base: any) => ({
+        multiValue: (base: Record<string, unknown>) => ({
             ...base,
             backgroundColor: '#eef2ff',
             borderRadius: '9999px',
             padding: '2px 6px',
         }),
-        multiValueLabel: (base: any) => ({
+        multiValueLabel: (base: Record<string, unknown>) => ({
             ...base,
             color: '#4338ca',
             fontWeight: 500,
         }),
-        multiValueRemove: (base: any) => ({
+        multiValueRemove: (base: Record<string, unknown>) => ({
             ...base,
             color: '#4338ca',
             borderRadius: '9999px',

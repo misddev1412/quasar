@@ -33,6 +33,38 @@ import { ProductFilters, ProductFiltersType } from '@admin/components/features';
 import { ProductVariantsQuickViewModal, ProductVariantQuickEditModal, ProductImportModal } from '@admin/components/products';
 import Swal from 'sweetalert2';
 
+type ApiEnvelope<T> = { data?: T };
+
+type ProductsListPayload = {
+  products?: Product[];
+  items?: Product[];
+  total?: number;
+};
+
+type ProductsStatsPayload = {
+  totalProducts?: number;
+  activeProducts?: number;
+  draftProducts?: number;
+  inactiveProducts?: number;
+  featuredProducts?: number;
+  totalStockValue?: number;
+  totalViews?: number;
+  totalTrend?: { value: number; isPositive: boolean; label: string };
+  activeTrend?: { value: number; isPositive: boolean; label: string };
+  draftTrend?: { value: number; isPositive: boolean; label: string };
+};
+
+type VariantUpdatePayload = ProductVariant;
+
+type BulkActionPayload = {
+  updated?: number;
+  deleted?: number;
+};
+
+const getEnvelopeData = <T,>(value: unknown): T | undefined => {
+  return (value as ApiEnvelope<T> | undefined)?.data;
+};
+
 interface ProductVariantInlineListProps {
   product: Product;
   emptyMessage: string;
@@ -304,7 +336,7 @@ export const ProductsPage: React.FC = () => {
 
   // Initial filters from URL
   const [initialFilters] = useState(() => ({
-    status: searchParams.get('status') as any || undefined,
+    status: (searchParams.get('status') as ProductFiltersType['status']) || undefined,
     brandId: searchParams.get('brandId') || undefined,
     categoryIds: searchParams.get('categoryIds') ? searchParams.get('categoryIds')?.split(',') : undefined,
     isFeatured: searchParams.get('isFeatured') === 'true' ? true : searchParams.get('isFeatured') === 'false' ? false : undefined,
@@ -429,7 +461,7 @@ export const ProductsPage: React.FC = () => {
     setInlineVariantSavingId(payload.id);
     try {
       const response = await updateVariantMutation.mutateAsync(payload);
-      const updatedVariant = (response as any)?.data as ProductVariant | undefined;
+      const updatedVariant = getEnvelopeData<VariantUpdatePayload>(response);
 
       if (updatedVariant) {
         setProductForVariants((prev) => {
@@ -448,8 +480,10 @@ export const ProductsPage: React.FC = () => {
       });
 
       await trpcContext.adminProducts.list.invalidate();
-    } catch (mutationError: any) {
-      const message = mutationError?.message || t('products.update_variant_error', 'Failed to update variant.');
+    } catch (mutationError: unknown) {
+      const message = mutationError instanceof Error
+        ? mutationError.message
+        : t('products.update_variant_error', 'Failed to update variant.');
       addToast({
         type: 'error',
         title: t('common.error', 'Error'),
@@ -477,7 +511,7 @@ export const ProductsPage: React.FC = () => {
   }) => {
     try {
       const response = await updateVariantMutation.mutateAsync(payload);
-      const updatedVariant = (response as any)?.data as ProductVariant | undefined;
+      const updatedVariant = getEnvelopeData<VariantUpdatePayload>(response);
 
       if (updatedVariant) {
         setProductForVariants((prev) => {
@@ -498,8 +532,10 @@ export const ProductsPage: React.FC = () => {
       await trpcContext.adminProducts.list.invalidate();
       setVariantEditModalOpen(false);
       setVariantForEdit(null);
-    } catch (mutationError: any) {
-      const message = mutationError?.message || t('products.update_variant_error', 'Failed to update variant.');
+    } catch (mutationError: unknown) {
+      const message = mutationError instanceof Error
+        ? mutationError.message
+        : t('products.update_variant_error', 'Failed to update variant.');
       addToast({
         type: 'error',
         title: t('common.error', 'Error'),
@@ -516,7 +552,7 @@ export const ProductsPage: React.FC = () => {
     setTogglingVariantId(variant.id);
     try {
       const response = await updateVariantMutation.mutateAsync({ id: variant.id, isActive: nextValue });
-      const updatedVariant = (response as any)?.data as ProductVariant | undefined;
+      const updatedVariant = getEnvelopeData<VariantUpdatePayload>(response);
 
       if (updatedVariant) {
         setProductForVariants((prev) => {
@@ -537,8 +573,10 @@ export const ProductsPage: React.FC = () => {
       });
 
       await trpcContext.adminProducts.list.invalidate();
-    } catch (mutationError: any) {
-      const message = mutationError?.message || t('products.update_variant_error', 'Failed to update variant.');
+    } catch (mutationError: unknown) {
+      const message = mutationError instanceof Error
+        ? mutationError.message
+        : t('products.update_variant_error', 'Failed to update variant.');
       addToast({
         type: 'error',
         title: t('common.error', 'Error'),
@@ -576,8 +614,9 @@ export const ProductsPage: React.FC = () => {
     );
   }, [handleInlineVariantUpdate, handleOpenVariantsModal, inlineVariantSavingId, t]);
 
-  const products = (productsData as any)?.data?.products || (productsData as any)?.data?.items || [];
-  const totalProducts = (productsData as any)?.data?.total || 0;
+  const productsList = getEnvelopeData<ProductsListPayload>(productsData);
+  const products = productsList?.products || productsList?.items || [];
+  const totalProducts = productsList?.total || 0;
   const totalPages = Math.ceil(totalProducts / limit);
 
   // Fetch product statistics
@@ -587,8 +626,19 @@ export const ProductsPage: React.FC = () => {
   });
 
   // Use API statistics data or calculate from existing data as fallback
-  const statisticsData = useMemo(() => {
-    const apiStats = (statsData as any)?.data;
+  const statisticsData = useMemo<ApiEnvelope<{
+    total: number;
+    active: number;
+    draft: number;
+    inactive: number;
+    featured: number;
+    totalViews: number;
+    totalStockValue?: number;
+    totalTrend?: { value: number; isPositive: boolean; label: string };
+    activeTrend?: { value: number; isPositive: boolean; label: string };
+    draftTrend?: { value: number; isPositive: boolean; label: string };
+  }> | null>(() => {
+    const apiStats = getEnvelopeData<ProductsStatsPayload>(statsData);
     if (apiStats) {
       return {
         data: {
@@ -641,8 +691,9 @@ export const ProductsPage: React.FC = () => {
       // TODO: Implement delete mutation when available
       addToast({ type: 'success', title: t('products.deleteSuccess', 'Product deleted') });
       refetch();
-    } catch (e: any) {
-      addToast({ type: 'error', title: t('products.deleteError', 'Delete failed'), description: e?.message || t('products.deleteError', 'Failed to delete product') });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : t('products.deleteError', 'Failed to delete product');
+      addToast({ type: 'error', title: t('products.deleteError', 'Delete failed'), description: message });
     }
   }, [addToast, refetch]);
 
@@ -691,7 +742,7 @@ export const ProductsPage: React.FC = () => {
     try {
       const ids = Array.from(selectedProductIds).map(String);
       const response = await bulkActionMutation.mutateAsync({ ids, action });
-      const result = (response as any)?.data || {};
+      const result = getEnvelopeData<BulkActionPayload>(response) || {};
       const affected = result.updated ?? result.deleted ?? ids.length;
 
       const successMessages = {
@@ -710,11 +761,14 @@ export const ProductsPage: React.FC = () => {
       setSelectedProductIds(new Set<string | number>());
       await trpcContext.adminProducts.list.invalidate();
       refetch();
-    } catch (mutationError: any) {
+    } catch (mutationError: unknown) {
+      const message = mutationError instanceof Error
+        ? mutationError.message
+        : t('products.bulk_action_error', 'Failed to perform bulk action.');
       addToast({
         type: 'error',
         title: t('common.error', 'Error'),
-        description: mutationError?.message || t('products.bulk_action_error', 'Failed to perform bulk action.'),
+        description: message,
       });
     }
   }, [selectedProductIds, addToast, t, bulkActionMutation, trpcContext, refetch]);
@@ -1006,7 +1060,7 @@ export const ProductsPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => {
     if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
 
-    const stats = (statisticsData as any)?.data;
+    const stats = statisticsData?.data;
     if (!stats) return [];
 
     return [
@@ -1090,7 +1144,7 @@ export const ProductsPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );

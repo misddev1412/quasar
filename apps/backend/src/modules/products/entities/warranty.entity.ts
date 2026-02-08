@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 export enum WarrantyType {
   MANUFACTURER = 'MANUFACTURER',

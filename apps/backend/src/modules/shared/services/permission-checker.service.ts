@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PermissionRepository } from '../../user/repositories/permission.repository';
-import { Permission } from '../../user/entities/permission.entity';
-import { Role } from '../../user/entities/role.entity';
+import { PermissionRepository } from '@backend/modules/user/repositories/permission.repository';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
 
 export interface PermissionCheck {

@@ -11,6 +11,56 @@ import { Currency, CurrencyFiltersType } from '@admin/types/currency';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { useUrlParams, urlParamValidators } from '@admin/hooks/useUrlParams';
 
+type CurrencyListResponse = {
+  data?: {
+    items?: Array<Partial<Currency> & { exchange_rate?: unknown }>;
+    page?: number;
+    limit?: number;
+    total?: number;
+    totalPages?: number;
+  };
+};
+
+type CurrencyMutationInput = { id: string };
+
+type AdminCurrencyApi = {
+  getCurrencies: {
+    useQuery: (input: CurrencyFiltersType) => {
+      data?: CurrencyListResponse;
+      isLoading: boolean;
+      error: { message?: string } | null;
+      refetch: () => void;
+    };
+  };
+  deleteCurrency: {
+    useMutation: (options: {
+      onSuccess: () => void;
+      onError: (error: { message?: string }) => void;
+    }) => {
+      mutate: (input: CurrencyMutationInput) => void;
+      isPending: boolean;
+    };
+  };
+  toggleCurrencyStatus: {
+    useMutation: (options: {
+      onSuccess: () => void;
+      onError: (error: { message?: string }) => void;
+    }) => {
+      mutate: (input: CurrencyMutationInput) => void;
+    };
+  };
+  setDefaultCurrency: {
+    useMutation: (options: {
+      onSuccess: () => void;
+      onError: (error: { message?: string }) => void;
+    }) => {
+      mutate: (input: CurrencyMutationInput) => void;
+    };
+  };
+};
+
+const adminCurrencyApi = trpc.adminCurrency as unknown as AdminCurrencyApi;
+
 const normalizeExchangeRate = (value: unknown): number => {
   if (typeof value === 'number') {
     return value;
@@ -74,10 +124,9 @@ const CurrenciesIndexPage: React.FC = () => {
     preferences.updateVisibleColumns(columns);
   };
 
-  // tRPC queries - using type assertion to resolve TypeScript issues
-  const currenciesQuery = (trpc.adminCurrency as any).getCurrencies.useQuery(filters);
+  const currenciesQuery = adminCurrencyApi.getCurrencies.useQuery(filters);
 
-  const deleteCurrencyMutation = (trpc.adminCurrency as any).deleteCurrency.useMutation({
+  const deleteCurrencyMutation = adminCurrencyApi.deleteCurrency.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -95,7 +144,7 @@ const CurrenciesIndexPage: React.FC = () => {
     },
   });
 
-  const toggleStatusMutation = (trpc.adminCurrency as any).toggleCurrencyStatus.useMutation({
+  const toggleStatusMutation = adminCurrencyApi.toggleCurrencyStatus.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -112,7 +161,7 @@ const CurrenciesIndexPage: React.FC = () => {
     },
   });
 
-  const setDefaultMutation = (trpc.adminCurrency as any).setDefaultCurrency.useMutation({
+  const setDefaultMutation = adminCurrencyApi.setDefaultCurrency.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -132,11 +181,9 @@ const CurrenciesIndexPage: React.FC = () => {
   // Data processing
   const { data: apiResponse, isLoading, error } = currenciesQuery;
   const currencies: Currency[] = useMemo(() => {
-    const items = Array.isArray((apiResponse as any)?.data?.items)
-      ? (apiResponse as any).data.items
-      : [];
+    const items = Array.isArray(apiResponse?.data?.items) ? apiResponse.data.items : [];
 
-    return items.map((currency: any) => {
+    return items.map((currency) => {
       const rawExchangeRate = currency?.exchangeRate ?? currency?.exchange_rate;
 
       return {
@@ -146,7 +193,7 @@ const CurrenciesIndexPage: React.FC = () => {
     });
   }, [apiResponse]);
 
-  const pagination = (apiResponse as any)?.data || {
+  const pagination = apiResponse?.data || {
     page: 1,
     limit: 10,
     total: 0,

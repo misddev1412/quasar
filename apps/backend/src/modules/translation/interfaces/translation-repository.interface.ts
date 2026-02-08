@@ -1,5 +1,5 @@
 import { IBaseRepository } from '@shared';
-import { Translation } from '../entities/translation.entity';
+import { Translation } from '@backend/modules/translation/entities/translation.entity';
 
 export interface TranslationRepositoryInterface extends IBaseRepository<Translation> {
   findByKeyAndLocale(key: string, locale: string): Promise<Translation | null>;

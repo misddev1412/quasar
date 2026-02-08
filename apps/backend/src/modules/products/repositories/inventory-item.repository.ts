@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { InventoryItem } from '../entities';
+import { InventoryItem } from '@backend/modules/products/entities';
 
 @Injectable()
 export class InventoryItemRepository extends BaseRepository<InventoryItem> {

@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query } from 'nestjs-trpc';
-import { ResponseService } from '../../shared/services/response.service';
-import { AdminLanguageService } from '../services/admin-language.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AdminLanguageService } from '@backend/modules/language/services/admin-language.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 @Router({ alias: 'clientLanguage' })
 @Injectable()

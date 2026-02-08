@@ -1,6 +1,6 @@
 import { Column, Entity, Index, ManyToOne, Unique, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { SectionEntity } from './section.entity';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
 
 @Entity('section_translations')
 @Unique(['sectionId', 'locale'])

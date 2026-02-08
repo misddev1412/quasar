@@ -1,1 +1,1 @@
-export * from './support-client.repository';
+export * from '@backend/modules/support/repositories/support-client.repository';

@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
-import { Visitor } from './visitor.entity';
-import { PageView } from './page-view.entity';
+import { Visitor } from '@backend/modules/visitor/entities/visitor.entity';
+import { PageView } from '@backend/modules/visitor/entities/page-view.entity';
 
 export enum SessionStatus {
   ACTIVE = 'active',

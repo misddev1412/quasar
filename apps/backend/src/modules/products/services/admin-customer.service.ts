@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { CustomerRepository } from '../repositories/customer.repository';
+import { CustomerRepository } from '@backend/modules/products/repositories/customer.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { Customer, CustomerStatus, CustomerType } from '../entities/customer.entity';
+import { Customer, CustomerStatus, CustomerType } from '@backend/modules/products/entities/customer.entity';
 import { ApiStatusCodes } from '@shared';
 
 export interface AdminCustomerFilters {

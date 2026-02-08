@@ -1,5 +1,5 @@
 import { IBaseRepository } from '@shared';
-import { SettingEntity } from '../entities/setting.entity';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
 
 export interface SettingRepositoryInterface extends IBaseRepository<SettingEntity> {
   

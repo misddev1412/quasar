@@ -6,6 +6,7 @@
 - Always pass `isSubmitting` from the page-level mutation to the template.
 - Use translated `entityName` / `entityNamePlural` keys when available; avoid raw strings.
 - Use an icon with the standard color classes: `text-primary-600 dark:text-primary-400`.
+- Do not declare page-specific DTO/entity types inline in page files when reusable; place them in `apps/admin/src/types/*` and import via type-only imports.
 
 ## Exceptions
 - If a page must be narrow for a reason (e.g., wizard, modal-like flow), document the reason inline in the page file.

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { MailLog, MailLogStatus } from '../entities/mail-log.entity';
-import { CreateMailLogDto, MailLogFilters, MailLogStatistics } from '../dto/mail-log.dto';
+import { MailLog, MailLogStatus } from '@backend/modules/mail-log/entities/mail-log.entity';
+import { CreateMailLogDto, MailLogFilters, MailLogStatistics } from '@backend/modules/mail-log/dto/mail-log.dto';
 
 @Injectable()
 export class MailLogRepository extends BaseRepository<MailLog> {

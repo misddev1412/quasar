@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Currency } from '../entities/currency.entity';
+import { Currency } from '@backend/modules/products/entities/currency.entity';
 
 export interface CurrencyListFilters {
   page?: number;

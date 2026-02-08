@@ -9,7 +9,7 @@ import {
     Index,
     Unique,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 @Entity('user_devices')
 @Index(['userId'])

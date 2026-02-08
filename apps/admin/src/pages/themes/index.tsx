@@ -4,7 +4,7 @@ import { StandardListPage, Button, Input, Toggle, TextareaInput, Modal, Confirma
 import { withAdminSeo } from '@admin/components/SEO';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
-import { ThemeRecord, ThemeColorConfig, ThemeColorModes } from '@admin/types/theme';
+import { ThemeRecord, ThemeColorConfig, ThemeColorModes, ThemeListResponse } from '@admin/types/theme';
 import { defaultThemeConfig } from '@admin/config/theme.config';
 import { trpc } from '@admin/utils/trpc';
 import clsx from 'clsx';
@@ -90,10 +90,9 @@ const ThemeManagementPage: React.FC = () => {
   const toggleStatusMutation = trpc.adminThemes.toggleThemeStatus.useMutation();
   const setDefaultThemeMutation = trpc.adminThemes.setDefaultTheme.useMutation();
 
-  const themes = Array.isArray((themesQuery.data as any)?.data?.items)
-    ? ((themesQuery.data as any).data.items as ThemeRecord[])
-    : [];
-  const pagination = (themesQuery.data as any)?.data || {
+  const themesData = (themesQuery.data as ThemeListResponse | undefined)?.data;
+  const themes: ThemeRecord[] = Array.isArray(themesData?.items) ? themesData.items : [];
+  const pagination = themesData || {
     page: filters.page,
     limit: filters.limit,
     total: 0,
@@ -161,21 +160,18 @@ const ThemeManagementPage: React.FC = () => {
       colors: cloneColorModes(formState.colors),
       ...(formState.setAsDefault ? { isDefault: true } : {}),
     };
-    // Cast until backend AppRouter types for theme mutations are regenerated
-    const trpcPayload = payload as any;
-
     try {
       if (editingTheme) {
         await updateThemeMutation.mutateAsync({
           id: editingTheme.id,
-          data: trpcPayload,
+          data: payload,
         });
         addToast({
           type: 'success',
           title: t('themes.toast.updated', 'Theme updated'),
         });
       } else {
-        await createThemeMutation.mutateAsync(trpcPayload);
+        await createThemeMutation.mutateAsync(payload);
         addToast({
           type: 'success',
           title: t('themes.toast.created', 'Theme created'),
@@ -183,11 +179,12 @@ const ThemeManagementPage: React.FC = () => {
       }
       invalidateThemes();
       closeModal();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('themes.toast.failed', 'Operation failed'),
-        description: error?.message,
+        description: message,
       });
     }
   };
@@ -201,11 +198,12 @@ const ThemeManagementPage: React.FC = () => {
         title: t('themes.toast.deleted', 'Theme deleted'),
       });
       invalidateThemes();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('themes.toast.failed', 'Operation failed'),
-        description: error?.message,
+        description: message,
       });
     } finally {
       setConfirmState({ open: false });
@@ -222,11 +220,12 @@ const ThemeManagementPage: React.FC = () => {
           : t('themes.toast.activated', 'Theme activated'),
       });
       invalidateThemes();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('themes.toast.failed', 'Operation failed'),
-        description: error?.message,
+        description: message,
       });
     }
   };
@@ -239,11 +238,12 @@ const ThemeManagementPage: React.FC = () => {
         title: t('themes.toast.default_updated', 'Default theme updated'),
       });
       invalidateThemes();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('themes.toast.failed', 'Operation failed'),
-        description: error?.message,
+        description: message,
       });
     }
   };

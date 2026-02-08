@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { SectionTranslationEntity } from '../entities/section-translation.entity';
+import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
 
 @Injectable()
 export class SectionTranslationRepository extends BaseRepository<SectionTranslationEntity> {

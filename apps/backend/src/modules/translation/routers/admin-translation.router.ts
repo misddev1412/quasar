@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminTranslationService } from '../services/admin-translation.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminTranslationService } from '@backend/modules/translation/services/admin-translation.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 const createTranslationSchema = z.object({
   key: z.string().min(1).max(255),

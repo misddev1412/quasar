@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
-import { EmailChannel } from '../entities/email-channel.entity';
-import { EmailChannelRepository } from '../repositories/email-channel.repository';
-import { CreateEmailChannelDto, UpdateEmailChannelDto } from '../dto/email-channel.dto';
+import { EmailChannel } from '@backend/modules/email-channel/entities/email-channel.entity';
+import { EmailChannelRepository } from '@backend/modules/email-channel/repositories/email-channel.repository';
+import { CreateEmailChannelDto, UpdateEmailChannelDto } from '@backend/modules/email-channel/dto/email-channel.dto';
 
 @Injectable()
 export class EmailChannelService {

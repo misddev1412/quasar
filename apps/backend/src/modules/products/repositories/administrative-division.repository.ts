@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { AdministrativeDivision } from '../entities/administrative-division.entity';
+import { AdministrativeDivision } from '@backend/modules/products/entities/administrative-division.entity';
 
 @Injectable()
 export class AdministrativeDivisionRepository {

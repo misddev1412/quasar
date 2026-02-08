@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { LoyaltyTierRepository } from '../repositories/loyalty-tier.repository';
-import { LoyaltyRewardRepository } from '../repositories/loyalty-reward.repository';
-import { LoyaltyTransactionRepository } from '../repositories/loyalty-transaction.repository';
+import { LoyaltyTierRepository } from '@backend/modules/loyalty/repositories/loyalty-tier.repository';
+import { LoyaltyRewardRepository } from '@backend/modules/loyalty/repositories/loyalty-reward.repository';
+import { LoyaltyTransactionRepository } from '@backend/modules/loyalty/repositories/loyalty-transaction.repository';
 
 export interface LoyaltyStatsDto {
   totalTiers: number;

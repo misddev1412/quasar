@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { MailTemplateRepository } from '../repositories/mail-template.repository';
+import { MailTemplateRepository } from '@backend/modules/mail-template/repositories/mail-template.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { MailTemplate } from '../entities/mail-template.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
 import { ApiStatusCodes } from '@shared';
 import { 
   CreateMailTemplateDto, 
@@ -11,7 +11,7 @@ import {
   MailTemplateFilters,
   ProcessTemplateDto,
   ProcessedTemplateResponseDto
-} from '../dto/mail-template.dto';
+} from '@backend/modules/mail-template/dto/mail-template.dto';
 import { PaginatedResult } from '@shared/types/common.types';
 
 @Injectable()

@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository, UserRole } from '@shared';
-import { User } from '../entities/user.entity';
-import { UserProfile } from '../entities/user-profile.entity';
-import { UserRole as UserRoleEntity } from '../entities/user-role.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { UserProfile } from '@backend/modules/user/entities/user-profile.entity';
+import { UserRole as UserRoleEntity } from '@backend/modules/user/entities/user-role.entity';
 import {
   IUserRepository,
   CreateUserDto,
   UpdateUserDto,
   UpdateUserProfileDto
-} from '../interfaces/user-repository.interface';
+} from '@backend/modules/user/interfaces/user-repository.interface';
 
 export interface UserFilters {
   page: number;

@@ -6,8 +6,8 @@ import {
     ManyToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Product } from './product.entity';
-// import { User } from '../../users/entities/user.entity'; // Assuming User entity location, will adjust if needed
+import { Product } from '@backend/modules/products/entities/product.entity';
+// import { User } from '@backend/modules/users/entities/user.entity'; // Assuming User entity location, will adjust if needed
 
 @Entity('product_price_history')
 export class ProductPriceHistory {

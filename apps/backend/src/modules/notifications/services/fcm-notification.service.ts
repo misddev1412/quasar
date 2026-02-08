@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { FirebaseMessagingService, FCMPayload } from './firebase-messaging.service';
-import { NotificationService } from './notification.service';
-import { NotificationType } from '../entities/notification.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
+import { FirebaseMessagingService, FCMPayload } from '@backend/modules/notifications/services/firebase-messaging.service';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 export interface FCMNotificationOptions {
   title: string;

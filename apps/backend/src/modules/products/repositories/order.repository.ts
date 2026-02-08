@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Between } from 'typeorm';
-import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
-import { OrderItem } from '../entities/order-item.entity';
+import { Order, OrderStatus, PaymentStatus, OrderSource } from '@backend/modules/products/entities/order.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
 import { SettingService } from '@backend/modules/settings/services/setting.service';
 
 export interface OrderFilters {

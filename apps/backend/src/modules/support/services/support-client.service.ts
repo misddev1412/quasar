@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { SupportClientRepository } from '../repositories/support-client.repository';
-import { SupportClient, SupportClientType, WidgetPosition, WidgetTheme, WidgetSettings } from '../entities/support-client.entity';
+import { SupportClientRepository } from '@backend/modules/support/repositories/support-client.repository';
+import { SupportClient, SupportClientType, WidgetPosition, WidgetTheme, WidgetSettings } from '@backend/modules/support/entities/support-client.entity';
 
 @Injectable()
 export class SupportClientService {

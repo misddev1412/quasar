@@ -10,10 +10,10 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { User } from '../../user/entities/user.entity';
-import { PostTranslation } from './post-translation.entity';
-import { PostCategory } from './post-category.entity';
-import { PostTag } from './post-tag.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { PostTranslation } from '@backend/modules/posts/entities/post-translation.entity';
+import { PostCategory } from '@backend/modules/posts/entities/post-category.entity';
+import { PostTag } from '@backend/modules/posts/entities/post-tag.entity';
 
 export interface PostGalleryImage {
   id?: string;

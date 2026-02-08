@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NotificationService } from '../../notifications/services/notification.service';
-import { NotificationEvent } from '../../notifications/entities/notification-event.enum';
-import { OrderPayload, OrderResult } from '../interfaces/worker-payloads.interface';
-import { WorkerEmailService } from './worker-email.service';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { OrderPayload, OrderResult } from '@backend/modules/worker-services/interfaces/worker-payloads.interface';
+import { WorkerEmailService } from '@backend/modules/worker-services/services/worker-email.service';
 
 @Injectable()
 export class WorkerOrderService {

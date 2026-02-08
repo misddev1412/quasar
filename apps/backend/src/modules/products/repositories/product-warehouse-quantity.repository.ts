@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductWarehouseQuantity } from '../entities/product-warehouse-quantity.entity';
+import { ProductWarehouseQuantity } from '@backend/modules/products/entities/product-warehouse-quantity.entity';
 
 export interface CreateProductWarehouseQuantityDto {
   productId: string;

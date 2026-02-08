@@ -1,10 +1,10 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Media, MediaType } from '../entities/media.entity';
-import { MediaRelation } from '../entities/media-relation.entity';
-import { FileUploadService } from './file-upload.service';
-import { CreateMediaDto, UpdateMediaDto, MediaListQueryDto } from '../dto/media.dto';
+import { Media, MediaType } from '@backend/modules/storage/entities/media.entity';
+import { MediaRelation } from '@backend/modules/storage/entities/media-relation.entity';
+import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { CreateMediaDto, UpdateMediaDto, MediaListQueryDto } from '@backend/modules/storage/dto/media.dto';
 
 @Injectable()
 export class MediaService {

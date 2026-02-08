@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SupportClient } from './entities/support-client.entity';
-import { Inquiry } from './entities/inquiry.entity';
-import { SupportClientService } from './services/support-client.service';
-import { InquiryService } from './services/inquiry.service';
-import { SupportClientRepository } from './repositories/support-client.repository';
-import { InquiryRepository } from './repositories/inquiry.repository';
+import { SupportClient } from '@backend/modules/support/entities/support-client.entity';
+import { Inquiry } from '@backend/modules/support/entities/inquiry.entity';
+import { SupportClientService } from '@backend/modules/support/services/support-client.service';
+import { InquiryService } from '@backend/modules/support/services/inquiry.service';
+import { SupportClientRepository } from '@backend/modules/support/repositories/support-client.repository';
+import { InquiryRepository } from '@backend/modules/support/repositories/inquiry.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SupportClient, Inquiry])],

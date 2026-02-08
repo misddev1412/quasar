@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
-import { AuthenticatedContext } from '../context';
-import { UserActivityTrackingService } from '../../modules/user/services/user-activity-tracking.service';
-import { ActivityType } from '../../modules/user/entities/user-activity.entity';
-import { UserSessionRepository } from '../../modules/user/repositories/user-session.repository';
-import { UserRepository } from '../../modules/user/repositories/user.repository';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { UserActivityTrackingService } from '@backend/modules/user/services/user-activity-tracking.service';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
 
 @Injectable()
 export class ActivityTrackingMiddleware implements TRPCMiddleware {

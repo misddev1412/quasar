@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductVariantItem } from '../entities/product-variant-item.entity';
-import { ProductVariant } from '../entities/product-variant.entity';
-import { Attribute } from '../entities/attribute.entity';
-import { AttributeValue } from '../entities/attribute-value.entity';
+import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { Attribute } from '@backend/modules/products/entities/attribute.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
 
 export interface CreateProductVariantItemDto {
   productVariantId: string;

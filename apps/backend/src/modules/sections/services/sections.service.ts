@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { SectionRepository } from '../repositories/section.repository';
-import { SectionTranslationRepository } from '../repositories/section-translation.repository';
-import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '../dto/section.dto';
-import { SectionEntity } from '../entities/section.entity';
-import { SectionTranslationEntity } from '../entities/section-translation.entity';
+import { SectionRepository } from '@backend/modules/sections/repositories/section.repository';
+import { SectionTranslationRepository } from '@backend/modules/sections/repositories/section-translation.repository';
+import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '@backend/modules/sections/dto/section.dto';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
+import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
 import { LanguageRepository } from '@backend/modules/language/repositories/language.repository';
 import { ComponentConfigRepository } from '@backend/modules/component-configs/repositories/component-config.repository';
 import { ComponentConfigDefaults } from '@backend/modules/component-configs/entities/component-config.entity';

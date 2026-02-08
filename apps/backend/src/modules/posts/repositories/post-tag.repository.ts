@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { PostTag } from '../entities/post-tag.entity';
+import { PostTag } from '@backend/modules/posts/entities/post-tag.entity';
 
 export interface CreatePostTagDto {
   name?: string;

@@ -1,21 +1,21 @@
 import { Entity, Column, ManyToOne, OneToMany, ManyToMany, JoinColumn, JoinTable } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Brand } from './brand.entity';
-import { Supplier } from './supplier.entity';
-import { Category } from './category.entity';
-import { Warranty } from './warranty.entity';
-import { ProductTag } from './product-tag.entity';
-import { ProductVariant } from './product-variant.entity';
-import { ProductAttribute } from './product-attribute.entity';
-import { ProductMedia } from './product-media.entity';
-import { ProductCategory } from './product-category.entity';
-import { Wishlist } from './wishlist.entity';
-import { ProductSpecification } from './product-specification.entity';
-import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
-import { ProductTranslation } from './product-translation.entity';
-import { ProductPriceHistory } from './product-price-history.entity';
-import { ProductReview } from './product-review.entity';
+import { Brand } from '@backend/modules/products/entities/brand.entity';
+import { Supplier } from '@backend/modules/products/entities/supplier.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
+import { Warranty } from '@backend/modules/products/entities/warranty.entity';
+import { ProductTag } from '@backend/modules/products/entities/product-tag.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { ProductAttribute } from '@backend/modules/products/entities/product-attribute.entity';
+import { ProductMedia } from '@backend/modules/products/entities/product-media.entity';
+import { ProductCategory } from '@backend/modules/products/entities/product-category.entity';
+import { Wishlist } from '@backend/modules/products/entities/wishlist.entity';
+import { ProductSpecification } from '@backend/modules/products/entities/product-specification.entity';
+import { ProductWarehouseQuantity } from '@backend/modules/products/entities/product-warehouse-quantity.entity';
+import { ProductTranslation } from '@backend/modules/products/entities/product-translation.entity';
+import { ProductPriceHistory } from '@backend/modules/products/entities/product-price-history.entity';
+import { ProductReview } from '@backend/modules/products/entities/product-review.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',

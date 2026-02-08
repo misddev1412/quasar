@@ -11,11 +11,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { AdminShippingProviderService } from '../services/admin-shipping-provider.service';
-import { CreateShippingProviderDto } from '../dto/create-shipping-provider.dto';
-import { UpdateShippingProviderDto } from '../dto/update-shipping-provider.dto';
-import { ShippingProvider } from '../entities/shipping-provider.entity';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { AdminShippingProviderService } from '@backend/modules/products/services/admin-shipping-provider.service';
+import { CreateShippingProviderDto } from '@backend/modules/products/dto/create-shipping-provider.dto';
+import { UpdateShippingProviderDto } from '@backend/modules/products/dto/update-shipping-provider.dto';
+import { ShippingProvider } from '@backend/modules/products/entities/shipping-provider.entity';
+import { JwtAuthGuard } from '@backend/auth/guards/jwt-auth.guard';
 
 @ApiTags('Admin Shipping Providers')
 @UseGuards(JwtAuthGuard)

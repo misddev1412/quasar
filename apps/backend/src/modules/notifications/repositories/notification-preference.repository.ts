@@ -5,8 +5,8 @@ import {
   NotificationPreferenceEntity,
   NotificationChannel,
   NotificationFrequency,
-} from '../entities/notification-preference.entity';
-import { NotificationType } from '../entities/notification.entity';
+} from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 
 export interface CreateNotificationPreferenceDto {
   userId: string;

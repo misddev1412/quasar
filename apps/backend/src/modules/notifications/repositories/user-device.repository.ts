@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserDeviceEntity } from '../entities/user-device.entity';
+import { UserDeviceEntity } from '@backend/modules/notifications/entities/user-device.entity';
 
 @Injectable()
 export class UserDeviceRepository {

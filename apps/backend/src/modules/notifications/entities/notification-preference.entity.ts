@@ -9,8 +9,8 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { NotificationType } from './notification.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 
 export enum NotificationChannel {
   PUSH = 'push',

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
-import { UserRole } from '../entities/user-role.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
+import { UserRole } from '@backend/modules/user/entities/user-role.entity';
 import { UserRole as UserRoleEnum } from '@shared';
 
 @Injectable()

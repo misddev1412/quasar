@@ -5,9 +5,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ActivityTrackingService } from '../services/activity-tracking.service';
-import { UserSessionRepository } from '../repositories/user-session.repository';
-import { SessionStatus } from '../entities/user-session.entity';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
+import { SessionStatus } from '@backend/modules/user/entities/user-session.entity';
 
 export const REQUIRE_ACTIVE_SESSION = 'require_active_session';
 export const TRACK_SESSION_ACTIVITY = 'track_session_activity';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { SiteContentRepository } from '../repositories/site-content.repository';
-import { SiteContentEntity } from '../entities/site-content.entity';
+import { SiteContentRepository } from '@backend/modules/site-content/repositories/site-content.repository';
+import { SiteContentEntity } from '@backend/modules/site-content/entities/site-content.entity';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
 import { SortOrder } from '@shared/enums/common.enums';

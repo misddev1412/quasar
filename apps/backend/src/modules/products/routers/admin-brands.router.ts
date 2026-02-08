@@ -2,12 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { BrandRepository } from '../repositories/brand.repository';
-import { AdminBrandService } from '../services/admin-brand.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { BrandRepository } from '@backend/modules/products/repositories/brand.repository';
+import { AdminBrandService } from '@backend/modules/products/services/admin-brand.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 export const getBrandsQuerySchema = z.object({
   page: z.number().min(1).default(1),

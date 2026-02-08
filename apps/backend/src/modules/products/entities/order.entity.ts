@@ -1,9 +1,9 @@
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { OrderItem } from './order-item.entity';
-import { Customer } from './customer.entity';
-import { OrderFulfillment } from './order-fulfillment.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
+import { OrderFulfillment } from '@backend/modules/products/entities/order-fulfillment.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',

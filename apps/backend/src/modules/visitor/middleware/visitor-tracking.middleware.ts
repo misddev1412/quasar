@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { VisitorTrackingService } from '../services/visitor-tracking.service';
-import { ActivityTrackingService, ActivityContext } from '../../user/services/activity-tracking.service';
+import { VisitorTrackingService } from '@backend/modules/visitor/services/visitor-tracking.service';
+import { ActivityTrackingService, ActivityContext } from '@backend/modules/user/services/activity-tracking.service';
 
 @Injectable()
 export class VisitorTrackingMiddleware implements NestMiddleware {

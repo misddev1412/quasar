@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { MenuService } from '../services/menu.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { MenuService } from '@backend/modules/menus/services/menu.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { CreateMenuDto, ReorderMenuDto } from '../dto/menu.dto';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { CreateMenuDto, ReorderMenuDto } from '@backend/modules/menus/dto/menu.dto';
 
 const MenuTranslationSchema = z.object({
   label: z.string().optional(),

@@ -1,4 +1,4 @@
-import { ExportColumnDefinition } from '../../export/entities/data-export-job.entity';
+import { ExportColumnDefinition } from '@backend/modules/export/entities/data-export-job.entity';
 
 export const ORDER_EXPORT_COLUMNS: ExportColumnDefinition[] = [
   { key: 'orderNumber', label: 'Order Number' },

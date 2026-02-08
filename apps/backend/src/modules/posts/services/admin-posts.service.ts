@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PostRepository } from '../repositories/post.repository';
+import { PostRepository } from '@backend/modules/posts/repositories/post.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { Post, PostStatus, PostType } from '../entities/post.entity';
+import { Post, PostStatus, PostType } from '@backend/modules/posts/entities/post.entity';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
-import { CreatePostDto, UpdatePostDto } from '../dto/post.dto';
+import { CreatePostDto, UpdatePostDto } from '@backend/modules/posts/dto/post.dto';
 
 export interface AdminPostFilters {
   page: number;

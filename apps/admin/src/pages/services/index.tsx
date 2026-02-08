@@ -6,25 +6,7 @@ import type { StatisticData, Column } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
-
-// Temporary interface until backend types are synced
-interface Service {
-    id: string;
-    unitPrice: number;
-    isContactPrice: boolean;
-    thumbnail?: string;
-    isActive: boolean;
-    currency?: {
-        code: string;
-        symbol: string;
-    };
-    translations: {
-        locale: string;
-        name: string;
-    }[];
-    createdAt: string;
-    updatedAt: string;
-}
+import type { ServiceListItem, ServiceListResponse } from '@admin/types/service';
 
 const ServiceListPage = () => {
     const navigate = useNavigate();
@@ -86,12 +68,13 @@ const ServiceListPage = () => {
         deleteMutation.mutate({ id });
     };
 
-    const services = (servicesQuery.data as any)?.data?.items || [];
-    const total = (servicesQuery.data as any)?.data?.total || 0;
-    const totalPages = (servicesQuery.data as any)?.data?.totalPages || 0;
-    const activeCount = services.filter((service: Service) => service.isActive).length;
+    const servicesResponse = servicesQuery.data as ServiceListResponse | undefined;
+    const services: ServiceListItem[] = servicesResponse?.data?.items ?? [];
+    const total = servicesResponse?.data?.total ?? 0;
+    const totalPages = servicesResponse?.data?.totalPages ?? 0;
+    const activeCount = services.filter((service) => service.isActive).length;
     const inactiveCount = services.length - activeCount;
-    const contactPriceCount = services.filter((service: Service) => service.isContactPrice).length;
+    const contactPriceCount = services.filter((service) => service.isContactPrice).length;
 
     const statisticsCards: StatisticData[] = useMemo(() => ([
         {
@@ -124,7 +107,7 @@ const ServiceListPage = () => {
         },
     ]), [activeCount, contactPriceCount, inactiveCount, t, total]);
 
-    const columns: Column<Service>[] = useMemo(() => [
+    const columns: Column<ServiceListItem>[] = useMemo(() => [
         {
             id: 'thumbnail',
             header: t('services.thumbnail', 'Image'),
@@ -312,7 +295,7 @@ const ServiceListPage = () => {
                     </Card>
                 )}
 
-                <Table<Service>
+                <Table<ServiceListItem>
                     tableId="services-table"
                     columns={columns}
                     data={services}

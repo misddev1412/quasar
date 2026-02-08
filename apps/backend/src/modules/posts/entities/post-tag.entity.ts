@@ -6,7 +6,7 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Post } from './post.entity';
+import { Post } from '@backend/modules/posts/entities/post.entity';
 
 @Entity('post_tags')
 @Index(['slug'])

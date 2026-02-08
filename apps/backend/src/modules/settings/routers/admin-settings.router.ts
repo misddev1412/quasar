@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SettingService } from '../services/setting.service';
+import { SettingService } from '@backend/modules/settings/services/setting.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import {
   createSettingSchema,
   updateSettingSchema,
   bulkUpdateSettingsSchema,
   getSettingByKeySchema,
   getSettingsByGroupSchema
-} from '../dto/setting.dto';
-import { AuthenticatedContext } from '../../../trpc/context';
+} from '@backend/modules/settings/dto/setting.dto';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 export const getSettingsQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -20,8 +20,8 @@ export const getSettingsQuerySchema = z.object({
   group: z.string().optional(),
 });
 
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 
 @Router({ alias: 'admin.settings' })
 @Injectable()

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { SeederModule } from './seeder.module';
-import { Service } from '../../modules/services/entities/service.entity';
-import { ServiceTranslation } from '../../modules/services/entities/service-translation.entity';
-import { ServiceItem } from '../../modules/services/entities/service-item.entity';
-import { ServiceItemTranslation } from '../../modules/services/entities/service-item-translation.entity';
+import { SeederModule } from '@backend/database/seeders/seeder.module';
+import { Service } from '@backend/modules/services/entities/service.entity';
+import { ServiceTranslation } from '@backend/modules/services/entities/service-translation.entity';
+import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
+import { ServiceItemTranslation } from '@backend/modules/services/entities/service-item-translation.entity';
 
 @Injectable()
 export class ServicesSeeder implements SeederModule {

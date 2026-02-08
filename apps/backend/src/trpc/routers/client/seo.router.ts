@@ -2,7 +2,7 @@ import { getSeoByPathSchema } from '@backend/modules/seo/dto/seo.dto';
 import { SEOService } from '@backend/modules/seo/services/seo.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { Inject, Injectable } from '@nestjs/common';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 

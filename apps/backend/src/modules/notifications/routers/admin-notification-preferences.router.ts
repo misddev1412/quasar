@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { NotificationPreferenceService } from '../services/notification-preference.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { NotificationType } from '../entities/notification.entity';
-import { NotificationChannel, NotificationFrequency } from '../entities/notification-preference.entity';
+import { NotificationPreferenceService } from '@backend/modules/notifications/services/notification-preference.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { NotificationChannel, NotificationFrequency } from '@backend/modules/notifications/entities/notification-preference.entity';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 const notificationTypeEnum = z.enum([

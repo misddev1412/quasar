@@ -34,3 +34,15 @@ export interface ThemeFilters {
   search?: string;
   isActive?: boolean;
 }
+
+export interface ThemeListData {
+  items: ThemeRecord[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ThemeListResponse {
+  data?: ThemeListData;
+}

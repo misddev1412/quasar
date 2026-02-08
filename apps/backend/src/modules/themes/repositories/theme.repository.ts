@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, QueryFailedError, Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { ThemeEntity } from '../entities/theme.entity';
-import { ThemeColorModesDto, ThemeFiltersDto } from '../dto/theme.dto';
-import { DEFAULT_DARK_THEME_COLORS, DEFAULT_LIGHT_THEME_COLORS } from '../constants/theme-colors.constant';
+import { ThemeEntity } from '@backend/modules/themes/entities/theme.entity';
+import { ThemeColorModesDto, ThemeFiltersDto } from '@backend/modules/themes/dto/theme.dto';
+import { DEFAULT_DARK_THEME_COLORS, DEFAULT_LIGHT_THEME_COLORS } from '@backend/modules/themes/constants/theme-colors.constant';
 
 @Injectable()
 export class ThemeRepository extends BaseRepository<ThemeEntity> {

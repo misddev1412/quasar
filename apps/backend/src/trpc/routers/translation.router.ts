@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { TranslationService } from '../../modules/translation/services/translation.service';
+import { TranslationService } from '@backend/modules/translation/services/translation.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
-import { AdminLanguageService } from '../../modules/language/services/admin-language.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { AdminLanguageService } from '@backend/modules/language/services/admin-language.service';
 import { ApiStatusCodes, MessageLevelCode } from '@shared';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { apiResponseSchema } from '../schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const supportedLocalesSchema = z.enum(['vi', 'en']);

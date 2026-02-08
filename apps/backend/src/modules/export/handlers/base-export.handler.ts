@@ -2,8 +2,8 @@ import {
   ExportColumnDefinition,
   ExportFormat,
   ExportJobOptions,
-} from '../entities/data-export-job.entity';
-import { ExportJobPayload } from '../interfaces/export-payload.interface';
+} from '@backend/modules/export/entities/data-export-job.entity';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
 
 export interface ExportPaginationParams {
   page: number;

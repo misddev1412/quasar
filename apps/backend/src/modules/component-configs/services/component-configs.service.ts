@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { ResponseService } from '../../shared/services/response.service';
-import { ComponentConfigRepository } from '../repositories/component-config.repository';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { ComponentConfigRepository } from '@backend/modules/component-configs/repositories/component-config.repository';
 import type {
   CreateComponentConfigDto,
   UpdateComponentConfigDto,
   ListComponentConfigDto,
-} from '../dto/component-config.dto';
-import { ComponentConfigEntity } from '../entities/component-config.entity';
-import { SectionEntity } from '../../sections/entities/section.entity';
+} from '@backend/modules/component-configs/dto/component-config.dto';
+import { ComponentConfigEntity } from '@backend/modules/component-configs/entities/component-config.entity';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
 
 @Injectable()
 export class ComponentConfigsService {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { EmailChannel } from '../entities/email-channel.entity';
+import { EmailChannel } from '@backend/modules/email-channel/entities/email-channel.entity';
 import { BaseRepository } from '@shared';
 
 export interface IEmailChannelRepository {

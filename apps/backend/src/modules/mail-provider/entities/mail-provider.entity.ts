@@ -2,7 +2,7 @@ import { Entity, Column, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { IsString, IsBoolean, IsOptional, IsEmail, IsNumber, MaxLength, MinLength, Min, Max } from 'class-validator';
 import { Expose } from 'class-transformer';
-import { EmailFlow } from '../../email-flow/entities/email-flow.entity';
+import { EmailFlow } from '@backend/modules/email-flow/entities/email-flow.entity';
 
 @Entity('mail_providers')
 @Index('IDX_MAIL_PROVIDER_NAME', ['name'], { unique: true })

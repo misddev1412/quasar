@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException, InternalServerErrorException, Logger } from '@nestjs/common';
 import axios from 'axios';
 import crypto from 'crypto';
-import { PaymentMethodProviderRepository } from '../repositories/payment-method-provider.repository';
-import { PaymentMethodProvider } from '../entities/payment-method-provider.entity';
+import { PaymentMethodProviderRepository } from '@backend/modules/products/repositories/payment-method-provider.repository';
+import { PaymentMethodProvider } from '@backend/modules/products/entities/payment-method-provider.entity';
 
 export interface PayosCheckoutItem {
   name: string;

@@ -1,4 +1,4 @@
-import { ExportColumnDefinition } from '../../export/entities/data-export-job.entity';
+import { ExportColumnDefinition } from '@backend/modules/export/entities/data-export-job.entity';
 
 export const USER_EXPORT_COLUMNS: ExportColumnDefinition[] = [
   { key: 'id', label: 'ID' },

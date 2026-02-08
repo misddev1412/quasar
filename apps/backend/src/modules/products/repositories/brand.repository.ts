@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions, In } from 'typeorm';
-import { Brand } from '../entities/brand.entity';
-import { BrandTranslation } from '../entities/brand-translation.entity';
+import { Brand } from '@backend/modules/products/entities/brand.entity';
+import { BrandTranslation } from '@backend/modules/products/entities/brand-translation.entity';
 
 export interface BrandFilters {
   search?: string;

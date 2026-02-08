@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Product } from './product.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 @Entity('product_translations')
 @Index(['product_id', 'locale'], { unique: true })

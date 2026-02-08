@@ -1,18 +1,18 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { UserFilters, UserRepository } from '../../repositories/user.repository';
-import { AuthService } from '../../../../auth/auth.service';
+import { UserFilters, UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { AuthService } from '@backend/auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { User } from '../../entities/user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 import { ApiStatusCodes, UserRole } from '@shared';
 import {
   AdminCreateUserDto,
   AdminUpdateUserDto,
   AdminUserResponseDto,
   AdminUpdateUserProfileDto
-} from '../../dto/admin/admin-user.dto';
+} from '@backend/modules/user/dto/admin/admin-user.dto';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
 import { DataExportService, ExportFormat } from '@backend/modules/export';
-import { USER_EXPORT_COLUMNS } from '../../export/user-export.columns';
+import { USER_EXPORT_COLUMNS } from '@backend/modules/user/export/user-export.columns';
 
 export interface AdminUserFilters {
   page: number;

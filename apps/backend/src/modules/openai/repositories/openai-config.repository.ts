@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OpenAiConfigEntity } from '../entities/openai-config.entity';
+import { OpenAiConfigEntity } from '@backend/modules/openai/entities/openai-config.entity';
 
 @Injectable()
 export class OpenAiConfigRepository {

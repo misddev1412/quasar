@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { OpenAiConfigService, CreateOpenAiConfigDto, UpdateOpenAiConfigDto } from '../services/openai-config.service';
-import { OpenAiContentService, GenerateSeoArticleInput } from '../services/openai-content.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { OpenAiConfigService, CreateOpenAiConfigDto, UpdateOpenAiConfigDto } from '@backend/modules/openai/services/openai-config.service';
+import { OpenAiContentService, GenerateSeoArticleInput } from '@backend/modules/openai/services/openai-content.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 export const createOpenAiConfigSchema = z.object({
   name: z.string().min(1),

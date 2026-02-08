@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Attribute } from './attribute.entity';
-import { ProductVariantItem } from './product-variant-item.entity';
+import { Attribute } from '@backend/modules/products/entities/attribute.entity';
+import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
 
 @Entity('attribute_values')
 export class AttributeValue extends BaseEntity {

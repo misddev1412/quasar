@@ -296,11 +296,11 @@ const EditFirebaseConfigPage: React.FC = () => {
   if (isLoading) {
     return (
       <StandardFormPage
-        title="Edit Firebase Configuration"
-        description="Modify Firebase project configuration"
+        title={t('firebase_configs.edit_title', 'Edit Firebase Configuration')}
+        description={t('firebase_configs.edit_description', 'Modify Firebase project configuration')}
         icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
-        entityName="Configuration"
-        entityNamePlural="Firebase Configurations"
+        entityName={t('firebase_configs.config', 'Configuration')}
+        entityNamePlural={t('firebase_configs.configs', 'Firebase Configurations')}
         backUrl="/firebase-configs"
         onBack={handleCancel}
         showActions={false}
@@ -313,11 +313,11 @@ const EditFirebaseConfigPage: React.FC = () => {
   if (error || !formData) {
     return (
       <StandardFormPage
-        title="Edit Firebase Configuration"
-        description="Modify Firebase project configuration"
+        title={t('firebase_configs.edit_title', 'Edit Firebase Configuration')}
+        description={t('firebase_configs.edit_description', 'Modify Firebase project configuration')}
         icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
-        entityName="Configuration"
-        entityNamePlural="Firebase Configurations"
+        entityName={t('firebase_configs.config', 'Configuration')}
+        entityNamePlural={t('firebase_configs.configs', 'Firebase Configurations')}
         backUrl="/firebase-configs"
         onBack={handleCancel}
         showActions={false}
@@ -334,11 +334,11 @@ const EditFirebaseConfigPage: React.FC = () => {
 
   return (
     <StandardFormPage
-      title={`Edit Firebase Configuration: ${formData.name}`}
-      description="Modify Firebase project configuration"
+      title={`${t('firebase_configs.edit_title', 'Edit Firebase Configuration')}: ${formData.name}`}
+      description={t('firebase_configs.edit_description', 'Modify Firebase project configuration')}
       icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
-      entityName="Configuration"
-      entityNamePlural="Firebase Configurations"
+      entityName={t('firebase_configs.config', 'Configuration')}
+      entityNamePlural={t('firebase_configs.configs', 'Firebase Configurations')}
       backUrl="/firebase-configs"
       onBack={handleCancel}
       onCancel={handleCancel}

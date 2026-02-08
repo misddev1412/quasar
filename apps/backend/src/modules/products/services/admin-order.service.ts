@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { OrderRepository, OrderFilters, PaginatedOrders } from '../repositories/order.repository';
-import { ProductRepository } from '../repositories/product.repository';
-import { ProductVariantRepository } from '../repositories/product-variant.repository';
+import { OrderRepository, OrderFilters, PaginatedOrders } from '@backend/modules/products/repositories/order.repository';
+import { ProductRepository } from '@backend/modules/products/repositories/product.repository';
+import { ProductVariantRepository } from '@backend/modules/products/repositories/product-variant.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
-import { OrderItem } from '../entities/order-item.entity';
+import { Order, OrderStatus, PaymentStatus, OrderSource } from '@backend/modules/products/entities/order.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
 import { ApiStatusCodes } from '@shared';
-import { DataExportService } from '../../export/services/data-export.service';
-import { ExportFormat } from '../../export/entities/data-export-job.entity';
-import { ORDER_EXPORT_COLUMNS } from '../export/order-export.columns';
+import { DataExportService } from '@backend/modules/export/services/data-export.service';
+import { ExportFormat } from '@backend/modules/export/entities/data-export-job.entity';
+import { ORDER_EXPORT_COLUMNS } from '@backend/modules/products/export/order-export.columns';
 
 export interface AdminOrderFilters {
   page: number;

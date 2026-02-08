@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Order } from './order.entity';
-import { ProductVariant } from './product-variant.entity';
-import { Product } from './product.entity';
+import { Order } from '@backend/modules/products/entities/order.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 @Entity('order_items')
 export class OrderItem extends BaseEntity {

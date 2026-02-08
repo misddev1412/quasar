@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SectionsService } from '../../modules/sections/services/sections.service';
-import { ResponseService } from '../../modules/shared/services/response.service';
-import { apiResponseSchema } from '../schemas/response.schemas';
-import { AuthMiddleware } from '../middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
+import { SectionsService } from '@backend/modules/sections/services/sections.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import {
   createSectionSchema,
   updateSectionSchema,
   reorderSectionsSchema,
-} from '../../modules/sections/dto/section.dto';
-import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '../../modules/sections/dto/section.dto';
+} from '@backend/modules/sections/dto/section.dto';
+import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '@backend/modules/sections/dto/section.dto';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { AuthenticatedContext } from '../context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 const listInputSchema = z.object({
   page: z.string().min(1),

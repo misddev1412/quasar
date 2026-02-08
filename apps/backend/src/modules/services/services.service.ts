@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { Service } from './entities/service.entity';
-import { ServiceItem } from './entities/service-item.entity';
-import { ServiceTranslation } from './entities/service-translation.entity';
-import { ServiceItemTranslation } from './entities/service-item-translation.entity';
-import { CreateServiceDto, UpdateServiceDto, ServiceFilterDto } from './dto/service.dto';
+import { Service } from '@backend/modules/services/entities/service.entity';
+import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
+import { ServiceTranslation } from '@backend/modules/services/entities/service-translation.entity';
+import { ServiceItemTranslation } from '@backend/modules/services/entities/service-item-translation.entity';
+import { CreateServiceDto, UpdateServiceDto, ServiceFilterDto } from '@backend/modules/services/dto/service.dto';
 
 @Injectable()
 export class ServicesService {

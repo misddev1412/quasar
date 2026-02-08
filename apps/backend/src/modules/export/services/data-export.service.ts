@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, In } from 'typeorm';
-import { DataExportJob, DataExportJobStatus } from '../entities/data-export-job.entity';
-import { RequestExportJobDto, ExportJobSummary } from '../dto/request-export-job.dto';
+import { DataExportJob, DataExportJobStatus } from '@backend/modules/export/entities/data-export-job.entity';
+import { RequestExportJobDto, ExportJobSummary } from '@backend/modules/export/dto/request-export-job.dto';
 
 @Injectable()
 export class DataExportService {

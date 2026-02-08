@@ -8,19 +8,7 @@ import { StandardFormPage, Loading } from '@admin/components/common';
 import { FileText } from 'lucide-react';
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { FormSubmitAction } from '@admin/types/forms';
-
-type ServiceTranslation = {
-    id?: string;
-    locale?: string;
-    name?: string;
-    description?: string;
-    content?: string;
-};
-
-type ServiceEntity = {
-    translations?: ServiceTranslation[];
-    items?: any[];
-} & Record<string, any>;
+import type { ServiceEntity, ServiceSubmitPayload, ServiceTranslation } from '@admin/types/service';
 
 const EditServicePage = () => {
     const { id } = useParams<{ id: string }>();
@@ -96,7 +84,7 @@ const EditServicePage = () => {
         items: service.items,
     };
 
-    const handleSubmit = async (data: any, options?: ServiceFormSubmitOptions) => {
+    const handleSubmit = async (data: ServiceSubmitPayload, options?: ServiceFormSubmitOptions) => {
         const {
             unitPrice, isContactPrice, isActive, thumbnail, currencyId, items, translations
         } = data;
@@ -125,7 +113,7 @@ const EditServicePage = () => {
         <StandardFormPage
             title={service.name ? `${t('services.edit_title', 'Edit Service')}: ${service.name}` : t('services.edit_title', 'Edit Service')}
             description={t('services.edit_desc', 'Update service details')}
-            icon={<FileText className="w-5 h-5" />}
+            icon={<FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
             entityName={t('services.entity_name', 'Service')}
             entityNamePlural={t('services.entity_name_plural', 'Services')}
             backUrl="/services"

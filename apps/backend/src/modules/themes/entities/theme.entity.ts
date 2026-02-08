@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { SoftDeletableEntity } from '@shared';
-import { ThemeColorModesDto } from '../dto/theme.dto';
+import { ThemeColorModesDto } from '@backend/modules/themes/dto/theme.dto';
 
 @Entity('themes')
 @Index('IDX_THEMES_SLUG', ['slug'], { unique: true })

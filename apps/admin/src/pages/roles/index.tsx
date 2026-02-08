@@ -19,7 +19,7 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
-import { Role, RoleFiltersType, RoleStatistics } from '@admin/types/role';
+import { Role, RoleFiltersType, RoleStatistics, RoleListApiResponse, RoleStatisticsApiResponse } from '@admin/types/role';
 import { QuickAddPermissionModal, QuickAddUserModal } from '@admin/components/role';
 
 interface RoleIndexPageProps { }
@@ -144,8 +144,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   });
 
   const toggleRoleStatusMutation = trpc.adminRole.toggleRoleStatus.useMutation({
-    onSuccess: (response) => {
-      const roleData = (response as any)?.data;
+    onSuccess: () => {
       addToast({
         title: t('common.success', 'Success'),
         description: t('roles.role_status_updated', 'Role status updated successfully'),
@@ -163,8 +162,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   });
 
   const duplicateRoleMutation = trpc.adminRole.duplicateRole.useMutation({
-    onSuccess: (response) => {
-      const roleData = (response as any)?.data;
+    onSuccess: () => {
       addToast({
         title: t('common.success', 'Success'),
         description: t('roles.role_duplicated_successfully', 'Role duplicated successfully'),
@@ -270,9 +268,8 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
 
   // Statistics data
   const statistics: StatisticData[] = useMemo(() => {
-    if (!(statisticsData as any)?.data) return [];
-
-    const stats = (statisticsData as any).data as RoleStatistics;
+    const stats = (statisticsData as RoleStatisticsApiResponse | undefined)?.data;
+    if (!stats) return [];
     return [
       {
         id: 'total-roles',
@@ -559,18 +556,19 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>
-            {(error as any)?.message || t('messages.failed_to_load_roles', 'Failed to load roles')}
+            {error?.message || t('messages.failed_to_load_roles', 'Failed to load roles')}
           </AlertDescription>
         </Alert>
       </StandardListPage>
     );
   }
 
-  const roles = (data as any)?.data?.items || [];
-  const totalRoles = (data as any)?.data?.total || 0;
-  const currentPage = (data as any)?.data?.page || 1;
-  const pageSize = (data as any)?.data?.limit || 10;
-  const totalPages = (data as any)?.data?.totalPages || 1;
+  const listData = (data as RoleListApiResponse | undefined)?.data;
+  const roles = listData?.items ?? [];
+  const totalRoles = listData?.total ?? 0;
+  const currentPage = listData?.page ?? 1;
+  const pageSize = listData?.limit ?? 10;
+  const totalPages = listData?.totalPages ?? 1;
 
   return (
     <StandardListPage

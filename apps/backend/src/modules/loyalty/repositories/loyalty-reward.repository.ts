@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, Between, LessThan, MoreThan } from 'typeorm';
-import { LoyaltyReward, RewardType } from '../entities/loyalty-reward.entity';
+import { LoyaltyReward, RewardType } from '@backend/modules/loyalty/entities/loyalty-reward.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
 
 @Injectable()

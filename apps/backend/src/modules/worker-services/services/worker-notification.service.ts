@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NotificationService } from '../../notifications/services/notification.service';
-import { NotificationType } from '../../notifications/entities/notification.entity';
-import { NotificationPayload, NotificationResult } from '../interfaces/worker-payloads.interface';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { NotificationPayload, NotificationResult } from '@backend/modules/worker-services/interfaces/worker-payloads.interface';
 
 @Injectable()
 export class WorkerNotificationService {

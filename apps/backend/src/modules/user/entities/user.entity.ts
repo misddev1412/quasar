@@ -1,8 +1,8 @@
 import { Entity, Column, OneToOne, OneToMany, BeforeInsert, BeforeUpdate, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { UserProfile } from './user-profile.entity';
-import { UserRole } from './user-role.entity';
-import { UserLoginProvider, AuthProvider } from './user-login-provider.entity';
+import { UserProfile } from '@backend/modules/user/entities/user-profile.entity';
+import { UserRole } from '@backend/modules/user/entities/user-role.entity';
+import { UserLoginProvider, AuthProvider } from '@backend/modules/user/entities/user-login-provider.entity';
 import * as bcrypt from 'bcrypt';
 
 @Entity('users')

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { CategoryRepository } from '../../../modules/products/repositories/category.repository';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { CategoryRepository } from '@backend/modules/products/repositories/category.repository';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 @Router({ alias: 'clientCategories' })
 @Injectable()

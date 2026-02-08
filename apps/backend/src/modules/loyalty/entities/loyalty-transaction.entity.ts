@@ -3,7 +3,7 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Customer } from '@backend/modules/products/entities/customer.entity';
 import { Order } from '@backend/modules/products/entities/order.entity';
-import { LoyaltyReward } from './loyalty-reward.entity';
+import { LoyaltyReward } from '@backend/modules/loyalty/entities/loyalty-reward.entity';
 
 export enum TransactionType {
   EARNED = 'earned',

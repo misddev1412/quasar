@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { TranslationRepository } from '../repositories/translation.repository';
-import { Translation } from '../entities/translation.entity';
+import { TranslationRepository } from '@backend/modules/translation/repositories/translation.repository';
+import { Translation } from '@backend/modules/translation/entities/translation.entity';
 import { SupportedLocale, TranslationMap, LocaleTranslations } from '@shared';
 
 @Injectable()

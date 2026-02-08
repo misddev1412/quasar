@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Warehouse } from './warehouse.entity';
-import { InventoryItem } from './inventory-item.entity';
+import { Warehouse } from '@backend/modules/products/entities/warehouse.entity';
+import { InventoryItem } from '@backend/modules/products/entities/inventory-item.entity';
 
 export enum LocationType {
   ZONE = 'ZONE',

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { StockMovement, MovementType, MovementReason } from '../entities';
+import { StockMovement, MovementType, MovementReason } from '@backend/modules/products/entities';
 
 @Injectable()
 export class StockMovementRepository extends BaseRepository<StockMovement> {

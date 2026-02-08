@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { AdminPostsService } from '../services/admin-posts.service';
+import { AdminPostsService } from '@backend/modules/posts/services/admin-posts.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { PostStatus, PostType } from '../entities/post.entity';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { PostStatus, PostType } from '@backend/modules/posts/entities/post.entity';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { PermissionAction, PermissionScope } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import {
@@ -16,8 +16,8 @@ import {
   UpdatePostSchema,
   CreatePostDto,
   UpdatePostDto,
-} from '../dto/post.dto';
-import { resolvePermissionScope } from '../../shared/utils/permission-utils';
+} from '@backend/modules/posts/dto/post.dto';
+import { resolvePermissionScope } from '@backend/modules/shared/utils/permission-utils';
 
 // Zod schemas for validation
 const postStatusSchema = z.enum([

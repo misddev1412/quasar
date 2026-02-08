@@ -1,15 +1,15 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Visitor, VisitorSession, PageView } from './entities';
-import { VisitorStatistics } from './entities/visitor-statistics.entity';
-import { VisitorRepository } from './repositories/visitor.repository';
-import { VisitorTrackingService } from './services/visitor-tracking.service';
-import { AdminVisitorStatisticsService } from './services/admin/admin-visitor-statistics.service';
-import { VisitorTrackingMiddleware } from './middleware/visitor-tracking.middleware';
-import { AdminVisitorStatisticsRouter } from './routers/admin-visitor-statistics.router';
-import { ClientVisitorStatsRouter } from './routers/client-visitor-stats.router';
-import { SharedModule } from '../shared/shared.module';
-import { UserModule } from '../user/user.module';
+import { Visitor, VisitorSession, PageView } from '@backend/modules/visitor/entities';
+import { VisitorStatistics } from '@backend/modules/visitor/entities/visitor-statistics.entity';
+import { VisitorRepository } from '@backend/modules/visitor/repositories/visitor.repository';
+import { VisitorTrackingService } from '@backend/modules/visitor/services/visitor-tracking.service';
+import { AdminVisitorStatisticsService } from '@backend/modules/visitor/services/admin/admin-visitor-statistics.service';
+import { VisitorTrackingMiddleware } from '@backend/modules/visitor/middleware/visitor-tracking.middleware';
+import { AdminVisitorStatisticsRouter } from '@backend/modules/visitor/routers/admin-visitor-statistics.router';
+import { ClientVisitorStatsRouter } from '@backend/modules/visitor/routers/client-visitor-stats.router';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { UserModule } from '@backend/modules/user/user.module';
 
 @Module({
   imports: [

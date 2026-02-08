@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Media } from './media.entity';
+import { Media } from '@backend/modules/storage/entities/media.entity';
 
 @Entity('media_relations')
 @Index(['objectId', 'objectType'])

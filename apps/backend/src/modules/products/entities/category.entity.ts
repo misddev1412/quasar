@@ -1,9 +1,9 @@
 import { Entity, Column, OneToMany, ManyToOne, ManyToMany, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { CategoryTranslation } from './category-translation.entity';
-import { ProductCategory } from './product-category.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { CategoryTranslation } from '@backend/modules/products/entities/category-translation.entity';
+import { ProductCategory } from '@backend/modules/products/entities/product-category.entity';
 
 @Entity('categories')
 export class Category extends BaseEntity {

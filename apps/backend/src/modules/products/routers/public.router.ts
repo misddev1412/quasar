@@ -2,8 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminProductService } from '../services/admin-product.service';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminProductService } from '@backend/modules/products/services/admin-product.service';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 const getPublicProductsQuerySchema = z.object({
   page: z.number().min(1).default(1),

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FirebaseConfigEntity } from '../entities/firebase-config.entity';
+import { FirebaseConfigEntity } from '@backend/modules/firebase/entities/firebase-config.entity';
 
 @Injectable()
 export class FirebaseConfigRepository {

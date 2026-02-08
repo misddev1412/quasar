@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, In } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { BaseRepository } from '@shared';
-import { Post, PostStatus, PostType } from '../entities/post.entity';
-import { PostTranslation } from '../entities/post-translation.entity';
-import { PostCategory } from '../entities/post-category.entity';
-import { PostTag } from '../entities/post-tag.entity';
-import { Media } from '../../storage/entities/media.entity';
-import { MediaService } from '../../storage/services/media.service';
+import { Post, PostStatus, PostType } from '@backend/modules/posts/entities/post.entity';
+import { PostTranslation } from '@backend/modules/posts/entities/post-translation.entity';
+import { PostCategory } from '@backend/modules/posts/entities/post-category.entity';
+import { PostTag } from '@backend/modules/posts/entities/post-tag.entity';
+import { Media } from '@backend/modules/storage/entities/media.entity';
+import { MediaService } from '@backend/modules/storage/services/media.service';
 
 export interface CreatePostDto {
   status?: PostStatus;

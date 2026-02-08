@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthenticatedContext } from '../context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 /**
  * Custom decorator to extract current user from tRPC context

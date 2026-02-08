@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CustomerTransactionRepository } from '../../repositories/customer-transaction.repository';
+import { CustomerTransactionRepository } from '@backend/modules/user/repositories/customer-transaction.repository';
 import {
   CreateCustomerTransactionDto,
   CustomerTransactionFilters,
   TransactionStatsFilters,
   UpdateTransactionStatusDto,
-} from '../../dto/admin/admin-customer-transaction.dto';
+} from '@backend/modules/user/dto/admin/admin-customer-transaction.dto';
 import {
   CustomerTransaction,
   CustomerTransactionEntry,
@@ -14,9 +14,9 @@ import {
   LedgerAccountType,
   LedgerEntryDirection,
   TransactionChannel,
-} from '../../entities/customer-transaction.entity';
-import { OrderRepository } from '../../../products/repositories/order.repository';
-import { Order, OrderStatus, PaymentStatus } from '../../../products/entities/order.entity';
+} from '@backend/modules/user/entities/customer-transaction.entity';
+import { OrderRepository } from '@backend/modules/products/repositories/order.repository';
+import { Order, OrderStatus, PaymentStatus } from '@backend/modules/products/entities/order.entity';
 
 @Injectable()
 export class AdminCustomerTransactionService {

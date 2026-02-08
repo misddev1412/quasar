@@ -1,3 +1,3 @@
-export * from './visitor.entity';
-export * from './visitor-session.entity';
-export * from './page-view.entity';
+export * from '@backend/modules/visitor/entities/visitor.entity';
+export * from '@backend/modules/visitor/entities/visitor-session.entity';
+export * from '@backend/modules/visitor/entities/page-view.entity';

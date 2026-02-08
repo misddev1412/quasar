@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Visitor, VisitorType, VisitorSource, VisitorSession, PageView, SessionStatus } from '../entities';
-import { VisitorRepository } from '../repositories/visitor.repository';
+import { Visitor, VisitorType, VisitorSource, VisitorSession, PageView, SessionStatus } from '@backend/modules/visitor/entities';
+import { VisitorRepository } from '@backend/modules/visitor/repositories/visitor.repository';
 
 export interface StorefrontVisitorPayload {
   fingerprint: string;

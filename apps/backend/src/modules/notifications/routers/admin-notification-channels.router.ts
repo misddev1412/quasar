@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { NotificationChannelConfigService } from '../services/notification-channel-config.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannel } from '../entities/notification-preference.entity';
+import { NotificationChannelConfigService } from '@backend/modules/notifications/services/notification-channel-config.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 const notificationEventEnum = z.nativeEnum(NotificationEvent);
 const notificationChannelEnum = z.enum(['push', 'email', 'in_app', 'sms', 'telegram']);

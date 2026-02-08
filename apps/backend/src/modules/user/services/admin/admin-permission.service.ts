@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PermissionRepository } from '../../repositories/permission.repository';
-import { Permission } from '../../entities/permission.entity';
-import { RolePermission } from '../../entities/role-permission.entity';
-import { Role } from '../../entities/role.entity';
+import { PermissionRepository } from '@backend/modules/user/repositories/permission.repository';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
+import { RolePermission } from '@backend/modules/user/entities/role-permission.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
 import { PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
 import {
   CreatePermissionDto,
   UpdatePermissionDto,
   CreateRolePermissionDto,
   PermissionFilter
-} from '../../interfaces/permission-repository.interface';
+} from '@backend/modules/user/interfaces/permission-repository.interface';
 import { PermissionCheckerService, PermissionCheck } from '@backend/modules/shared/services/permission-checker.service';
 
 export interface PermissionGrant {

@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { PaymentMethod } from './payment-method.entity';
+import { PaymentMethod } from '@backend/modules/products/entities/payment-method.entity';
 
 @Entity('payment_method_providers')
 @Index('IDX_payment_method_providers_provider_key', ['providerKey'])

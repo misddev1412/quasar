@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, FindOptionsWhere } from 'typeorm';
-import { SeederModule } from './seeder.module';
-import { MenuEntity } from '../../modules/menus/entities/menu.entity';
-import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
+import { SeederModule } from '@backend/database/seeders/seeder.module';
+import { MenuEntity } from '@backend/modules/menus/entities/menu.entity';
+import { MenuTranslationEntity } from '@backend/modules/menus/entities/menu-translation.entity';
 import { MenuType, MenuTarget, TopMenuTimeFormat } from '@shared/enums/menu.enums';
 
 type MenuSeedData = {

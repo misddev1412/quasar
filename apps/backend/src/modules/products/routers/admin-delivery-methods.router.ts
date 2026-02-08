@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { DeliveryMethodService } from '../services/delivery-method.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { DeliveryMethodType, CostCalculationType } from '../entities/delivery-method.entity';
+import { DeliveryMethodService } from '@backend/modules/products/services/delivery-method.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { DeliveryMethodType, CostCalculationType } from '@backend/modules/products/entities/delivery-method.entity';
 
 // Validation schemas
 const deliveryMethodTypeSchema = z.enum([

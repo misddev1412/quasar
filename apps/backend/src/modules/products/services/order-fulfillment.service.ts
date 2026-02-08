@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { OrderFulfillmentRepository, OrderFulfillmentFilters, PaginatedOrderFulfillments } from '../repositories/order-fulfillment.repository';
-import { FulfillmentItemRepository, FulfillmentItemFilters } from '../repositories/fulfillment-item.repository';
-import { DeliveryTrackingRepository, DeliveryTrackingFilters } from '../repositories/delivery-tracking.repository';
-import { OrderRepository } from '../repositories/order.repository';
-import { ShippingProviderRepository } from '../repositories/shipping-provider.repository';
-import { OrderRepository as ProductOrderRepository } from '../repositories/order.repository';
+import { OrderFulfillmentRepository, OrderFulfillmentFilters, PaginatedOrderFulfillments } from '@backend/modules/products/repositories/order-fulfillment.repository';
+import { FulfillmentItemRepository, FulfillmentItemFilters } from '@backend/modules/products/repositories/fulfillment-item.repository';
+import { DeliveryTrackingRepository, DeliveryTrackingFilters } from '@backend/modules/products/repositories/delivery-tracking.repository';
+import { OrderRepository } from '@backend/modules/products/repositories/order.repository';
+import { ShippingProviderRepository } from '@backend/modules/products/repositories/shipping-provider.repository';
+import { OrderRepository as ProductOrderRepository } from '@backend/modules/products/repositories/order.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { TranslationService } from '@backend/modules/translation/services/translation.service';
 import { ApiStatusCodes, SupportedLocale } from '@shared';
@@ -13,18 +13,18 @@ import {
   FulfillmentStatus,
   PriorityLevel,
   PackagingType,
-} from '../entities/order-fulfillment.entity';
+} from '@backend/modules/products/entities/order-fulfillment.entity';
 import {
   FulfillmentItem,
   FulfillmentItemStatus,
-} from '../entities/fulfillment-item.entity';
+} from '@backend/modules/products/entities/fulfillment-item.entity';
 import {
   DeliveryTracking,
   TrackingStatus,
-} from '../entities/delivery-tracking.entity';
-import { Order, OrderStatus } from '../entities/order.entity';
-import { OrderItem } from '../entities/order-item.entity';
-import { ShippingProvider } from '../entities/shipping-provider.entity';
+} from '@backend/modules/products/entities/delivery-tracking.entity';
+import { Order, OrderStatus } from '@backend/modules/products/entities/order.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
+import { ShippingProvider } from '@backend/modules/products/entities/shipping-provider.entity';
 
 export interface CreateFulfillmentDto {
   orderId: string;

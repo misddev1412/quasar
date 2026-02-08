@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Category } from '../entities/category.entity';
-import { CategoryTranslation } from '../entities/category-translation.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
+import { CategoryTranslation } from '@backend/modules/products/entities/category-translation.entity';
 import slugify from 'slugify';
 
 export interface CategoryFilters {

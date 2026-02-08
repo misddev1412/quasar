@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions, SelectQueryBuilder } from 'typeorm';
-import { Product, ProductStatus } from '../entities/product.entity';
-import { ProductVariant } from '../entities/product-variant.entity';
-import { ProductCategory } from '../entities/product-category.entity';
-import { ProductTranslation } from '../entities/product-translation.entity';
-import { MediaService } from '../../storage/services/media.service';
+import { Product, ProductStatus } from '@backend/modules/products/entities/product.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { ProductCategory } from '@backend/modules/products/entities/product-category.entity';
+import { ProductTranslation } from '@backend/modules/products/entities/product-translation.entity';
+import { MediaService } from '@backend/modules/storage/services/media.service';
 
 export interface ProductFilters {
   search?: string;

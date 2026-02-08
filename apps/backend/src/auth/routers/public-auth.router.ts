@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query } from 'nestjs-trpc';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { FirebaseConfigService } from '../../modules/firebase/services/firebase-config.service';
-import { apiResponseSchema } from '../../trpc/schemas/response.schemas';
+import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 @Router({ alias: 'publicAuth' })
 @Injectable()

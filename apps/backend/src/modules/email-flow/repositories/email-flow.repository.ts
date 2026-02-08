@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { EmailFlow } from '../entities/email-flow.entity';
+import { EmailFlow } from '@backend/modules/email-flow/entities/email-flow.entity';
 import { BaseRepository } from '@shared';
 
 export interface IEmailFlowRepository {

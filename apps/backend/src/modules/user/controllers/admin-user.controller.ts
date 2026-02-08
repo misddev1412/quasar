@@ -12,8 +12,8 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { AdminActivityTrackingGuard } from '../guards/activity-tracking.guard';
-import { AdminActivityInterceptor } from '../interceptors/admin-activity.interceptor';
+import { AdminActivityTrackingGuard } from '@backend/modules/user/guards/activity-tracking.guard';
+import { AdminActivityInterceptor } from '@backend/modules/user/interceptors/admin-activity.interceptor';
 import {
   TrackCreate,
   TrackUpdate,
@@ -24,9 +24,9 @@ import {
   TrackUserManagementAction,
   CurrentUser,
   ActivityContext,
-} from '../decorators/track-activity.decorator';
-import { AdminUserService } from '../services/admin/admin-user.service';
-import { ActivityTrackingService } from '../services/activity-tracking.service';
+} from '@backend/modules/user/decorators/track-activity.decorator';
+import { AdminUserService } from '@backend/modules/user/services/admin/admin-user.service';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
 
 @Controller('admin/users')
 @UseGuards(AdminActivityTrackingGuard)
@@ -35,7 +35,7 @@ export class AdminUserController {
   constructor(
     private readonly adminUserService: AdminUserService,
     private readonly activityTrackingService: ActivityTrackingService,
-  ) {}
+  ) { }
 
   /**
    * Get all users with pagination and filtering

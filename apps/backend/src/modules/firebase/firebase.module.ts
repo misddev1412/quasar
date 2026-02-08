@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from '../shared/shared.module';
-import { FirebaseConfigEntity } from './entities/firebase-config.entity';
-import { FirebaseConfigRepository } from './repositories/firebase-config.repository';
-import { FirebaseConfigService } from './services/firebase-config.service';
-import { FirebaseAuthService } from './services/firebase-auth.service';
-import { FirebaseRealtimeDatabaseService } from './services/firebase-realtime.service';
-import { AdminFirebaseConfigRouter } from './routers/admin-firebase-config.router';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { FirebaseConfigEntity } from '@backend/modules/firebase/entities/firebase-config.entity';
+import { FirebaseConfigRepository } from '@backend/modules/firebase/repositories/firebase-config.repository';
+import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
+import { FirebaseAuthService } from '@backend/modules/firebase/services/firebase-auth.service';
+import { FirebaseRealtimeDatabaseService } from '@backend/modules/firebase/services/firebase-realtime.service';
+import { AdminFirebaseConfigRouter } from '@backend/modules/firebase/routers/admin-firebase-config.router';
 
 @Module({
   imports: [

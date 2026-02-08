@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ComponentConfigsService } from '../services/component-configs.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { ComponentConfigsService } from '@backend/modules/component-configs/services/component-configs.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 const listByKeysSchema = z.object({

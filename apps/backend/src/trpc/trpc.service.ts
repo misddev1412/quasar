@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedContext } from './context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 @Injectable()
 export class TrpcService {

@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { NotificationRepository, CreateNotificationDto, NotificationFilters } from '../repositories/notification.repository';
-import { NotificationEntity, NotificationType } from '../entities/notification.entity';
-import { FirebaseMessagingService, FCMPayload, SendToUserOptions } from './firebase-messaging.service';
-import { UserDeviceRepository } from '../repositories/user-device.repository';
-import { NotificationPreferenceService } from './notification-preference.service';
-import { NotificationChannel } from '../entities/notification-preference.entity';
-import { NotificationChannelConfigService } from './notification-channel-config.service';
-import { NotificationEvent } from '../entities/notification-event.enum';
+import { NotificationRepository, CreateNotificationDto, NotificationFilters } from '@backend/modules/notifications/repositories/notification.repository';
+import { NotificationEntity, NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { FirebaseMessagingService, FCMPayload, SendToUserOptions } from '@backend/modules/notifications/services/firebase-messaging.service';
+import { UserDeviceRepository } from '@backend/modules/notifications/repositories/user-device.repository';
+import { NotificationPreferenceService } from '@backend/modules/notifications/services/notification-preference.service';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationChannelConfigService } from '@backend/modules/notifications/services/notification-channel-config.service';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 import {
   FirebaseRealtimeDatabaseService,
   RealtimeOrderNotificationPayload,
-} from '../../firebase/services/firebase-realtime.service';
+} from '@backend/modules/firebase/services/firebase-realtime.service';
 
 export interface NotificationWithPagination {
   notifications: NotificationEntity[];

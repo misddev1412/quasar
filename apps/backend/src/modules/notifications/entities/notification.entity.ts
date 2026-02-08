@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { NotificationEvent } from './notification-event.enum';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 export enum NotificationType {
   INFO = 'info',

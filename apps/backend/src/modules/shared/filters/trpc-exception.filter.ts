@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TRPCError } from '@trpc/server';
-import { isZodError, formatZodError } from '../../../trpc/utils/zod-error-formatter';
+import { isZodError, formatZodError } from '@backend/trpc/utils/zod-error-formatter';
 
 @Catch()
 export class TRPCExceptionFilter implements ExceptionFilter {

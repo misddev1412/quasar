@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '../entities/product.entity';
-import { ProductMedia } from '../entities/product-media.entity';
-import { ProductVariant } from '../entities/product-variant.entity';
-import { Brand } from '../entities/brand.entity';
-import { Category } from '../entities/category.entity';
-import { ProductSpecification } from '../entities/product-specification.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { ProductMedia } from '@backend/modules/products/entities/product-media.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { Brand } from '@backend/modules/products/entities/brand.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
+import { ProductSpecification } from '@backend/modules/products/entities/product-specification.entity';
 
 export interface TransformedProduct {
   id: string;

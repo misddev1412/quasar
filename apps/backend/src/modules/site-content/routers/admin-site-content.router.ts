@@ -2,18 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { AdminSiteContentService } from '../services/admin-site-content.service';
+import { AdminSiteContentService } from '@backend/modules/site-content/services/admin-site-content.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import {
   listSiteContentQuerySchema,
   createSiteContentSchema,
   updateSiteContentSchema,
   siteContentIdSchema,
   bulkDeleteSiteContentSchema,
-} from '../dto/site-content.dto';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+} from '@backend/modules/site-content/dto/site-content.dto';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 @Router({ alias: 'adminSiteContents' })

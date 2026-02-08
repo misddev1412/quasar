@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationChannelConfigRepository, UpsertChannelConfigDto } from '../repositories/notification-channel-config.repository';
-import { NotificationChannel } from '../entities/notification-preference.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannelConfigEntity } from '../entities/notification-channel-config.entity';
+import { NotificationChannelConfigRepository, UpsertChannelConfigDto } from '@backend/modules/notifications/repositories/notification-channel-config.repository';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannelConfigEntity } from '@backend/modules/notifications/entities/notification-channel-config.entity';
 
 export const DEFAULT_NOTIFICATION_CHANNELS: NotificationChannel[] = [
   NotificationChannel.EMAIL,

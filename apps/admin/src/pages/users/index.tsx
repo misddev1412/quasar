@@ -53,6 +53,24 @@ type StartImpersonationResponse = {
   };
 };
 
+type UsersListResponse = {
+  data?: {
+    items?: User[];
+    total?: number;
+  };
+};
+
+type UserStatisticsResponse = {
+  data?: {
+    totalUsers: { value: number | string; trend?: { value: number; isPositive: boolean; label: string } };
+    activeUsers: { value: number | string; trend?: { value: number; isPositive: boolean; label: string } };
+    newUsersThisMonth: { value: number | string; trend?: { value: number; isPositive: boolean; label: string } };
+    usersWithProfiles: { percentage: number };
+    currentlyActiveUsers?: { value: number | string; description?: string };
+    recentActivity?: { value: number | string; description?: string };
+  };
+};
+
 const UserListPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -134,7 +152,7 @@ const UserListPage = () => {
     page,
     limit,
     search: debouncedSearchValue || undefined,
-    role: filters.role as any || undefined,
+    role: filters.role || undefined,
     isActive: filters.isActive !== undefined ? filters.isActive : undefined,
     sortBy,
     sortOrder,
@@ -208,11 +226,12 @@ const UserListPage = () => {
       window.open(redirectUrl, '_blank', 'noopener,noreferrer');
 
       addToast({ type: 'success', title: t('users.confirmations.login_success', 'Login successful') });
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : t('users.errors.generic_error', 'An error occurred');
       addToast({
         type: 'error',
         title: t('users.confirmations.login_failed', 'Login failed'),
-        description: e?.message || t('users.errors.generic_error', 'An error occurred')
+        description: message
       });
     }
   }, [startImpersonationMutation, addToast, t]);
@@ -235,12 +254,15 @@ const UserListPage = () => {
 
       // Refresh the data to show updated status
       refetch();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error
+        ? e.message
+        : t('users.errors.generic_error', 'An error occurred while updating the user status. Please try again.');
       // Show error toast with detailed information
       addToast({
         type: 'error',
         title: t('users.confirmations.failed_to_update_status', 'Failed to update user status'),
-        description: e?.message || t('users.errors.generic_error', 'An error occurred while updating the user status. Please try again.')
+        description: message
       });
     }
   }, [updateUserStatusMutation, addToast, refetch]);
@@ -252,8 +274,9 @@ const UserListPage = () => {
       await deleteUserMutation.mutateAsync({ id: userId });
       addToast({ type: 'success', title: t('users.confirmations.delete_success', 'User deleted') });
       refetch();
-    } catch (e: any) {
-      addToast({ type: 'error', title: t('users.confirmations.delete_failed', 'Delete failed'), description: e?.message || t('users.confirmations.delete_error', 'Failed to delete user') });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : t('users.confirmations.delete_error', 'Failed to delete user');
+      addToast({ type: 'error', title: t('users.confirmations.delete_failed', 'Delete failed'), description: message });
     }
   }, [deleteUserMutation, addToast, refetch, t]);
 
@@ -343,9 +366,8 @@ const UserListPage = () => {
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
-    if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
-
-    const stats = (statisticsData as any)?.data;
+    const stats = (statisticsData as UserStatisticsResponse | undefined)?.data;
+    if (!stats) return [];
 
     return [
       {
@@ -555,14 +577,14 @@ const UserListPage = () => {
       <StandardListPage title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true}>
         <Alert variant="destructive">
           <AlertTitle>{t('users.errors.error_title', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );
   }
 
-  const users = (data as any)?.data?.items ?? [];
-  const totalUsers = (data as any)?.data?.total ?? 0;
+  const users = (data as UsersListResponse | undefined)?.data?.items ?? [];
+  const totalUsers = (data as UsersListResponse | undefined)?.data?.total ?? 0;
   const totalPages = Math.ceil(totalUsers / limit);
 
   return (

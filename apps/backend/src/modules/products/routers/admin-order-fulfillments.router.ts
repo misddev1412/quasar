@@ -1,29 +1,29 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { adminOnlyProcedure, createTRPCRouter } from '../../trpc/trpc-router.factory';
+import { adminOnlyProcedure, createTRPCRouter } from '@backend/modules/trpc/trpc-router.factory';
 import {
   OrderFulfillmentService,
   CreateFulfillmentDto,
   CreateFulfillmentItemDto,
   UpdateFulfillmentDto,
   AddTrackingEventDto,
-} from '../services/order-fulfillment.service';
+} from '@backend/modules/products/services/order-fulfillment.service';
 import {
   ShippingProviderService,
   CreateShippingProviderDto,
   UpdateShippingProviderDto,
-} from '../services/shipping-provider.service';
+} from '@backend/modules/products/services/shipping-provider.service';
 import {
   FulfillmentStatus,
   PriorityLevel,
   PackagingType,
-} from '../entities/order-fulfillment.entity';
+} from '@backend/modules/products/entities/order-fulfillment.entity';
 import {
   FulfillmentItemStatus,
-} from '../entities/fulfillment-item.entity';
+} from '@backend/modules/products/entities/fulfillment-item.entity';
 import {
   TrackingStatus,
-} from '../entities/delivery-tracking.entity';
+} from '@backend/modules/products/entities/delivery-tracking.entity';
 import { AuthenticatedContext } from '@backend/trpc/context';
 
 const resolveService = <T>(

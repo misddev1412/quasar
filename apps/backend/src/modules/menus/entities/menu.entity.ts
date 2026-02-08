@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, Index, Tree, TreeParent, TreeChildren, JoinColumn } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
-import { MenuTranslationEntity } from './menu-translation.entity';
+import { MenuTranslationEntity } from '@backend/modules/menus/entities/menu-translation.entity';
 
 @Entity('menus')
 @Index(['menuGroup', 'position'])

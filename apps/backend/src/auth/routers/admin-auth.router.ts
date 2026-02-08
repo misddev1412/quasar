@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Mutation, Query, Input, UseMiddlewares, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AuthService } from '../auth.service';
-import { UserRepository } from '../../modules/user/repositories/user.repository';
-import { ResponseService } from '../../modules/shared/services/response.service';
-import { ActivityTrackingService } from '../../modules/user/services/activity-tracking.service';
-import { apiResponseSchema } from '../../trpc/schemas/response.schemas';
+import { AuthService } from '@backend/auth/auth.service';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { UserRole } from '@shared';
-import { AuthMiddleware } from '../../trpc/middlewares/auth.middleware';
-import { AuthenticatedContext } from '../../trpc/context';
-import { ActivityType } from '../../modules/user/entities/user-activity.entity';
-import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
+import { PermissionRepository } from '@backend/modules/user/repositories/permission.repository';
 
 // Zod schemas for validation
 const loginSchema = z.object({

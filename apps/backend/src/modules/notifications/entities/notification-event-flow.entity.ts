@@ -2,9 +2,9 @@ import { Entity, Column, Index, ManyToMany, JoinTable } from 'typeorm';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 import { BaseEntity } from '@shared';
-import { NotificationEvent } from './notification-event.enum';
-import { NotificationChannel } from './notification-preference.entity';
-import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
 
 @Entity('notification_event_flows')
 @Index('IDX_NOTIFICATION_EVENT_FLOW_EVENT_KEY', ['eventKey'], { unique: true })

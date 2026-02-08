@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { User } from './user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 export enum ImpersonationStatus {
   ACTIVE = 'active',

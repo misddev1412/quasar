@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { MailProvider } from '../entities/mail-provider.entity';
+import { MailProvider } from '@backend/modules/mail-provider/entities/mail-provider.entity';
 import { BaseRepository } from '@shared';
 
 export interface IMailProviderRepository {

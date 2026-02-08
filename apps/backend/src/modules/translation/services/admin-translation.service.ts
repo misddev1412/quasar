@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { TranslationRepository } from '../repositories/translation.repository';
-import { Translation } from '../entities/translation.entity';
+import { TranslationRepository } from '@backend/modules/translation/repositories/translation.repository';
+import { Translation } from '@backend/modules/translation/entities/translation.entity';
 import { PaginatedResult } from '@shared';
-import { TranslationService } from './translation.service';
+import { TranslationService } from '@backend/modules/translation/services/translation.service';
 
 interface TranslationFilters {
   page?: number;

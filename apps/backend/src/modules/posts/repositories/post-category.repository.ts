@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { PostCategory } from '../entities/post-category.entity';
+import { PostCategory } from '@backend/modules/posts/entities/post-category.entity';
 
 export interface CreatePostCategoryDto {
   name?: string;

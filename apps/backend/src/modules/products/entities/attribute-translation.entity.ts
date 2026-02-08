@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Attribute } from './attribute.entity';
+import { Attribute } from '@backend/modules/products/entities/attribute.entity';
 
 @Entity('attribute_translations')
 @Index(['attribute_id', 'locale'], { unique: true })

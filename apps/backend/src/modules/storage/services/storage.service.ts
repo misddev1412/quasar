@@ -1,14 +1,14 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SettingEntity } from '../../settings/entities/setting.entity';
-import { LocalStorageConfig, S3StorageConfig, StorageConfig } from '../interfaces/storage.interface';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
+import { LocalStorageConfig, S3StorageConfig, StorageConfig } from '@backend/modules/storage/interfaces/storage.interface';
 import { S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import * as path from 'path';
-import { buildS3PublicUrl } from '../utils/storage-url.util';
+import { buildS3PublicUrl } from '@backend/modules/storage/utils/storage-url.util';
 
 @Injectable()
 export class StorageService {

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Router, Query } from 'nestjs-trpc';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminCurrencyService } from '../services/admin-currency.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminCurrencyService } from '@backend/modules/products/services/admin-currency.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 @Injectable()

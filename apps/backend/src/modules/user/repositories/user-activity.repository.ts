@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { UserActivity, ActivityType } from '../entities/user-activity.entity';
+import { UserActivity, ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export interface ActivityStats {
   totalActivities: number;

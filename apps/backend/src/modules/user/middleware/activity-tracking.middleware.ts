@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ActivityTrackingService } from '../services/activity-tracking.service';
-import { ActivityType } from '../entities/user-activity.entity';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export interface TrackingRequest extends Request {
   activityContext?: {

@@ -30,12 +30,19 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import type { NotificationEventKey } from '@admin/types/notification-events';
 import { NOTIFICATION_EVENT_OPTIONS } from '@admin/types/notification-events';
+import type {
+  AdminNotification,
+  AdminNotificationStats,
+  NotificationCategory,
+  NotificationListResponse,
+  NotificationStatsResponse,
+} from '@admin/types/notification';
 
 type SendFormState = {
   type: 'single' | 'bulk' | 'topic';
   title: string;
   body: string;
-  notificationType: string;
+  notificationType: NotificationCategory;
   actionUrl: string;
   userIds: string;
   topic: string;
@@ -167,13 +174,16 @@ const NotificationsPage: React.FC = () => {
     },
   });
 
-  const notifications = (notificationsData as any)?.data?.notifications || (notificationsData as any)?.data?.items || [];
-  const totalNotifications = (notificationsData as any)?.data?.total || 0;
+  const notificationsPayload = notificationsData as NotificationListResponse | undefined;
+  const notifications: AdminNotification[] =
+    notificationsPayload?.data?.notifications ?? notificationsPayload?.data?.items ?? [];
+  const totalNotifications = notificationsPayload?.data?.total ?? 0;
   const totalPages = Math.ceil(totalNotifications / limit);
 
-  const stats = (statsData as any)?.data || {};
+  const statsPayload = statsData as NotificationStatsResponse | undefined;
+  const stats: AdminNotificationStats = statsPayload?.data ?? {};
 
-  const getTypeLabel = (type: string) =>
+  const getTypeLabel = (type: NotificationCategory) =>
     t(`notifications_page.types.${type}`, { defaultValue: type });
 
   const eventOptions = useMemo(
@@ -212,7 +222,7 @@ const NotificationsPage: React.FC = () => {
           userId: sendForm.userIds.trim(),
           title: sendForm.title,
           body: sendForm.body,
-          type: sendForm.notificationType as any,
+          type: sendForm.notificationType,
           actionUrl: sendForm.actionUrl || undefined,
           eventKey: sendForm.eventKey,
         });
@@ -222,7 +232,7 @@ const NotificationsPage: React.FC = () => {
           userIds,
           title: sendForm.title,
           body: sendForm.body,
-          type: sendForm.notificationType as any,
+          type: sendForm.notificationType,
           actionUrl: sendForm.actionUrl || undefined,
           eventKey: sendForm.eventKey,
         });
@@ -239,7 +249,7 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  const getNotificationColorClass = (type: string) => {
+  const getNotificationColorClass = (type: NotificationCategory) => {
     switch (type) {
       case 'success':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
@@ -291,10 +301,10 @@ const NotificationsPage: React.FC = () => {
     },
   ];
 
-  const columns: Column<any>[] = [
+  const columns: Column<AdminNotification>[] = [
     {
       header: t('notifications_page.table.title'),
-      accessor: (notification: any) => (
+      accessor: (notification) => (
         <div>
           <div className="font-medium text-gray-900 dark:text-gray-100">
             {notification.title}
@@ -308,7 +318,7 @@ const NotificationsPage: React.FC = () => {
     },
     {
       header: t('notifications_page.table.type'),
-      accessor: (notification: any) => (
+      accessor: (notification) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getNotificationColorClass(notification.type)}`}>
           {getTypeLabel(notification.type)}
         </span>
@@ -317,11 +327,11 @@ const NotificationsPage: React.FC = () => {
     },
     {
       header: t('notifications_page.table.user'),
-      accessor: (notification: any) => notification.user.email,
+      accessor: (notification) => notification.user?.email ?? '-',
     },
     {
       header: t('notifications_page.table.status'),
-      accessor: (notification: any) => (
+      accessor: (notification) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
           notification.read
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
@@ -333,12 +343,12 @@ const NotificationsPage: React.FC = () => {
     },
     {
       header: t('notifications_page.table.created'),
-      accessor: (notification: any) => formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
+      accessor: (notification) => formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
       isSortable: true,
     },
     {
       header: t('notifications_page.table.actions'),
-      accessor: (notification: any) => (
+      accessor: (notification) => (
         <div className="flex space-x-2">
           {!notification.read && (
             <Button
@@ -437,7 +447,9 @@ const NotificationsPage: React.FC = () => {
               <Select
                 value={sendForm.type}
                 label={t('notifications_page.dialog.type_label')}
-                onChange={(e) => setSendForm({ ...sendForm, type: e.target.value })}
+                onChange={(e) =>
+                  setSendForm({ ...sendForm, type: e.target.value as SendFormState['type'] })
+                }
               >
                 <MenuItem value="single">
                   <div className="flex items-center space-x-2">
@@ -483,7 +495,9 @@ const NotificationsPage: React.FC = () => {
               <Select
                 value={sendForm.notificationType}
                 label={t('notifications_page.dialog.category')}
-                onChange={(e) => setSendForm({ ...sendForm, notificationType: e.target.value })}
+                onChange={(e) =>
+                  setSendForm({ ...sendForm, notificationType: e.target.value as NotificationCategory })
+                }
               >
                 <MenuItem value="info">{t('notifications_page.types.info')}</MenuItem>
                 <MenuItem value="success">{t('notifications_page.types.success')}</MenuItem>

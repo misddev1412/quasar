@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { MenuRepository } from '../repositories/menu.repository';
-import { MenuTranslationRepository } from '../repositories/menu-translation.repository';
-import { CreateMenuDto, UpdateMenuDto, ReorderMenuDto } from '../dto/menu.dto';
-import { MenuEntity } from '../entities/menu.entity';
-import { MenuTranslationEntity } from '../entities/menu-translation.entity';
+import { MenuRepository } from '@backend/modules/menus/repositories/menu.repository';
+import { MenuTranslationRepository } from '@backend/modules/menus/repositories/menu-translation.repository';
+import { CreateMenuDto, UpdateMenuDto, ReorderMenuDto } from '@backend/modules/menus/dto/menu.dto';
+import { MenuEntity } from '@backend/modules/menus/entities/menu.entity';
+import { MenuTranslationEntity } from '@backend/modules/menus/entities/menu-translation.entity';
 import * as XLSX from 'xlsx';
 import { ApiStatusCodes } from '@shared';
-import { ResponseService } from '../../shared/services/response.service';
-import { ImportJobService } from '../../import/services/import-job.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { ImportJobService } from '@backend/modules/import/services/import-job.service';
 
 type MenuTreeTranslation = Omit<MenuTranslationEntity, 'menu'> & {
   config?: Record<string, unknown> | null;

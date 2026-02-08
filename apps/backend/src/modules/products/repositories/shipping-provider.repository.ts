@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, Between, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ShippingProvider } from '../entities/shipping-provider.entity';
+import { ShippingProvider } from '@backend/modules/products/entities/shipping-provider.entity';
 
 export interface ShippingProviderFilters {
   search?: string;

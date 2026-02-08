@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { LoyaltyTier } from '../entities/loyalty-tier.entity';
+import { LoyaltyTier } from '@backend/modules/loyalty/entities/loyalty-tier.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
 import { Customer } from '@backend/modules/products/entities/customer.entity';
 

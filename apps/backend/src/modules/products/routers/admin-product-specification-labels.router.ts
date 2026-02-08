@@ -2,14 +2,14 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import {
   ProductSpecificationLabelRepository,
   SearchSpecificationLabelsParams,
   CreateSpecificationLabelDto,
-} from '../repositories/product-specification-label.repository';
+} from '@backend/modules/products/repositories/product-specification-label.repository';
 
 export const searchSpecificationLabelsSchema = z.object({
   page: z.number().min(1).default(1),

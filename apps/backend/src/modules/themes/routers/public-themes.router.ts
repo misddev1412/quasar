@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query } from 'nestjs-trpc';
-import { PublicThemesService } from '../services/public-themes.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { PublicThemesService } from '@backend/modules/themes/services/public-themes.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 

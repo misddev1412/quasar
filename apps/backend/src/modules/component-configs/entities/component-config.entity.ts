@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { ComponentStructureType, ComponentCategory } from '@shared/enums/component.enums';
-import { SectionEntity } from '../../sections/entities/section.entity';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
 
 export type ComponentSidebarLinkType = 'custom' | 'category' | 'product' | 'brand';
 

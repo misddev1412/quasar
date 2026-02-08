@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { BrandRepository } from '../../../modules/products/repositories/brand.repository';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
-import { AuthenticatedContext } from '../../context';
+import { BrandRepository } from '@backend/modules/products/repositories/brand.repository';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 const brandShowcaseStrategySchema = z.enum(['newest', 'alphabetical', 'custom']);
 

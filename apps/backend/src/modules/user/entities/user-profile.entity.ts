@@ -1,6 +1,6 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { User } from './user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 @Entity('user_profiles')
 export class UserProfile extends BaseEntity {

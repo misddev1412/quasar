@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
-import { VisitorSession } from './visitor-session.entity';
+import { VisitorSession } from '@backend/modules/visitor/entities/visitor-session.entity';
 
 export enum PageViewType {
   PAGE_VIEW = 'page_view',

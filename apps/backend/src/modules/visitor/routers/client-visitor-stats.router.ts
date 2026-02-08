@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input, Mutation, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminVisitorStatisticsService } from '../services/admin/admin-visitor-statistics.service';
+import { AdminVisitorStatisticsService } from '@backend/modules/visitor/services/admin/admin-visitor-statistics.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { VisitorTrackingService } from '../services/visitor-tracking.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { VisitorTrackingService } from '@backend/modules/visitor/services/visitor-tracking.service';
 
 // Zod schemas for validation
 const GetPublicStatsSchema = z.object({

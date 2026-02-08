@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { LoyaltyTransactionRepository } from '../repositories/loyalty-transaction.repository';
-import { LoyaltyTransaction, TransactionType } from '../entities/loyalty-transaction.entity';
+import { LoyaltyTransactionRepository } from '@backend/modules/loyalty/repositories/loyalty-transaction.repository';
+import { LoyaltyTransaction, TransactionType } from '@backend/modules/loyalty/entities/loyalty-transaction.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 
 export interface CreateLoyaltyTransactionDto {

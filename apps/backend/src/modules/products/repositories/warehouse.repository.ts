@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { Warehouse } from '../entities';
+import { Warehouse } from '@backend/modules/products/entities';
 
 @Injectable()
 export class WarehouseRepository extends BaseRepository<Warehouse> {

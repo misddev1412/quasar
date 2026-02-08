@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MailProviderService } from '../../mail-provider/services/mail-provider.service';
-import { MailLogService } from '../../mail-log/services/mail-log.service';
-import { MailTemplateService } from '../../mail-template/services/mail-template.service';
-import { MailLogStatus } from '../../mail-log/entities/mail-log.entity';
-import { EmailPayload, EmailResult } from '../interfaces/worker-payloads.interface';
+import { MailProviderService } from '@backend/modules/mail-provider/services/mail-provider.service';
+import { MailLogService } from '@backend/modules/mail-log/services/mail-log.service';
+import { MailTemplateService } from '@backend/modules/mail-template/services/mail-template.service';
+import { MailLogStatus } from '@backend/modules/mail-log/entities/mail-log.entity';
+import { EmailPayload, EmailResult } from '@backend/modules/worker-services/interfaces/worker-payloads.interface';
 
 @Injectable()
 export class WorkerEmailService {

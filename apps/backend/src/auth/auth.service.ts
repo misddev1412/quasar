@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from '../modules/user/repositories/user.repository';
-import { User } from '../modules/user/entities/user.entity';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { User } from '@backend/modules/user/entities/user.entity';
 import { UserRole } from '@shared';
-import { UserActivityTrackingService } from '../modules/user/services/user-activity-tracking.service';
-import { FirebaseAuthService, FirebaseTokenPayload } from '../modules/firebase/services/firebase-auth.service';
+import { UserActivityTrackingService } from '@backend/modules/user/services/user-activity-tracking.service';
+import { FirebaseAuthService, FirebaseTokenPayload } from '@backend/modules/firebase/services/firebase-auth.service';
 import * as bcrypt from 'bcryptjs';
 
 export interface JwtPayload {

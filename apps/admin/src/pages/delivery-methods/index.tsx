@@ -37,7 +37,7 @@ interface DeliveryMethod {
   coverageAreas?: string[];
   supportedPaymentMethods?: string[];
   providerName?: string;
-  providerApiConfig?: Record<string, any>;
+  providerApiConfig?: Record<string, unknown>;
   trackingEnabled: boolean;
   insuranceEnabled: boolean;
   signatureRequired: boolean;
@@ -55,6 +55,18 @@ interface DeliveryMethodFiltersType {
   page?: number;
   limit?: number;
 }
+
+type ApiEnvelope<T> = { data?: T };
+type DeliveryMethodListPayload = {
+  items?: DeliveryMethod[];
+  total?: number;
+  totalPages?: number;
+};
+type DeliveryMethodStatsPayload = {
+  total: number;
+  active: number;
+  withTracking: number;
+};
 
 const DeliveryMethodsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -143,7 +155,7 @@ const DeliveryMethodsPage: React.FC = () => {
   } = trpc.adminDeliveryMethods.list.useQuery({
     page,
     limit,
-    type: filters.type as any,
+    type: filters.type as DeliveryMethod['type'] | undefined,
     isActive: filters.isActive,
     search: debouncedSearchValue,
   });
@@ -294,35 +306,36 @@ const DeliveryMethodsPage: React.FC = () => {
 
   // Table data
   const tableData = useMemo(() => {
-    return (deliveryMethodsData as any)?.data?.items || [];
+    return ((deliveryMethodsData as ApiEnvelope<DeliveryMethodListPayload> | undefined)?.data?.items) || [];
   }, [deliveryMethodsData]);
 
-  const totalItems = (deliveryMethodsData as any)?.data?.total || 0;
-  const totalPages = (deliveryMethodsData as any)?.data?.totalPages || 1;
+  const totalItems = (deliveryMethodsData as ApiEnvelope<DeliveryMethodListPayload> | undefined)?.data?.total || 0;
+  const totalPages = (deliveryMethodsData as ApiEnvelope<DeliveryMethodListPayload> | undefined)?.data?.totalPages || 1;
 
   // Statistics data
   const statisticsData: StatisticData[] = useMemo(() => {
-    if (!(statsData as any)?.data) return [];
+    const stats = (statsData as ApiEnvelope<DeliveryMethodStatsPayload> | undefined)?.data;
+    if (!stats) return [];
 
     return [
       {
         id: 'total-delivery-methods',
         title: t('delivery_methods.stats.total'),
-        value: (statsData as any).data.total.toString(),
+        value: stats.total.toString(),
         icon: <FiTruck className="h-5 w-5" />,
         trend: undefined,
       },
       {
         id: 'active-delivery-methods',
         title: t('delivery_methods.stats.active'),
-        value: (statsData as any).data.active.toString(),
+        value: stats.active.toString(),
         icon: <FiActivity className="h-5 w-5 text-green-500" />,
         trend: undefined,
       },
       {
         id: 'with-tracking',
         title: t('delivery_methods.stats.with_tracking'),
-        value: (statsData as any).data.withTracking.toString(),
+        value: stats.withTracking.toString(),
         icon: <FiPackage className="h-5 w-5 text-blue-500" />,
         trend: undefined,
       },

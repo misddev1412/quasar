@@ -1,10 +1,10 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Country } from '../../products/entities/country.entity';
-import { AdministrativeDivision } from '../../products/entities/administrative-division.entity';
-import { AddressBookConfig, AddressConfigType } from './address-book-config.entity';
-import { Customer } from '../../products/entities/customer.entity';
+import { Country } from '@backend/modules/products/entities/country.entity';
+import { AdministrativeDivision } from '@backend/modules/products/entities/administrative-division.entity';
+import { AddressBookConfig, AddressConfigType } from '@backend/modules/user/entities/address-book-config.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
 
 export enum AddressType {
   BILLING = 'BILLING',

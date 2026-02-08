@@ -1,4 +1,4 @@
-import { MailLogStatus, MailLogChannel } from '../entities/mail-log.entity';
+import { MailLogStatus, MailLogChannel } from '@backend/modules/mail-log/entities/mail-log.entity';
 
 export interface CreateMailLogDto {
   mailProviderId?: string;

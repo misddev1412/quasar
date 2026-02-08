@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Service } from './entities/service.entity';
-import { ServiceTranslation } from './entities/service-translation.entity';
-import { ServiceItem } from './entities/service-item.entity';
-import { ServiceItemTranslation } from './entities/service-item-translation.entity';
+import { Service } from '@backend/modules/services/entities/service.entity';
+import { ServiceTranslation } from '@backend/modules/services/entities/service-translation.entity';
+import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
+import { ServiceItemTranslation } from '@backend/modules/services/entities/service-item-translation.entity';
 
-import { SharedModule } from '../shared/shared.module';
-import { ServicesRouter } from './routers/services.router';
-import { ServicesService } from './services.service';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { ServicesRouter } from '@backend/modules/services/routers/services.router';
+import { ServicesService } from '@backend/modules/services/services.service';
 
 @Module({
     imports: [

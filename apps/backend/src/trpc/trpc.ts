@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
-import { AuthenticatedContext } from './context';
-import { createErrorFormatter } from './error-formatter';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { createErrorFormatter } from '@backend/trpc/error-formatter';
 
 // Initialize tRPC with context and errorFormatter
 const t = initTRPC.context<AuthenticatedContext>().create({

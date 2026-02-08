@@ -2,14 +2,14 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminAddressBookService } from '../services/admin-address-book.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminAddressBookService } from '@backend/modules/user/services/admin-address-book.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { AddressType } from '../entities/address-book.entity';
-import { AdministrativeDivisionType } from '../../products/entities/administrative-division.entity';
-import { ClientAddressBookService } from '../services/client-address-book.service';
+import { AddressType } from '@backend/modules/user/entities/address-book.entity';
+import { AdministrativeDivisionType } from '@backend/modules/products/entities/administrative-division.entity';
+import { ClientAddressBookService } from '@backend/modules/user/services/client-address-book.service';
 
 export const addressTypeSchema = z.nativeEnum(AddressType);
 

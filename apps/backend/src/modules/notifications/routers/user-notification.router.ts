@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { NotificationService } from '../services/notification.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { NotificationType } from '../entities/notification.entity';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 
 export const notificationTypeSchema = z.nativeEnum(NotificationType);
 

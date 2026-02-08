@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { SEORepository } from '../repositories/seo.repository';
-import { CreateSeoDto, UpdateSeoDto } from '../dto/seo.dto';
-import { SEOEntity } from '../entities/seo.entity';
+import { SEORepository } from '@backend/modules/seo/repositories/seo.repository';
+import { CreateSeoDto, UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
+import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ErrorLevelCode,  ModuleCode, OperationCode} from '@shared/enums/error-codes.enums';
 

@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SettingService } from '../services/setting.service';
+import { SettingService } from '@backend/modules/settings/services/setting.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { getSettingsByGroupSchema } from '../dto/setting.dto';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { getSettingsByGroupSchema } from '@backend/modules/settings/dto/setting.dto';
 
 @Router({ alias: 'public.settings' })
 @Injectable()

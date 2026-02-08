@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
-import { AuthenticatedContext } from '../context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 /**
  * Middleware that injects authenticated user information into procedure parameters

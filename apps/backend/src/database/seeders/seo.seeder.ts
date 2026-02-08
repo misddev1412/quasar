@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { SeederModule } from './seeder.module';
-import { SEOEntity } from '../../modules/seo/entities/seo.entity';
+import { SeederModule } from '@backend/database/seeders/seeder.module';
+import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
 
 @Injectable()
 export class SeoSeeder implements SeederModule {

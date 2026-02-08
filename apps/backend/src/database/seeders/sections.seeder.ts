@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { SeederModule } from './seeder.module';
-import { SectionEntity } from '../../modules/sections/entities/section.entity';
-import { SectionTranslationEntity } from '../../modules/sections/entities/section-translation.entity';
+import { SeederModule } from '@backend/database/seeders/seeder.module';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
+import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
 import { SectionType } from '@shared/enums/section.enums';
 
 @Injectable()

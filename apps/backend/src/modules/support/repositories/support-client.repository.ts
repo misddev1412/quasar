@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { SupportClient } from '../entities/support-client.entity';
+import { SupportClient } from '@backend/modules/support/entities/support-client.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
 
 @Injectable()

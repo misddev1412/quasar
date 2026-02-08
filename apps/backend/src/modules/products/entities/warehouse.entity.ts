@@ -1,10 +1,10 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { WarehouseLocation } from './warehouse-location.entity';
-import { InventoryItem } from './inventory-item.entity';
-import { StockMovement } from './stock-movement.entity';
-import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
+import { WarehouseLocation } from '@backend/modules/products/entities/warehouse-location.entity';
+import { InventoryItem } from '@backend/modules/products/entities/inventory-item.entity';
+import { StockMovement } from '@backend/modules/products/entities/stock-movement.entity';
+import { ProductWarehouseQuantity } from '@backend/modules/products/entities/product-warehouse-quantity.entity';
 
 @Entity('warehouses')
 export class Warehouse extends BaseEntity {

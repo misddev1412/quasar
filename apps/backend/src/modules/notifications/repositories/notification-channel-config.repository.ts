@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationChannelConfigEntity } from '../entities/notification-channel-config.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannel } from '../entities/notification-preference.entity';
+import { NotificationChannelConfigEntity } from '@backend/modules/notifications/entities/notification-channel-config.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
 
 export interface UpsertChannelConfigDto {
   eventKey: NotificationEvent;

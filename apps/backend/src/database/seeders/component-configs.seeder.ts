@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ComponentConfigEntity } from '../../modules/component-configs/entities/component-config.entity';
+import { ComponentConfigEntity } from '@backend/modules/component-configs/entities/component-config.entity';
 import { ComponentStructureType, ComponentCategory } from '@shared/enums/component.enums';
 import { DEFAULT_MAIN_MENU_CONFIG } from '@shared/types/navigation.types';
 

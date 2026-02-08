@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan, LessThan } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { UserSession, SessionStatus } from '../entities/user-session.entity';
+import { UserSession, SessionStatus } from '@backend/modules/user/entities/user-session.entity';
 
 export interface SessionStats {
   totalSessions: number;

@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { RoleRepository, RoleWithCounts } from '../../repositories/role.repository';
-import { PermissionRepository } from '../../repositories/permission.repository';
-import { UserRepository } from '../../repositories/user.repository';
+import { RoleRepository, RoleWithCounts } from '@backend/modules/user/repositories/role.repository';
+import { PermissionRepository } from '@backend/modules/user/repositories/permission.repository';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { Role } from '../../entities/role.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
 import { ApiStatusCodes, UserRole } from '@shared';
 import {
   AdminCreateRoleDto,
   AdminUpdateRoleDto,
   AdminRoleResponseDto,
   AdminRoleFiltersDto
-} from '../../dto/admin/admin-role.dto';
+} from '@backend/modules/user/dto/admin/admin-role.dto';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
 
 export interface AdminRoleFilters extends AdminRoleFiltersDto {

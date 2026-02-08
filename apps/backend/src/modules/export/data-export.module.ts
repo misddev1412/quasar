@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { DataExportJob } from './entities/data-export-job.entity';
-import { DataExportService } from './services/data-export.service';
-import { ExportQueueService } from './services/export-queue.service';
-import { ExportHandlerRegistry } from './services/export-handler.registry';
+import { DataExportJob } from '@backend/modules/export/entities/data-export-job.entity';
+import { DataExportService } from '@backend/modules/export/services/data-export.service';
+import { ExportQueueService } from '@backend/modules/export/services/export-queue.service';
+import { ExportHandlerRegistry } from '@backend/modules/export/services/export-handler.registry';
 
 @Module({
   imports: [

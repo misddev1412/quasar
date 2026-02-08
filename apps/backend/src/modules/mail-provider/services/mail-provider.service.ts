@@ -1,14 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
-import { MailProvider } from '../entities/mail-provider.entity';
-import { MailProviderRepository } from '../repositories/mail-provider.repository';
+import { MailProvider } from '@backend/modules/mail-provider/entities/mail-provider.entity';
+import { MailProviderRepository } from '@backend/modules/mail-provider/repositories/mail-provider.repository';
 import * as net from 'net';
 import * as tls from 'tls';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 import AWS from 'aws-sdk';
-import { MailLogService } from '../../mail-log/services/mail-log.service';
-import { MailLogStatus } from '../../mail-log/entities/mail-log.entity';
-import { CreateMailLogDto } from '../../mail-log/dto/mail-log.dto';
+import { MailLogService } from '@backend/modules/mail-log/services/mail-log.service';
+import { MailLogStatus } from '@backend/modules/mail-log/entities/mail-log.entity';
+import { CreateMailLogDto } from '@backend/modules/mail-log/dto/mail-log.dto';
 
 @Injectable()
 export class MailProviderService {

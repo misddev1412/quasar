@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
-import { Role } from '../../modules/user/entities/role.entity';
+import { AdminPermissionService } from '@backend/modules/user/services/admin/admin-permission.service';
+import { Role } from '@backend/modules/user/entities/role.entity';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
-import { PermissionGrant } from '../../modules/user/services/admin/admin-permission.service';
+import { PermissionGrant } from '@backend/modules/user/services/admin/admin-permission.service';
 
 @Injectable()
 export class PermissionSeeder {

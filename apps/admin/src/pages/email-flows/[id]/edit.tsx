@@ -6,6 +6,7 @@ import { FormTabConfig } from '@admin/types/forms';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 type MailChannelPriorityFormData = {
   name: string;
@@ -14,8 +15,35 @@ type MailChannelPriorityFormData = {
   mailTemplateId?: string;
   isActive?: boolean;
   priority?: number;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 };
+
+type ProviderOptionSource = {
+  id: string;
+  name: string;
+  providerType: string;
+};
+
+type TemplateOptionSource = {
+  id: string;
+  name: string;
+};
+
+type FlowDataResponse = {
+  data?: MailChannelPriorityFormData;
+};
+
+type ProvidersResponse = {
+  data?: ProviderOptionSource[];
+};
+
+type TemplatesResponse = {
+  data?: {
+    items?: TemplateOptionSource[];
+  };
+};
+
+type UpdateFlowInput = MailChannelPriorityFormData & { id: string };
 
 const mailChannelPrioritySchema: z.ZodSchema<MailChannelPriorityFormData> = z.object({
   name: z.string().min(2).max(255),
@@ -23,13 +51,14 @@ const mailChannelPrioritySchema: z.ZodSchema<MailChannelPriorityFormData> = z.ob
   mailProviderId: z.string().uuid(),
   isActive: z.boolean().optional().default(true),
   priority: z.number().int().min(1).max(10).optional().default(5),
-  config: z.record(z.any()).optional(),
+  config: z.record(z.unknown()).optional(),
 }) as z.ZodSchema<MailChannelPriorityFormData>;
 
 const EditMailChannelPriorityPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { t } = useTranslationWithBackend();
   const [providerOptions, setProviderOptions] = useState<Array<{ value: string; label: string }>>([]);
   const [templateOptions, setTemplateOptions] = useState<Array<{ value: string; label: string }>>([]);
 
@@ -43,18 +72,26 @@ const EditMailChannelPriorityPage: React.FC = () => {
   });
   const updateMutation = trpc.adminMailChannelPriority.updateFlow.useMutation({
     onSuccess: () => {
-      addToast({ title: 'Success', description: 'Mail channel priority updated successfully', type: 'success' });
+      addToast({
+        title: t('common.success', 'Success'),
+        description: t('email_flows.update_success', 'Mail channel priority updated successfully'),
+        type: 'success',
+      });
       navigate('/email-flows');
     },
     onError: (error) => {
-      addToast({ title: 'Error', description: error.message, type: 'error' });
+      addToast({
+        title: t('common.error', 'Error'),
+        description: error.message,
+        type: 'error',
+      });
     },
   });
 
   useEffect(() => {
-    const data = (providersData as any)?.data;
+    const data = (providersData as ProvidersResponse | undefined)?.data;
     if (data && Array.isArray(data)) {
-      const options = data.map((p: any) => ({
+      const options = data.map((p) => ({
         value: p.id,
         label: `${p.name} (${p.providerType})`,
       }));
@@ -63,9 +100,9 @@ const EditMailChannelPriorityPage: React.FC = () => {
   }, [providersData]);
 
   useEffect(() => {
-    const items = (templatesData as any)?.data?.items;
+    const items = (templatesData as TemplatesResponse | undefined)?.data?.items;
     if (Array.isArray(items)) {
-      const options = items.map((template: any) => ({
+      const options = items.map((template) => ({
         value: template.id,
         label: template.name,
       }));
@@ -132,11 +169,11 @@ const EditMailChannelPriorityPage: React.FC = () => {
   if (isLoading) {
     return (
       <StandardFormPage
-        title="Edit Mail Channel Priority"
-        description="Update how this mail channel participates in your priority strategy."
-        icon={<Mail className="w-5 h-5" />}
-        entityName="Mail Channel Priority"
-        entityNamePlural="Mail Channel Priorities"
+        title={t('email_flows.edit.title', 'Edit Mail Channel Priority')}
+        description={t('email_flows.edit.description', 'Update how this mail channel participates in your priority strategy.')}
+        icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName={t('email_flows.entity_name', 'Mail Channel Priority')}
+        entityNamePlural={t('email_flows.entity_name_plural', 'Mail Channel Priorities')}
         backUrl="/email-flows"
         onBack={() => navigate('/email-flows')}
         showActions={false}
@@ -146,15 +183,15 @@ const EditMailChannelPriorityPage: React.FC = () => {
     );
   }
 
-  const flow = (flowData as any)?.data;
+  const flow = (flowData as FlowDataResponse | undefined)?.data;
 
   return (
     <StandardFormPage
-      title="Edit Mail Channel Priority"
-      description="Update how this mail channel participates in your priority strategy."
-      icon={<Mail className="w-5 h-5" />}
-      entityName="Mail Channel Priority"
-      entityNamePlural="Mail Channel Priorities"
+      title={t('email_flows.edit.title', 'Edit Mail Channel Priority')}
+      description={t('email_flows.edit.description', 'Update how this mail channel participates in your priority strategy.')}
+      icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('email_flows.entity_name', 'Mail Channel Priority')}
+      entityNamePlural={t('email_flows.entity_name_plural', 'Mail Channel Priorities')}
       backUrl="/email-flows"
       onBack={() => navigate('/email-flows')}
       isSubmitting={updateMutation.isPending}
@@ -163,13 +200,13 @@ const EditMailChannelPriorityPage: React.FC = () => {
       <EntityForm<MailChannelPriorityFormData>
         formId={formId}
         tabs={tabs}
-        initialValues={flow as any}
+        initialValues={flow}
         onSubmit={async (formData) => {
-          const payload = {
+          const payload: MailChannelPriorityFormData = {
             ...formData,
             mailTemplateId: formData.mailTemplateId || undefined,
           };
-          await updateMutation.mutateAsync({ id: id!, ...payload } as any);
+          await updateMutation.mutateAsync({ id: id!, ...payload } as UpdateFlowInput);
         }}
         onCancel={() => navigate('/email-flows')}
         isSubmitting={updateMutation.isPending}

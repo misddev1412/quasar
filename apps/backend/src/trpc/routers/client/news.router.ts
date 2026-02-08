@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Ctx, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ResponseService } from '../../../modules/shared/services/response.service';
-import { ClientPostsService } from '../../../modules/posts/services/client-posts.service';
-import { apiResponseSchema } from '../../schemas/response.schemas';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { ClientPostsService } from '@backend/modules/posts/services/client-posts.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Define schemas for news
 const newsItemSchema = z.object({

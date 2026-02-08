@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SEOService } from '../services/seo.service';
+import { SEOService } from '@backend/modules/seo/services/seo.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import {
   CreateSeoDto,
   UpdateSeoDto,
-} from '../dto/seo.dto';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+} from '@backend/modules/seo/dto/seo.dto';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 
 @Router({ alias: 'admin.seo' })
 @Injectable()

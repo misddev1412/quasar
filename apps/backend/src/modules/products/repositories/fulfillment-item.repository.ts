@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, Between, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FulfillmentItem, FulfillmentItemStatus } from '../entities/fulfillment-item.entity';
+import { FulfillmentItem, FulfillmentItemStatus } from '@backend/modules/products/entities/fulfillment-item.entity';
 
 export interface FulfillmentItemFilters {
   fulfillmentId?: string;

@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { PaymentMethodService, type SavePaymentMethodProviderDto } from '../services/payment-method.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { PaymentMethodType, ProcessingFeeType } from '../entities/payment-method.entity';
+import { PaymentMethodService, type SavePaymentMethodProviderDto } from '@backend/modules/products/services/payment-method.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { PaymentMethodType, ProcessingFeeType } from '@backend/modules/products/entities/payment-method.entity';
 
 export const paymentMethodTypeSchema = z.nativeEnum(PaymentMethodType);
 export const processingFeeTypeSchema = z.nativeEnum(ProcessingFeeType);

@@ -11,9 +11,9 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { ProductBundleEntity } from './product-bundle.entity';
-import { Category } from '../../products/entities/category.entity';
-import { Product } from '../../products/entities/product.entity';
+import { ProductBundleEntity } from '@backend/modules/product-bundles/entities/product-bundle.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 export enum BundleItemMode {
     CATEGORY = 'category',

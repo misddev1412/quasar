@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminPermissionService } from '../services/admin/admin-permission.service';
+import { AdminPermissionService } from '@backend/modules/user/services/admin/admin-permission.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { MessageLevelCode } from '@shared/enums/message-codes.enums';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const permissionActionSchema = z.enum([

@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { TableSeeder } from '../../modules/shared/services/table-initialization.service';
+import { TableSeeder } from '@backend/modules/shared/services/table-initialization.service';
 
 /**
  * Example seeder showing how to implement the TableSeeder interface

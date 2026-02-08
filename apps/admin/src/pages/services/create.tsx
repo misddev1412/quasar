@@ -5,6 +5,7 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { ServiceForm } from '@admin/components/services';
 import { StandardFormPage } from '@admin/components/common';
+import type { ServiceSubmitPayload } from '@admin/types/service';
 import { FileText } from 'lucide-react';
 
 const CreateServicePage = () => {
@@ -22,7 +23,7 @@ const CreateServicePage = () => {
         }
     });
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: ServiceSubmitPayload) => {
         // Transform data if needed for backend
         // Backend expects CreateServiceDto which has 'translations' array and 'items' array
         // ServiceForm handleFormSubmit constructs this structure mostly.
@@ -54,7 +55,7 @@ const CreateServicePage = () => {
         <StandardFormPage
             title={t('services.create_title', 'Create Service')}
             description={t('services.create_desc', 'Add a new service to your catalog')}
-            icon={<FileText className="w-5 h-5" />}
+            icon={<FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
             entityName={t('services.entity_name', 'Service')}
             entityNamePlural={t('services.entity_name_plural', 'Services')}
             backUrl="/services"

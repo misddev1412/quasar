@@ -1,8 +1,8 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { BrandTranslation } from './brand-translation.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { BrandTranslation } from '@backend/modules/products/entities/brand-translation.entity';
 
 @Entity('brands')
 export class Brand extends BaseEntity {

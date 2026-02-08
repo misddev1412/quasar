@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from '../../repositories/user.repository';
-import { UserSessionRepository } from '../../repositories/user-session.repository';
-import { UserActivityRepository } from '../../repositories/user-activity.repository';
+import { UserRepository } from '@backend/modules/user/repositories/user.repository';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
+import { UserActivityRepository } from '@backend/modules/user/repositories/user-activity.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { SessionStatus } from '../../entities/user-session.entity';
-import { ActivityType } from '../../entities/user-activity.entity';
+import { SessionStatus } from '@backend/modules/user/entities/user-session.entity';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export interface UserStatistics {
   totalUsers: number;

@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { ProductVariant } from './product-variant.entity';
-import { Attribute } from './attribute.entity';
-import { AttributeValue } from './attribute-value.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
+import { Attribute } from '@backend/modules/products/entities/attribute.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
 
 @Entity('product_variant_items')
 @Index(['productVariantId', 'attributeId'], { unique: true }) // Ensure one value per attribute per variant

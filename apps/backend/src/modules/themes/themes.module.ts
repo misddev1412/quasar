@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThemeEntity } from './entities/theme.entity';
-import { ThemeRepository } from './repositories/theme.repository';
-import { AdminThemesService } from './services/admin-themes.service';
-import { AdminThemesRouter } from './routers/admin-themes.router';
-import { SharedModule } from '../shared/shared.module';
-import { PublicThemesService } from './services/public-themes.service';
-import { PublicThemesRouter } from './routers/public-themes.router';
+import { ThemeEntity } from '@backend/modules/themes/entities/theme.entity';
+import { ThemeRepository } from '@backend/modules/themes/repositories/theme.repository';
+import { AdminThemesService } from '@backend/modules/themes/services/admin-themes.service';
+import { AdminThemesRouter } from '@backend/modules/themes/routers/admin-themes.router';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { PublicThemesService } from '@backend/modules/themes/services/public-themes.service';
+import { PublicThemesRouter } from '@backend/modules/themes/routers/public-themes.router';
 
 @Module({
   imports: [

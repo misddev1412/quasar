@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { ProductRepository, ProductFilters, PaginatedProducts } from '../repositories/product.repository';
-import { ProductMediaRepository, CreateProductMediaDto } from '../repositories/product-media.repository';
-import { ProductVariantRepository, CreateProductVariantDto, UpdateProductVariantDto } from '../repositories/product-variant.repository';
-import { ProductSpecificationRepository, CreateProductSpecificationDto } from '../repositories/product-specification.repository';
-import { ProductWarehouseQuantityRepository } from '../repositories/product-warehouse-quantity.repository';
-import { AttributeRepository } from '../repositories/attribute.repository';
+import { ProductRepository, ProductFilters, PaginatedProducts } from '@backend/modules/products/repositories/product.repository';
+import { ProductMediaRepository, CreateProductMediaDto } from '@backend/modules/products/repositories/product-media.repository';
+import { ProductVariantRepository, CreateProductVariantDto, UpdateProductVariantDto } from '@backend/modules/products/repositories/product-variant.repository';
+import { ProductSpecificationRepository, CreateProductSpecificationDto } from '@backend/modules/products/repositories/product-specification.repository';
+import { ProductWarehouseQuantityRepository } from '@backend/modules/products/repositories/product-warehouse-quantity.repository';
+import { AttributeRepository } from '@backend/modules/products/repositories/attribute.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { Product, ProductStatus } from '../entities/product.entity';
-import { ProductPriceHistory } from '../entities/product-price-history.entity';
-import { ProductVariantPriceHistory } from '../entities/product-variant-price-history.entity';
-import { MediaType } from '../entities/product-media.entity';
+import { Product, ProductStatus } from '@backend/modules/products/entities/product.entity';
+import { ProductPriceHistory } from '@backend/modules/products/entities/product-price-history.entity';
+import { ProductVariantPriceHistory } from '@backend/modules/products/entities/product-variant-price-history.entity';
+import { MediaType } from '@backend/modules/products/entities/product-media.entity';
 import { ApiStatusCodes } from '@shared';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductTransformer, TransformedProduct } from '../transformers/product.transformer';
+import { ProductTransformer, TransformedProduct } from '@backend/modules/products/transformers/product.transformer';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import * as path from 'path';
@@ -25,8 +25,8 @@ import {
   ExportJobRunnerService,
   ExportJobPayload,
 } from '@backend/modules/export';
-import { PRODUCT_EXPORT_COLUMNS, PRODUCT_TEMPLATE_EXPORT_COLUMNS } from '../export/product-export.columns';
-import { ImportJobService } from '../../import/services/import-job.service';
+import { PRODUCT_EXPORT_COLUMNS, PRODUCT_TEMPLATE_EXPORT_COLUMNS } from '@backend/modules/products/export/product-export.columns';
+import { ImportJobService } from '@backend/modules/import/services/import-job.service';
 import slugify from 'slugify';
 
 export interface AdminProductFilters {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { UserActivityRepository } from '../../user/repositories/user-activity.repository';
-import { UserSessionRepository } from '../../user/repositories/user-session.repository';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { UserActivityRepository } from '@backend/modules/user/repositories/user-activity.repository';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
 import { subDays, subMonths, format, startOfDay, endOfDay } from 'date-fns';
 
 export interface ChartDataRequest {

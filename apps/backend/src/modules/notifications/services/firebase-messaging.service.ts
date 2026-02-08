@@ -1,10 +1,10 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { FirebaseAuthService } from '../../firebase/services/firebase-auth.service';
-import { FirebaseConfigService } from '../../firebase/services/firebase-config.service';
+import { FirebaseAuthService } from '@backend/modules/firebase/services/firebase-auth.service';
+import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
 import * as admin from 'firebase-admin';
-import { NotificationRepository, CreateNotificationDto } from '../repositories/notification.repository';
-import { NotificationEntity, NotificationType } from '../entities/notification.entity';
-import { UserDeviceRepository } from '../repositories/user-device.repository';
+import { NotificationRepository, CreateNotificationDto } from '@backend/modules/notifications/repositories/notification.repository';
+import { NotificationEntity, NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { UserDeviceRepository } from '@backend/modules/notifications/repositories/user-device.repository';
 
 export interface FCMPayload {
   title: string;

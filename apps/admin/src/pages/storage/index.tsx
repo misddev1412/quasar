@@ -692,11 +692,11 @@ const StorageConfigPage: React.FC = () => {
 
   return (
     <StandardFormPage
-      title="Storage Configuration"
-      description="Configure file storage settings for local or S3 storage"
+      title={t('storage.title', 'Storage Configuration')}
+      description={t('storage.description', 'Configure file storage settings for local or S3 storage')}
       icon={<Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
-      entityName="Storage"
-      entityNamePlural="Storage"
+      entityName={t('storage.entity_name', 'Storage')}
+      entityNamePlural={t('storage.entity_name_plural', 'Storage')}
       backUrl="/settings"
       onBack={handleCancel}
       isSubmitting={updateConfigMutation.isPending}

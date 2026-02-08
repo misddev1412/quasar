@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { User } from './user.entity';
-import { Role } from './role.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { Role } from '@backend/modules/user/entities/role.entity';
 
 @Entity('user_roles')
 @Index(['userId', 'roleId'], { unique: true })

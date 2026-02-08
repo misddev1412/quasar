@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ReportPayload, ReportResult } from '../interfaces/worker-payloads.interface';
-import { WorkerEmailService } from './worker-email.service';
+import { ReportPayload, ReportResult } from '@backend/modules/worker-services/interfaces/worker-payloads.interface';
+import { WorkerEmailService } from '@backend/modules/worker-services/services/worker-email.service';
 
 @Injectable()
 export class WorkerReportService {

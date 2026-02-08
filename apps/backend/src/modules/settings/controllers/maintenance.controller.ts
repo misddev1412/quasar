@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { MaintenanceService } from '../services/maintenance.service';
+import { MaintenanceService } from '@backend/modules/settings/services/maintenance.service';
 
 @Controller('maintenance')
 export class MaintenanceController {

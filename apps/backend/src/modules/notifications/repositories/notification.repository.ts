@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, FindOptionsWhere, In } from 'typeorm';
-import { NotificationEntity, NotificationType } from '../entities/notification.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
+import { NotificationEntity, NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 export interface CreateNotificationDto {
   userId: string;

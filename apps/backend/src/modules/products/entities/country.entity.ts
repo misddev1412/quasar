@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { AdministrativeDivision } from './administrative-division.entity';
+import { AdministrativeDivision } from '@backend/modules/products/entities/administrative-division.entity';
 
 @Entity('countries')
 export class Country extends BaseEntity {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Not, IsNull } from 'typeorm';
-import { PaymentMethod, PaymentMethodType } from '../entities/payment-method.entity';
+import { PaymentMethod, PaymentMethodType } from '@backend/modules/products/entities/payment-method.entity';
 
 export interface CreatePaymentMethodDto {
   name: string;

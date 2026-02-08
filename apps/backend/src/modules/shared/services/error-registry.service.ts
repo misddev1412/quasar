@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { errorRegistry, ErrorRegistryEntry } from '../registry/error-registry';
+import { errorRegistry, ErrorRegistryEntry } from '@backend/modules/shared/registry/error-registry';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared';
 
 /**

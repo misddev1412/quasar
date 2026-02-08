@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Language } from '../../modules/language/entities/language.entity';
+import { Language } from '@backend/modules/language/entities/language.entity';
 
 @Injectable()
 export class LanguagesSeeder {

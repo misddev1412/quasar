@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { Category } from './category.entity';
+import { Category } from '@backend/modules/products/entities/category.entity';
 
 @Entity('category_translations')
 @Index(['category_id', 'locale'], { unique: true })

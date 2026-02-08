@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PostStatus, PostType } from '../entities/post.entity';
+import { PostStatus, PostType } from '@backend/modules/posts/entities/post.entity';
 
 // Base post translation schema
 export const PostTranslationSchema = z.object({

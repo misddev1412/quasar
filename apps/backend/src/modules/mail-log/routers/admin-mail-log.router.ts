@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input, UseMiddlewares, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { MailLogService } from '../services/mail-log.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { MailLogStatus } from '../entities/mail-log.entity';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { MailLogService } from '@backend/modules/mail-log/services/mail-log.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { MailLogStatus } from '@backend/modules/mail-log/entities/mail-log.entity';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 

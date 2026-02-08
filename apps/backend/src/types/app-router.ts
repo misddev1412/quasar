@@ -1,27 +1,27 @@
-import { router, procedure } from '../trpc/trpc';
+import { router, procedure } from '@backend/trpc/trpc';
 import { z } from 'zod';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
-import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
-import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '../modules/sections/dto/section.dto';
-import { AdministrativeDivisionType } from '../modules/products/entities/administrative-division.entity';
+import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '@backend/trpc/schemas/response.schemas';
+import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '@backend/modules/sections/dto/section.dto';
+import { AdministrativeDivisionType } from '@backend/modules/products/entities/administrative-division.entity';
 import {
   listSiteContentQuerySchema,
   createSiteContentSchema,
   updateSiteContentSchema,
   siteContentIdSchema,
   bulkDeleteSiteContentSchema,
-} from '../modules/site-content/dto/site-content.dto';
+} from '@backend/modules/site-content/dto/site-content.dto';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 import {
   searchSpecificationLabelsSchema,
   createSpecificationLabelSchema,
-} from '../modules/products/routers/admin-product-specification-labels.router';
+} from '@backend/modules/products/routers/admin-product-specification-labels.router';
 import {
   CreateServiceSchema,
   UpdateServiceSchema,
   ServiceFilterSchema,
-} from '../modules/services/dto/service.dto';
+} from '@backend/modules/services/dto/service.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([

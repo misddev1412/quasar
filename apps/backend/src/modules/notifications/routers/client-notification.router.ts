@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ResponseService } from '../../shared/services/response.service';
-import { NotificationService } from '../services/notification.service';
-import { NotificationType } from '../entities/notification.entity';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 export const clientNotificationTypeSchema = z.nativeEnum(NotificationType);
 

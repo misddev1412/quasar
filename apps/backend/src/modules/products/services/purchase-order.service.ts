@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PurchaseOrderRepository } from '../repositories/purchase-order.repository';
-import { InventoryItemRepository } from '../repositories/inventory-item.repository';
-import { StockMovementRepository } from '../repositories/stock-movement.repository';
-import { PurchaseOrder, PurchaseOrderStatus, PurchaseOrderItem, InventoryItem, MovementType, MovementReason } from '../entities';
+import { PurchaseOrderRepository } from '@backend/modules/products/repositories/purchase-order.repository';
+import { InventoryItemRepository } from '@backend/modules/products/repositories/inventory-item.repository';
+import { StockMovementRepository } from '@backend/modules/products/repositories/stock-movement.repository';
+import { PurchaseOrder, PurchaseOrderStatus, PurchaseOrderItem, InventoryItem, MovementType, MovementReason } from '@backend/modules/products/entities';
 
 export interface CreatePurchaseOrderDto {
   supplierId: string;

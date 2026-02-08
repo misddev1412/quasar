@@ -1,9 +1,9 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Wishlist } from '../entities/wishlist.entity';
-import { Customer } from '../entities/customer.entity';
-import { Product } from '../entities/product.entity';
+import { Wishlist } from '@backend/modules/products/entities/wishlist.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 export interface WishlistFilters {
   customerId?: string;

@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { Customer } from './customer.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
 
 export enum ProductReviewStatus {
   PENDING = 'PENDING',

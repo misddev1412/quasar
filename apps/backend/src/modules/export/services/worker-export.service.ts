@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { FileUploadService } from '../../storage/services/file-upload.service';
-import { DataExportService } from './data-export.service';
-import { ExportHandlerRegistry } from './export-handler.registry';
-import { BaseExportHandler } from '../handlers/base-export.handler';
-import { ExportJobPayload } from '../interfaces/export-payload.interface';
-import { DataExportJob, ExportColumnDefinition } from '../entities/data-export-job.entity';
-import { StorageService } from '../../storage/services/storage.service';
-import { StorageConfig, S3StorageConfig, UploadResult } from '../../storage/interfaces/storage.interface';
-import { extractS3KeyFromUrl, trimTrailingSlash } from '../../storage/utils/storage-url.util';
-import { NotificationService } from '../../notifications/services/notification.service';
-import { NotificationEvent } from '../../notifications/entities/notification-event.enum';
-import { NotificationType } from '../../notifications/entities/notification.entity';
+import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { DataExportService } from '@backend/modules/export/services/data-export.service';
+import { ExportHandlerRegistry } from '@backend/modules/export/services/export-handler.registry';
+import { BaseExportHandler } from '@backend/modules/export/handlers/base-export.handler';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
+import { DataExportJob, ExportColumnDefinition } from '@backend/modules/export/entities/data-export-job.entity';
+import { StorageService } from '@backend/modules/storage/services/storage.service';
+import { StorageConfig, S3StorageConfig, UploadResult } from '@backend/modules/storage/interfaces/storage.interface';
+import { extractS3KeyFromUrl, trimTrailingSlash } from '@backend/modules/storage/utils/storage-url.util';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 
 @Injectable()
 export class WorkerExportService {

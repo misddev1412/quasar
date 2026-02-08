@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { BaseRepository, UserRole } from '@shared';
-import { Role } from '../entities/role.entity';
-import { AdminRoleFiltersDto } from '../dto/admin/admin-role.dto';
+import { Role } from '@backend/modules/user/entities/role.entity';
+import { AdminRoleFiltersDto } from '@backend/modules/user/dto/admin/admin-role.dto';
 
 export interface RoleWithCounts extends Role {
   permissionCount: number;

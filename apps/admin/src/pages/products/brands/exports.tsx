@@ -29,6 +29,16 @@ type BrandExportFilters = {
   isActive?: boolean;
 };
 
+type ApiEnvelope<T> = { data?: T };
+type ExportJobsPayload = {
+  items?: ExportJobItem[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+};
+type EstimatePayload = { total?: number };
+
 const statusVariantMap: Record<ExportJobItem['status'], 'info' | 'success' | 'warning' | 'destructive'> = {
   pending: 'warning',
   processing: 'info',
@@ -116,17 +126,21 @@ const BrandExportsPage: React.FC = () => {
     }
   }, [locationState?.format, locationState?.filters]);
 
-  const exportBrandsMutation = (trpc.adminProductBrands as Record<string, any>).exportBrands.useMutation();
+  const exportBrandsMutation = (trpc.adminProductBrands as unknown as {
+    exportBrands: { useMutation: () => { mutateAsync: (input: { format: 'csv' | 'json'; exportMode: 'standard' | 'template'; filters?: Record<string, unknown> }) => Promise<unknown>; isPending: boolean } };
+  }).exportBrands.useMutation();
   const {
     data: exportJobsResponse,
     isLoading: exportJobsLoading,
     refetch: refetchExportJobs,
-  } = (trpc.adminProductBrands as Record<string, any>).listExportJobs.useQuery(
-    { limit, page } as any,
+  } = (trpc.adminProductBrands as unknown as {
+    listExportJobs: { useQuery: (input: { limit: number; page: number }, options?: { placeholderData?: (previousData: unknown) => unknown; refetchInterval?: (response: unknown) => false | number }) => { data?: unknown; isLoading: boolean; refetch: () => void } };
+  }).listExportJobs.useQuery(
+    { limit, page },
     {
       placeholderData: (previousData) => previousData,
       refetchInterval: (response) => {
-        const jobs = (response as any)?.data?.items as ExportJobItem[] | undefined;
+        const jobs = (response as ApiEnvelope<ExportJobsPayload> | undefined)?.data?.items;
         if (!Array.isArray(jobs)) {
           return false;
         }
@@ -135,7 +149,7 @@ const BrandExportsPage: React.FC = () => {
     }
   );
 
-  const rawExportData = (exportJobsResponse as any)?.data;
+  const rawExportData = (exportJobsResponse as ApiEnvelope<ExportJobItem[] | ExportJobsPayload> | undefined)?.data;
 
   const normalizedExportData = useMemo(() => {
     if (!rawExportData) {
@@ -221,7 +235,9 @@ const BrandExportsPage: React.FC = () => {
     [filterEntries],
   );
 
-  const estimateExportBrandsQuery = (trpc.adminProductBrands as Record<string, any>).estimateExportBrands;
+  const estimateExportBrandsQuery = (trpc.adminProductBrands as unknown as {
+    estimateExportBrands: { useQuery: (input: { filters: Record<string, unknown> }, options?: { enabled?: boolean }) => { data?: unknown; isFetching: boolean; error?: unknown } };
+  }).estimateExportBrands;
 
   const {
     data: estimateResponse,
@@ -235,7 +251,7 @@ const BrandExportsPage: React.FC = () => {
   );
 
   const estimatedTotal = useMemo(() => {
-    const raw = (estimateResponse as any)?.data?.total;
+    const raw = (estimateResponse as ApiEnvelope<EstimatePayload> | undefined)?.data?.total;
     return typeof raw === 'number' ? raw : null;
   }, [estimateResponse]);
 
@@ -254,11 +270,14 @@ const BrandExportsPage: React.FC = () => {
         description: t('brands.exports.notifications.queue_success_description', 'We will notify you once your file is ready to download.'),
       });
       refetchExportJobs();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : t('brands.exports.notifications.queue_failed_description', 'Please try again in a few seconds.');
       addToast({
         type: 'error',
         title: t('brands.exports.notifications.queue_failed_title', 'Failed to queue export'),
-        description: error?.message || t('brands.exports.notifications.queue_failed_description', 'Please try again in a few seconds.'),
+        description: message,
       });
     }
   }, [exportBrandsMutation, format, exportMode, hasActiveFilters, filterPayload, addToast, refetchExportJobs, t]);

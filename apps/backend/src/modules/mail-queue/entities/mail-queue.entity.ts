@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { EmailFlow } from '../../email-flow/entities/email-flow.entity';
-import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
-import { MailProvider } from '../../mail-provider/entities/mail-provider.entity';
+import { EmailFlow } from '@backend/modules/email-flow/entities/email-flow.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
+import { MailProvider } from '@backend/modules/mail-provider/entities/mail-provider.entity';
 
 export enum MailQueueStatus {
   PENDING = 'pending',

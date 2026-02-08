@@ -2,15 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { RequirePermission } from '../../../trpc/middlewares/permission.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { RequirePermission } from '@backend/trpc/middlewares/permission.middleware';
 import { PermissionAction, PermissionScope } from '@shared';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { NotificationTelegramConfigService } from '../services/notification-telegram-config.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { NotificationTelegramConfigService } from '@backend/modules/notifications/services/notification-telegram-config.service';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { CreateTelegramConfigDto } from '../repositories/notification-telegram-config.repository';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { CreateTelegramConfigDto } from '@backend/modules/notifications/repositories/notification-telegram-config.repository';
 
 // Create permission middleware classes at module level so they can be registered as providers
 const requireReadAnyTelegramConfig = RequirePermission({

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { UserSecurity, TwoFactorMethod } from '../entities/user-security.entity';
-import { UserSession } from '../entities/user-session.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { UserSecurity, TwoFactorMethod } from '@backend/modules/user/entities/user-security.entity';
+import { UserSession } from '@backend/modules/user/entities/user-session.entity';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
 

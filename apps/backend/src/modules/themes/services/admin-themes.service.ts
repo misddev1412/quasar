@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import slugify from 'slugify';
-import { ThemeRepository } from '../repositories/theme.repository';
+import { ThemeRepository } from '@backend/modules/themes/repositories/theme.repository';
 import {
   CreateThemeDto,
   ThemeColorModesDto,
   ThemeColorModesPartialDto,
   ThemeFiltersDto,
   UpdateThemeDto,
-} from '../dto/theme.dto';
-import { ThemeEntity } from '../entities/theme.entity';
-import { buildDefaultColorModes } from '../constants/theme-colors.constant';
+} from '@backend/modules/themes/dto/theme.dto';
+import { ThemeEntity } from '@backend/modules/themes/entities/theme.entity';
+import { buildDefaultColorModes } from '@backend/modules/themes/constants/theme-colors.constant';
 
 @Injectable()
 export class AdminThemesService {

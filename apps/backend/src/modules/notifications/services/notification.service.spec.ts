@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationService } from './notification.service';
-import { NotificationRepository } from '../repositories/notification.repository';
-import { UserDeviceRepository } from '../repositories/user-device.repository';
-import { FirebaseMessagingService } from './firebase-messaging.service';
-import { NotificationPreferenceService } from './notification-preference.service';
-import { NotificationChannelConfigService } from './notification-channel-config.service';
-import { FirebaseRealtimeDatabaseService } from '../../firebase/services/firebase-realtime.service';
+import { NotificationService } from '@backend/modules/notifications/services/notification.service';
+import { NotificationRepository } from '@backend/modules/notifications/repositories/notification.repository';
+import { UserDeviceRepository } from '@backend/modules/notifications/repositories/user-device.repository';
+import { FirebaseMessagingService } from '@backend/modules/notifications/services/firebase-messaging.service';
+import { NotificationPreferenceService } from '@backend/modules/notifications/services/notification-preference.service';
+import { NotificationChannelConfigService } from '@backend/modules/notifications/services/notification-channel-config.service';
+import { FirebaseRealtimeDatabaseService } from '@backend/modules/firebase/services/firebase-realtime.service';
 
 describe('NotificationService', () => {
     let service: NotificationService;

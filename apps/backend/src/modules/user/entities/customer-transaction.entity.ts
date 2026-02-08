@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Customer } from '../../products/entities/customer.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
 
 export enum CustomerTransactionType {
   ORDER_PAYMENT = 'order_payment',

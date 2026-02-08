@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { NewsletterSubscription } from '../entities/newsletter-subscription.entity';
+import { NewsletterSubscription } from '@backend/modules/newsletter/entities/newsletter-subscription.entity';
 
 @Injectable()
 export class NewsletterSubscriptionRepository extends Repository<NewsletterSubscription> {

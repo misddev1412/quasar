@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DataImportJob, ImportJobStatus } from '../entities/data-import-job.entity';
+import { DataImportJob, ImportJobStatus } from '@backend/modules/import/entities/data-import-job.entity';
 
 @Injectable()
 export class ImportJobService {

@@ -8,8 +8,8 @@ import {
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
-import { ActivityTrackingService } from '../services/activity-tracking.service';
-import { ActivityType } from '../entities/user-activity.entity';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export const TRACK_ADMIN_ACTION = 'track_admin_action';
 

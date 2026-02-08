@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
-import { FirebaseConfigService } from './firebase-config.service';
+import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
 import * as admin from 'firebase-admin';
 
 export interface FirebaseTokenPayload {

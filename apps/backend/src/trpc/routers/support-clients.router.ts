@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SupportClientService } from '../../modules/support/services/support-client.service';
-import { SupportClientType } from '../../modules/support/entities/support-client.entity';
-import { apiResponseSchema } from '../schemas/response.schemas';
+import { SupportClientService } from '@backend/modules/support/services/support-client.service';
+import { SupportClientType } from '@backend/modules/support/entities/support-client.entity';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 const getContextSchema = z.object({
   country: z.string().optional(),

@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { MailLogRepository } from '../repositories/mail-log.repository';
-import { CreateMailLogDto, MailLogFilters } from '../dto/mail-log.dto';
-import { MailLog } from '../entities/mail-log.entity';
-import { User } from '../../user/entities/user.entity';
+import { MailLogRepository } from '@backend/modules/mail-log/repositories/mail-log.repository';
+import { CreateMailLogDto, MailLogFilters } from '@backend/modules/mail-log/dto/mail-log.dto';
+import { MailLog } from '@backend/modules/mail-log/entities/mail-log.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 @Injectable()
 export class MailLogService {

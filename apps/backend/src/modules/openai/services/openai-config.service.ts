@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { OpenAiConfigRepository } from '../repositories/openai-config.repository';
-import { OpenAiConfigEntity } from '../entities/openai-config.entity';
+import { OpenAiConfigRepository } from '@backend/modules/openai/repositories/openai-config.repository';
+import { OpenAiConfigEntity } from '@backend/modules/openai/entities/openai-config.entity';
 
 export interface CreateOpenAiConfigDto {
   name: string;

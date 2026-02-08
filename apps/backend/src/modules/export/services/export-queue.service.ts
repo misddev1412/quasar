@@ -1,8 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QueuePublisher, QUEUE_NAMES, MESSAGE_TYPES } from '@shared/queues';
-import { DataExportJob } from '../entities/data-export-job.entity';
-import { ExportJobPayload } from '../interfaces/export-payload.interface';
+import { DataExportJob } from '@backend/modules/export/entities/data-export-job.entity';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
 
 @Injectable()
 export class ExportQueueService implements OnModuleDestroy {

@@ -1,5 +1,5 @@
 import { IBaseRepository } from '@shared';
-import { SEOEntity } from '../entities/seo.entity';
+import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
 
 export interface SEORepositoryInterface extends IBaseRepository<SEOEntity> {
   /**

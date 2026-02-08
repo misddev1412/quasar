@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { OrderFulfillment } from './order-fulfillment.entity';
+import { OrderFulfillment } from '@backend/modules/products/entities/order-fulfillment.entity';
 
 export enum ShippingProviderStatus {
   ACTIVE = 'ACTIVE',

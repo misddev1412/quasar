@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BundleItemMode } from '../entities/product-bundle-item.entity';
+import { BundleItemMode } from '@backend/modules/product-bundles/entities/product-bundle-item.entity';
 
 export const productBundleItemSchema = z.object({
     label: z.string(),

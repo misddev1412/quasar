@@ -1,9 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { BaseExportHandler, ExportPageResult } from '../../export/handlers/base-export.handler';
-import { ExportHandlerRegistry } from '../../export/services/export-handler.registry';
-import { BrandRepository, BrandFindManyOptions } from '../../products/repositories/brand.repository';
-import { Brand } from '../../products/entities/brand.entity';
-import { BRAND_TEMPLATE_EXPORT_COLUMNS } from '../../products/export/brand-export.columns';
+import { BaseExportHandler, ExportPageResult } from '@backend/modules/export/handlers/base-export.handler';
+import { ExportHandlerRegistry } from '@backend/modules/export/services/export-handler.registry';
+import { BrandRepository, BrandFindManyOptions } from '@backend/modules/products/repositories/brand.repository';
+import { Brand } from '@backend/modules/products/entities/brand.entity';
+import { BRAND_TEMPLATE_EXPORT_COLUMNS } from '@backend/modules/products/export/brand-export.columns';
 import * as XLSX from 'xlsx';
 
 @Injectable()

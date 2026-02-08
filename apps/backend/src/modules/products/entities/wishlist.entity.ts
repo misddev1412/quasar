@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Customer } from './customer.entity';
-import { Product } from './product.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
 
 @Entity('wishlists')
 @Index(['customerId', 'productId'], { unique: true })

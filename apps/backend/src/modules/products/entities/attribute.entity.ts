@@ -1,10 +1,10 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { AttributeValue } from './attribute-value.entity';
-import { ProductAttribute } from './product-attribute.entity';
-import { AttributeTranslation } from './attribute-translation.entity';
-import { ProductVariantItem } from './product-variant-item.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
+import { ProductAttribute } from '@backend/modules/products/entities/product-attribute.entity';
+import { AttributeTranslation } from '@backend/modules/products/entities/attribute-translation.entity';
+import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
 
 export enum AttributeType {
   TEXT = 'TEXT',

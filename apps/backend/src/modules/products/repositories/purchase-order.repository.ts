@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { PurchaseOrder, PurchaseOrderStatus } from '../entities';
+import { PurchaseOrder, PurchaseOrderStatus } from '@backend/modules/products/entities';
 
 @Injectable()
 export class PurchaseOrderRepository extends BaseRepository<PurchaseOrder> {

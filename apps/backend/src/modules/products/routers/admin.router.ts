@@ -3,17 +3,17 @@ import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminProductService } from '../services/admin-product.service';
-import { UpdateProductVariantDto } from '../repositories/product-variant.repository';
-import { ProductRepository } from '../repositories/product.repository';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { ProductStatus } from '../entities/product.entity';
+import { AdminProductService } from '@backend/modules/products/services/admin-product.service';
+import { UpdateProductVariantDto } from '@backend/modules/products/repositories/product-variant.repository';
+import { ProductRepository } from '@backend/modules/products/repositories/product.repository';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { ProductStatus } from '@backend/modules/products/entities/product.entity';
 import { PermissionAction, PermissionScope } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { resolvePermissionScope } from '../../shared/utils/permission-utils';
+import { resolvePermissionScope } from '@backend/modules/shared/utils/permission-utils';
 
 export const productStatusSchema = z.nativeEnum(ProductStatus);
 const exportFormatSchema = z.enum(['csv', 'json']);

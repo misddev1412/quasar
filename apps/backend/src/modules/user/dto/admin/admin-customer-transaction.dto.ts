@@ -4,7 +4,7 @@ import {
   LedgerAccountType,
   LedgerEntryDirection,
   TransactionChannel,
-} from '../../entities/customer-transaction.entity';
+} from '@backend/modules/user/entities/customer-transaction.entity';
 
 export interface CreateCustomerTransactionDto {
   customerId: string;

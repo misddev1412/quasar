@@ -1,5 +1,5 @@
 import { SetMetadata, createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { ActivityType } from '../entities/user-activity.entity';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export const ACTIVITY_TRACKING_KEY = 'activity_tracking';
 

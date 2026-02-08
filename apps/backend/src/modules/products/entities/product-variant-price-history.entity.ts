@@ -6,7 +6,7 @@ import {
     ManyToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
+import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
 
 @Entity('product_variant_price_history')
 export class ProductVariantPriceHistory {

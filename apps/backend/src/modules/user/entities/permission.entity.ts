@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity, PermissionAction, PermissionScope } from '@shared';
-import { RolePermission } from './role-permission.entity';
+import { RolePermission } from '@backend/modules/user/entities/role-permission.entity';
 
 @Entity('permissions')
 export class Permission extends BaseEntity {

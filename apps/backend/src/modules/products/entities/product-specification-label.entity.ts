@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { ProductSpecification } from './product-specification.entity';
+import { ProductSpecification } from '@backend/modules/products/entities/product-specification.entity';
 
 @Entity('product_specification_labels')
 export class ProductSpecificationLabel extends BaseEntity {

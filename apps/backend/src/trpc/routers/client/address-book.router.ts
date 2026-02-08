@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ClientAddressBookRouter as UserClientAddressBookRouter } from '../../../modules/user/routers/client-address-book.router';
-import { AuthMiddleware } from '../../middlewares/auth.middleware';
+import { ClientAddressBookRouter as UserClientAddressBookRouter } from '@backend/modules/user/routers/client-address-book.router';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
 
 @Router({ alias: 'addressBook' })
 @Injectable()

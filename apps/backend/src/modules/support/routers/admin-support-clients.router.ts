@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Input, Mutation } from 'nestjs-trpc';
 import { z } from 'zod';
-import { SupportClientService } from '../services/support-client.service';
-import { SupportClientType, WidgetPosition, WidgetTheme } from '../entities/support-client.entity';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { SupportClientService } from '@backend/modules/support/services/support-client.service';
+import { SupportClientType, WidgetPosition, WidgetTheme } from '@backend/modules/support/entities/support-client.entity';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const createSupportClientSchema = z.object({

@@ -1,12 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, Input, UseMiddlewares } from 'nestjs-trpc';
-import { AdminRoleService } from '../services/admin/admin-role.service';
+import { AdminRoleService } from '@backend/modules/user/services/admin/admin-role.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { z } from 'zod';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { RequirePermission } from '../../../trpc/middlewares/permission.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { RequirePermission } from '@backend/trpc/middlewares/permission.middleware';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
 
 // Create permission middleware classes at module level so they can be registered as providers

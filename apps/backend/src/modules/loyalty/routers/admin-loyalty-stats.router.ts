@@ -2,10 +2,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminLoyaltyStatsService } from '../services/admin-loyalty-stats.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AdminLoyaltyStatsService } from '@backend/modules/loyalty/services/admin-loyalty-stats.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 
 @Router({ alias: 'adminLoyaltyStats' })
 @Injectable()

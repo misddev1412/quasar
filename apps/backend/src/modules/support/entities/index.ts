@@ -1,1 +1,1 @@
-export * from './support-client.entity';
+export * from '@backend/modules/support/entities/support-client.entity';

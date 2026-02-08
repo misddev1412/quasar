@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Input, UseMiddlewares } from 'nestjs-trpc';
 import { z } from 'zod';
-import { UserActivityStatusService } from '../services/user-activity-status.service';
+import { UserActivityStatusService } from '@backend/modules/user/services/user-activity-status.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 // Zod schemas for user activity

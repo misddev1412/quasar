@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, Like, ILike } from 'typeorm';
-import { MailTemplate } from '../entities/mail-template.entity';
-import { MailTemplateFilters } from '../dto/mail-template.dto';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
+import { MailTemplateFilters } from '@backend/modules/mail-template/dto/mail-template.dto';
 import { PaginatedResult } from '@shared/types/common.types';
 
 @Injectable()

@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { WarehouseRepository } from '../repositories/warehouse.repository';
-import { InventoryItemRepository } from '../repositories/inventory-item.repository';
-import { StockMovementRepository } from '../repositories/stock-movement.repository';
-import { Warehouse, InventoryItem, StockMovement, MovementType, MovementReason } from '../entities';
+import { WarehouseRepository } from '@backend/modules/products/repositories/warehouse.repository';
+import { InventoryItemRepository } from '@backend/modules/products/repositories/inventory-item.repository';
+import { StockMovementRepository } from '@backend/modules/products/repositories/stock-movement.repository';
+import { Warehouse, InventoryItem, StockMovement, MovementType, MovementReason } from '@backend/modules/products/entities';
 
 interface CreateWarehouseDto {
   name: string;

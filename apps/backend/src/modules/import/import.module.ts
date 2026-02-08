@@ -1,11 +1,11 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from '../shared/shared.module';
-import { DataImportJob } from './entities/data-import-job.entity';
-import { ImportJobService } from './services/import-job.service';
-import { AdminImportController } from './controllers/admin-import.controller';
-import { AdminImportRouter } from './routers/admin-import.router';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { DataImportJob } from '@backend/modules/import/entities/data-import-job.entity';
+import { ImportJobService } from '@backend/modules/import/services/import-job.service';
+import { AdminImportController } from '@backend/modules/import/controllers/admin-import.controller';
+import { AdminImportRouter } from '@backend/modules/import/routers/admin-import.router';
 
 @Module({
     imports: [

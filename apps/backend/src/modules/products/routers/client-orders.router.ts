@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ResponseService } from '../../shared/services/response.service';
-import { ClientOrderService, type CreateClientOrderDto } from '../services/client-order.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { ClientOrderService, type CreateClientOrderDto } from '@backend/modules/products/services/client-order.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 

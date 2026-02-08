@@ -1,12 +1,12 @@
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn, DeleteDateColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Order } from './order.entity';
-import { Wishlist } from './wishlist.entity';
-import { ProductReview } from './product-review.entity';
-import { CustomerTransaction } from '../../user/entities/customer-transaction.entity';
-import { User } from '../../user/entities/user.entity';
-import { AddressBook } from '../../user/entities/address-book.entity';
+import { Order } from '@backend/modules/products/entities/order.entity';
+import { Wishlist } from '@backend/modules/products/entities/wishlist.entity';
+import { ProductReview } from '@backend/modules/products/entities/product-review.entity';
+import { CustomerTransaction } from '@backend/modules/user/entities/customer-transaction.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { AddressBook } from '@backend/modules/user/entities/address-book.entity';
 
 export enum CustomerType {
   INDIVIDUAL = 'INDIVIDUAL',

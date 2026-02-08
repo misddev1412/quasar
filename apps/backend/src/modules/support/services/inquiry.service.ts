@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InquiryRepository } from '../repositories/inquiry.repository';
-import { Inquiry, InquiryStatus } from '../entities/inquiry.entity';
+import { InquiryRepository } from '@backend/modules/support/repositories/inquiry.repository';
+import { Inquiry, InquiryStatus } from '@backend/modules/support/entities/inquiry.entity';
 
 export interface CreateInquiryDto {
     name: string;

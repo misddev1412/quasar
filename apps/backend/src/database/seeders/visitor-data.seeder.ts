@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Visitor, VisitorType, VisitorSource } from '../../modules/visitor/entities/visitor.entity';
-import { VisitorSession, SessionStatus } from '../../modules/visitor/entities/visitor-session.entity';
-import { PageView, PageViewType } from '../../modules/visitor/entities/page-view.entity';
+import { Visitor, VisitorType, VisitorSource } from '@backend/modules/visitor/entities/visitor.entity';
+import { VisitorSession, SessionStatus } from '@backend/modules/visitor/entities/visitor-session.entity';
+import { PageView, PageViewType } from '@backend/modules/visitor/entities/page-view.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class VisitorDataSeeder {

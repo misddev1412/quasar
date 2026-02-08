@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, Between, MoreThan, LessThan } from 'typeorm';
-import { LoyaltyTransaction, TransactionType } from '../entities/loyalty-transaction.entity';
+import { LoyaltyTransaction, TransactionType } from '@backend/modules/loyalty/entities/loyalty-transaction.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, Index, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { MenuEntity } from './menu.entity';
+import { MenuEntity } from '@backend/modules/menus/entities/menu.entity';
 
 @Entity('menu_translations')
 @Index(['menuId', 'locale'], { unique: true })

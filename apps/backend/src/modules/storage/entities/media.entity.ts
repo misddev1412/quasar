@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 export enum MediaType {
   IMAGE = 'image',

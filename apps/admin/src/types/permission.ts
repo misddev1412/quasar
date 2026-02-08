@@ -70,6 +70,22 @@ export interface PermissionResponse {
   updatedAt: Date;
 }
 
+export interface PermissionPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PermissionPaginatedPayload {
+  data: Permission[];
+  meta: PermissionPaginationMeta;
+}
+
+export interface PermissionListApiResponse {
+  data?: Permission[] | PermissionPaginatedPayload;
+}
+
 // Form field options
 export interface PermissionFormOption {
   value: string;

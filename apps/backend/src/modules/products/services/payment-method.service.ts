@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PaymentMethodRepository, CreatePaymentMethodDto, UpdatePaymentMethodDto, PaymentMethodFilters } from '../repositories/payment-method.repository';
+import { PaymentMethodRepository, CreatePaymentMethodDto, UpdatePaymentMethodDto, PaymentMethodFilters } from '@backend/modules/products/repositories/payment-method.repository';
 import {
   PaymentMethodProviderRepository,
   CreatePaymentMethodProviderDto,
   UpdatePaymentMethodProviderDto,
-} from '../repositories/payment-method-provider.repository';
-import { PaymentMethod, PaymentMethodType } from '../entities/payment-method.entity';
-import { PaymentMethodProvider } from '../entities/payment-method-provider.entity';
+} from '@backend/modules/products/repositories/payment-method-provider.repository';
+import { PaymentMethod, PaymentMethodType } from '@backend/modules/products/entities/payment-method.entity';
+import { PaymentMethodProvider } from '@backend/modules/products/entities/payment-method-provider.entity';
 
 export interface PaymentMethodListResponse {
   items: PaymentMethod[];

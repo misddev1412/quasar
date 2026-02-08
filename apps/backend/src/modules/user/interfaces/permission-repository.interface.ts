@@ -1,5 +1,5 @@
-import { Permission } from '../entities/permission.entity';
-import { RolePermission } from '../entities/role-permission.entity';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
+import { RolePermission } from '@backend/modules/user/entities/role-permission.entity';
 import { PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
 
 export interface CreatePermissionDto {

@@ -83,6 +83,20 @@ export interface RoleResponse {
   userCount?: number;
 }
 
+export interface RoleListApiResponse {
+  data?: {
+    items?: Role[];
+    total?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+  };
+}
+
+export interface RoleStatisticsApiResponse {
+  data?: RoleStatistics;
+}
+
 // Form field options
 export interface RoleFormOption {
   value: string;

@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Supplier } from './supplier.entity';
-import { Warehouse } from './warehouse.entity';
-import { PurchaseOrderItem } from './purchase-order-item.entity';
+import { Supplier } from '@backend/modules/products/entities/supplier.entity';
+import { Warehouse } from '@backend/modules/products/entities/warehouse.entity';
+import { PurchaseOrderItem } from '@backend/modules/products/entities/purchase-order-item.entity';
 
 export enum PurchaseOrderStatus {
   DRAFT = 'DRAFT',

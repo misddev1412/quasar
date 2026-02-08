@@ -1,5 +1,5 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { NewsletterSubscriptionRepository } from '../repositories/newsletter-subscription.repository';
+import { NewsletterSubscriptionRepository } from '@backend/modules/newsletter/repositories/newsletter-subscription.repository';
 
 @Injectable()
 export class NewsletterService {

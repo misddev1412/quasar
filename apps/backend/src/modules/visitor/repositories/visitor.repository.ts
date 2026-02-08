@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan, SelectQueryBuilder } from 'typeorm';
-import { Visitor, VisitorType, VisitorSource } from '../entities/visitor.entity';
-import { VisitorStatistics } from '../entities/visitor-statistics.entity';
-import { VisitorSession, SessionStatus } from '../entities/visitor-session.entity';
-import { PageView, PageViewType } from '../entities/page-view.entity';
-import { IVisitorRepository } from '../interfaces/visitor-repository.interface';
+import { Visitor, VisitorType, VisitorSource } from '@backend/modules/visitor/entities/visitor.entity';
+import { VisitorStatistics } from '@backend/modules/visitor/entities/visitor-statistics.entity';
+import { VisitorSession, SessionStatus } from '@backend/modules/visitor/entities/visitor-session.entity';
+import { PageView, PageViewType } from '@backend/modules/visitor/entities/page-view.entity';
+import { IVisitorRepository } from '@backend/modules/visitor/interfaces/visitor-repository.interface';
 
 @Injectable()
 export class VisitorRepository implements IVisitorRepository {

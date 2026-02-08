@@ -1,14 +1,14 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
-import { Customer } from '../entities/customer.entity';
-import { OrderItem } from '../entities/order-item.entity';
-import { OrderRepository } from '../repositories/order.repository';
-import { ProductRepository } from '../repositories/product.repository';
-import { ProductVariantRepository } from '../repositories/product-variant.repository';
-import { DeliveryMethodService } from './delivery-method.service';
-import { PayosService } from './payos.service';
+import { Order, OrderStatus, PaymentStatus, OrderSource } from '@backend/modules/products/entities/order.entity';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
+import { OrderRepository } from '@backend/modules/products/repositories/order.repository';
+import { ProductRepository } from '@backend/modules/products/repositories/product.repository';
+import { ProductVariantRepository } from '@backend/modules/products/repositories/product-variant.repository';
+import { DeliveryMethodService } from '@backend/modules/products/services/delivery-method.service';
+import { PayosService } from '@backend/modules/products/services/payos.service';
 import {
   CustomerTransaction,
   CustomerTransactionEntry,
@@ -17,7 +17,7 @@ import {
   LedgerAccountType,
   LedgerEntryDirection,
   TransactionChannel,
-} from '../../user/entities/customer-transaction.entity';
+} from '@backend/modules/user/entities/customer-transaction.entity';
 
 export interface OrderFilters {
   page: number;

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { SettingEntity } from '../entities/setting.entity';
-import { SettingRepositoryInterface } from '../interfaces/setting-repository.interface';
+import { SettingEntity } from '@backend/modules/settings/entities/setting.entity';
+import { SettingRepositoryInterface } from '@backend/modules/settings/interfaces/setting-repository.interface';
 
 @Injectable()
 export class SettingRepository extends BaseRepository<SettingEntity> implements SettingRepositoryInterface {

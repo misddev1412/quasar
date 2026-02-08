@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { ProductVariantItem } from './product-variant-item.entity';
-import { ProductVariantPriceHistory } from './product-variant-price-history.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
+import { ProductVariantPriceHistory } from '@backend/modules/products/entities/product-variant-price-history.entity';
 
 @Entity('product_variants')
 export class ProductVariant extends BaseEntity {

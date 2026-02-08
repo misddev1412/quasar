@@ -1,9 +1,9 @@
 import { Injectable, Type, mixin } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
-import { AuthenticatedContext } from '../context';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
-import { Permission } from '../../modules/user/entities/permission.entity';
+import { Permission } from '@backend/modules/user/entities/permission.entity';
 
 export interface RequiredPermission {
   resource: string;

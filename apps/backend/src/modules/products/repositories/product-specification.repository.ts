@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductSpecification } from '../entities/product-specification.entity';
+import { ProductSpecification } from '@backend/modules/products/entities/product-specification.entity';
 
 export interface CreateProductSpecificationDto {
   productId: string;

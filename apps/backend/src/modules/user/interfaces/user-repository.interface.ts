@@ -1,5 +1,5 @@
-import { User } from '../entities/user.entity';
-import { UserProfile } from '../entities/user-profile.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
+import { UserProfile } from '@backend/modules/user/entities/user-profile.entity';
 
 export interface CreateUserDto {
   email: string;

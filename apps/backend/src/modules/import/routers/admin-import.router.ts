@@ -2,10 +2,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Input, UseMiddlewares } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ImportJobService } from '../services/import-job.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { ImportJobService } from '@backend/modules/import/services/import-job.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 
 @Router({ alias: 'adminImport' })

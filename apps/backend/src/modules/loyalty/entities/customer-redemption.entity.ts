@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Customer } from '@backend/modules/products/entities/customer.entity';
-import { LoyaltyReward } from './loyalty-reward.entity';
+import { LoyaltyReward } from '@backend/modules/loyalty/entities/loyalty-reward.entity';
 
 export enum RedemptionStatus {
   PENDING = 'pending',

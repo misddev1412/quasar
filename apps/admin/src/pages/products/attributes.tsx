@@ -8,6 +8,23 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import type { Attribute } from '@admin/types/product';
+
+type ApiEnvelope<T> = { data?: T };
+
+type AttributesListPayload = {
+  items?: Attribute[];
+  total?: number;
+};
+
+type AttributesStatsPayload = {
+  totalAttributes?: number;
+  requiredAttributes?: number;
+  filterableAttributes?: number;
+  attributesByType?: Record<string, number>;
+};
+
+type AttributeSortField = 'name' | 'displayName' | 'createdAt' | 'updatedAt' | 'sortOrder';
 
 const AttributesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,10 +53,11 @@ const AttributesPage: React.FC = () => {
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingAttribute, setEditingAttribute] = useState<any>(null);
-  const [sortBy, setSortBy] = useState<'name' | 'displayName' | 'createdAt' | 'updatedAt' | 'sortOrder'>(() => {
+  const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(null);
+  const [sortBy, setSortBy] = useState<AttributeSortField>(() => {
     const param = searchParams.get('sortBy');
-    return ['name', 'displayName', 'createdAt', 'updatedAt', 'sortOrder'].includes(param as any) ? param as any : 'sortOrder';
+    const allowed: AttributeSortField[] = ['name', 'displayName', 'createdAt', 'updatedAt', 'sortOrder'];
+    return allowed.includes(param as AttributeSortField) ? (param as AttributeSortField) : 'sortOrder';
   });
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>(() =>
     searchParams.get('sortOrder') === 'ASC' ? 'ASC' : 'DESC'
@@ -52,7 +70,7 @@ const AttributesPage: React.FC = () => {
   });
   const [filters, setFilters] = useState<AttributeFilterOptions>({
     search: searchParams.get('search') || undefined,
-    type: searchParams.get('type') as any || undefined,
+    type: searchParams.get('type') as AttributeFilterOptions['type'] || undefined,
     isRequired: searchParams.get('isRequired') ? searchParams.get('isRequired') === 'true' : undefined,
     isFilterable: searchParams.get('isFilterable') ? searchParams.get('isFilterable') === 'true' : undefined,
   });
@@ -94,7 +112,8 @@ const AttributesPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const attributes = (attributesData as any)?.data?.items || [];
+  const attributesPayload = (attributesData as ApiEnvelope<AttributesListPayload> | undefined)?.data;
+  const attributes: Attribute[] = attributesPayload?.items || [];
 
   // Mutations
   const deleteMutation = trpc.adminProductAttributes.delete.useMutation({
@@ -127,7 +146,7 @@ const AttributesPage: React.FC = () => {
     setShowCreateModal(true);
   };
 
-  const handleEditAttribute = (attribute: any) => {
+  const handleEditAttribute = (attribute: Attribute) => {
     setEditingAttribute(attribute);
   };
 
@@ -185,10 +204,10 @@ const AttributesPage: React.FC = () => {
     });
   };
 
-  const handleSortChange = (sortDescriptor: SortDescriptor<any>) => {
+  const handleSortChange = (sortDescriptor: SortDescriptor<Attribute>) => {
     const newSortBy = String(sortDescriptor.columnAccessor);
-    const validSortFields = ['name', 'displayName', 'createdAt', 'updatedAt', 'sortOrder'];
-    const typedSortBy = validSortFields.includes(newSortBy) ? newSortBy as 'name' | 'displayName' | 'createdAt' | 'updatedAt' | 'sortOrder' : 'sortOrder';
+    const validSortFields: AttributeSortField[] = ['name', 'displayName', 'createdAt', 'updatedAt', 'sortOrder'];
+    const typedSortBy = validSortFields.includes(newSortBy as AttributeSortField) ? (newSortBy as AttributeSortField) : 'sortOrder';
     const newSortOrder = sortDescriptor.direction === 'asc' ? 'ASC' : 'DESC';
     setSortBy(typedSortBy);
     setSortOrder(newSortOrder);
@@ -274,10 +293,10 @@ const AttributesPage: React.FC = () => {
     if (!attributes.length) return null;
     
     const totalAttributes = attributes.length;
-    const requiredAttributes = attributes.filter((attr: any) => attr.isRequired).length;
-    const filterableAttributes = attributes.filter((attr: any) => attr.isFilterable).length;
+    const requiredAttributes = attributes.filter((attr) => attr.isRequired).length;
+    const filterableAttributes = attributes.filter((attr) => attr.isFilterable).length;
     
-    const attributesByType = attributes.reduce((acc: any, attr: any) => {
+    const attributesByType = attributes.reduce<Record<string, number>>((acc, attr) => {
       acc[attr.type] = (acc[attr.type] || 0) + 1;
       return acc;
     }, {});
@@ -290,31 +309,31 @@ const AttributesPage: React.FC = () => {
     };
   }, [attributes]);
 
-  const stats = (statsData && typeof statsData === 'object' && 'data' in statsData ? statsData.data : null) || computedStats;
+  const stats = ((statsData as ApiEnvelope<AttributesStatsPayload> | undefined)?.data) || computedStats;
 
   const statisticsData: StatisticData[] = [
     {
       id: 'total',
       title: t('attributes.stats.total', 'Total Attributes'),
-      value: (stats as any)?.totalAttributes || 0,
+      value: stats?.totalAttributes || 0,
       icon: <FiTag className="h-5 w-5" />,
     },
     {
       id: 'required',
       title: t('attributes.stats.required', 'Required'),
-      value: (stats as any)?.requiredAttributes || 0,
+      value: stats?.requiredAttributes || 0,
       icon: <FiSettings className="h-5 w-5" />,
     },
     {
       id: 'filterable',
       title: t('attributes.stats.filterable', 'Filterable'),
-      value: (stats as any)?.filterableAttributes || 0,
+      value: stats?.filterableAttributes || 0,
       icon: <FiFilter className="h-5 w-5" />,
     },
   ];
 
   // Column definitions
-  const columns: Column<any>[] = useMemo(() => [
+  const columns: Column<Attribute>[] = useMemo(() => [
     {
       id: 'name',
       header: 'Name',
@@ -397,8 +416,8 @@ const AttributesPage: React.FC = () => {
   ], [t, handleEditAttribute, handleDelete]);
 
   // Sort descriptor
-  const sortDescriptor: SortDescriptor<any> = useMemo(() => ({
-    columnAccessor: sortBy as any,
+  const sortDescriptor: SortDescriptor<Attribute> = useMemo(() => ({
+    columnAccessor: sortBy as keyof Attribute,
     direction: sortOrder === 'ASC' ? 'asc' : 'desc',
   }), [sortBy, sortOrder]);
 
@@ -482,7 +501,7 @@ const AttributesPage: React.FC = () => {
     );
   }
 
-  const totalAttributes = (attributesData as any)?.data?.total ?? 0;
+  const totalAttributes = attributesPayload?.total ?? 0;
   const totalPages = Math.ceil(totalAttributes / limit);
 
   return (
@@ -509,7 +528,7 @@ const AttributesPage: React.FC = () => {
         )}
 
         {/* Enhanced Attributes Table */}
-        <Table<any>
+        <Table<Attribute>
           tableId="attributes-table"
           columns={columns}
           data={attributes}

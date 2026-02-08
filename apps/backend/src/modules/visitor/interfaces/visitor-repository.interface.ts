@@ -1,6 +1,6 @@
-import { Visitor, VisitorType, VisitorSource } from '../entities/visitor.entity';
-import { VisitorSession, SessionStatus } from '../entities/visitor-session.entity';
-import { PageView, PageViewType } from '../entities/page-view.entity';
+import { Visitor, VisitorType, VisitorSource } from '@backend/modules/visitor/entities/visitor.entity';
+import { VisitorSession, SessionStatus } from '@backend/modules/visitor/entities/visitor-session.entity';
+import { PageView, PageViewType } from '@backend/modules/visitor/entities/page-view.entity';
 
 export interface IVisitorRepository {
   // Visitor operations

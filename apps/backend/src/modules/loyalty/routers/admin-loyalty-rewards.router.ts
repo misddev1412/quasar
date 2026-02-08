@@ -2,12 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminLoyaltyRewardService, CreateLoyaltyRewardDto, UpdateLoyaltyRewardDto } from '../services/admin-loyalty-reward.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
-import { RewardType, DiscountType } from '../entities/loyalty-reward.entity';
+import { AdminLoyaltyRewardService, CreateLoyaltyRewardDto, UpdateLoyaltyRewardDto } from '@backend/modules/loyalty/services/admin-loyalty-reward.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
+import { RewardType, DiscountType } from '@backend/modules/loyalty/entities/loyalty-reward.entity';
 
 export const rewardTypeSchema = z.nativeEnum(RewardType);
 export const discountTypeSchema = z.nativeEnum(DiscountType);

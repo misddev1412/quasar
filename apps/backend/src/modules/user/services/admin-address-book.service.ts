@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { AddressBookRepository } from '../repositories/address-book.repository';
-import { AddressBook, AddressType } from '../entities/address-book.entity';
+import { AddressBookRepository } from '@backend/modules/user/repositories/address-book.repository';
+import { AddressBook, AddressType } from '@backend/modules/user/entities/address-book.entity';
 
 @Injectable()
 export class AdminAddressBookService {

@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminUserService } from '../services/admin/admin-user.service';
+import { AdminUserService } from '@backend/modules/user/services/admin/admin-user.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { RequirePermission } from '../../../trpc/middlewares/permission.middleware';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { RequirePermission } from '@backend/trpc/middlewares/permission.middleware';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import {
   AdminUpdatePasswordDto,
-} from '../dto/admin/admin-user.dto';
+} from '@backend/modules/user/dto/admin/admin-user.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([

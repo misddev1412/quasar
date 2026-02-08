@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { UserImpersonationLog, ImpersonationStatus } from '../entities/user-impersonation-log.entity';
+import { UserImpersonationLog, ImpersonationStatus } from '@backend/modules/user/entities/user-impersonation-log.entity';
 
 export interface ImpersonationFilters {
   adminUserId?: string;

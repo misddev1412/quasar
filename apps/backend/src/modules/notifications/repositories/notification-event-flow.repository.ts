@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { PaginatedResult } from '@shared/types/common.types';
-import { NotificationEventFlow } from '../entities/notification-event-flow.entity';
-import { NotificationEvent } from '../entities/notification-event.enum';
-import { NotificationChannel } from '../entities/notification-preference.entity';
-import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
+import { NotificationEventFlow } from '@backend/modules/notifications/entities/notification-event-flow.entity';
+import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
+import { NotificationChannel } from '@backend/modules/notifications/entities/notification-preference.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
 
 export interface NotificationEventFlowFilters {
   page?: number;

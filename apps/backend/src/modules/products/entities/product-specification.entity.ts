@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Product } from './product.entity';
-import { ProductSpecificationLabel } from './product-specification-label.entity';
+import { Product } from '@backend/modules/products/entities/product.entity';
+import { ProductSpecificationLabel } from '@backend/modules/products/entities/product-specification-label.entity';
 
 @Entity('product_specifications')
 export class ProductSpecification extends BaseEntity {

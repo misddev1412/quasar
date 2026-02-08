@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, DataSource, SelectQueryBuilder } from 'typeorm';
-import { Media, MediaType } from '../entities/media.entity';
-import { MediaListQueryDto } from '../dto/media.dto';
+import { Media, MediaType } from '@backend/modules/storage/entities/media.entity';
+import { MediaListQueryDto } from '@backend/modules/storage/dto/media.dto';
 
 @Injectable()
 export class MediaRepository extends Repository<Media> {

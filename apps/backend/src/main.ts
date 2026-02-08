@@ -4,9 +4,9 @@
  */
 
 import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { AppModule } from '@backend/app/app.module';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
-import { GlobalExceptionFilter } from './modules/shared/filters/global-exception.filter';
+import { GlobalExceptionFilter } from '@backend/modules/shared/filters/global-exception.filter';
 import 'reflect-metadata';
 
 async function bootstrap() {

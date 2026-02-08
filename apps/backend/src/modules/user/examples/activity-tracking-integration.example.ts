@@ -23,10 +23,10 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 // Import activity tracking components
-import { ActivityTrackingService } from '../services/activity-tracking.service';
-import { ActivityTrackingMiddleware } from '../middleware/activity-tracking.middleware';
-import { AdminActivityInterceptor } from '../interceptors/admin-activity.interceptor';
-import { AdminActivityTrackingGuard } from '../guards/activity-tracking.guard';
+import { ActivityTrackingService } from '@backend/modules/user/services/activity-tracking.service';
+import { ActivityTrackingMiddleware } from '@backend/modules/user/middleware/activity-tracking.middleware';
+import { AdminActivityInterceptor } from '@backend/modules/user/interceptors/admin-activity.interceptor';
+import { AdminActivityTrackingGuard } from '@backend/modules/user/guards/activity-tracking.guard';
 import {
   TrackUserManagementAction,
   TrackCreate,
@@ -35,8 +35,8 @@ import {
   TrackView,
   CurrentUser,
   ActivityContext,
-} from '../decorators/track-activity.decorator';
-import activityTrackingConfig from '../config/activity-tracking.config';
+} from '@backend/modules/user/decorators/track-activity.decorator';
+import activityTrackingConfig from '@backend/modules/user/config/activity-tracking.config';
 
 // ============================================================================
 // 1. ADMIN CONTROLLER EXAMPLE
@@ -231,7 +231,7 @@ export class UserManagementServiceExample {
 // 3. TRPC ROUTER INTEGRATION EXAMPLE
 // ============================================================================
 
-// import { router, adminProcedure } from '../../trpc/trpc';
+// import { router, adminProcedure } from '@backend/modules/trpc/trpc';
 // import { z } from 'zod';
 
 /* export const adminUserRouterExample = router({

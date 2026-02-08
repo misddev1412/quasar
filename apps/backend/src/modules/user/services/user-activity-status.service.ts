@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { UserSessionRepository } from '../repositories/user-session.repository';
-import { UserActivityRepository } from '../repositories/user-activity.repository';
-import { SessionStatus } from '../entities/user-session.entity';
-import { ActivityType } from '../entities/user-activity.entity';
+import { UserSessionRepository } from '@backend/modules/user/repositories/user-session.repository';
+import { UserActivityRepository } from '@backend/modules/user/repositories/user-activity.repository';
+import { SessionStatus } from '@backend/modules/user/entities/user-session.entity';
+import { ActivityType } from '@backend/modules/user/entities/user-activity.entity';
 
 export interface UserActivityStatus {
   userId: string;

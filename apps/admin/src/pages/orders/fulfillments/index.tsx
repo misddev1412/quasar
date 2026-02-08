@@ -54,6 +54,12 @@ interface FulfillmentFilters {
   search?: string;
 }
 
+type ApiEnvelope<T> = { data?: T };
+type FulfillmentListPayload = {
+  items?: Fulfillment[];
+  total?: number;
+};
+
 const OrderFulfillmentsPage: React.FC = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
@@ -115,17 +121,19 @@ const OrderFulfillmentsPage: React.FC = () => {
 
   useEffect(() => {
     if (fulfillmentsData) {
-      const items = Array.isArray((fulfillmentsData as any)?.items)
-        ? (fulfillmentsData as any).items
-        : Array.isArray((fulfillmentsData as any)?.data)
-          ? (fulfillmentsData as any).data
-          : Array.isArray((fulfillmentsData as any)?.data?.items)
-            ? (fulfillmentsData as any).data.items
+      const response = fulfillmentsData as Fulfillment[] | ApiEnvelope<Fulfillment[] | FulfillmentListPayload> | undefined;
+      const envelopeData = !Array.isArray(response) ? response?.data : undefined;
+      const items = Array.isArray(response)
+        ? response
+        : Array.isArray(envelopeData)
+          ? envelopeData
+          : Array.isArray((envelopeData as FulfillmentListPayload | undefined)?.items)
+            ? (envelopeData as FulfillmentListPayload).items!
             : [];
-      const totalValue = typeof (fulfillmentsData as any)?.total === 'number'
-        ? (fulfillmentsData as any).total
-        : typeof (fulfillmentsData as any)?.data?.total === 'number'
-          ? (fulfillmentsData as any).data.total
+      const totalValue = Array.isArray(response)
+        ? response.length
+        : typeof (envelopeData as FulfillmentListPayload | undefined)?.total === 'number'
+          ? (envelopeData as FulfillmentListPayload).total!
           : items.length;
 
       setFulfillments(items);
@@ -206,7 +214,7 @@ const OrderFulfillmentsPage: React.FC = () => {
       id: 'status',
       header: t('fulfillments.status'),
       accessor: (fulfillment) => (
-        <Badge variant={getStatusBadgeVariant(fulfillment.status) as any}>
+        <Badge variant={getStatusBadgeVariant(fulfillment.status) as 'warning' | 'info' | 'success' | 'destructive' | 'secondary' | 'default'}>
           {t(`fulfillments.status_types.${fulfillment.status}`)}
         </Badge>
       ),
@@ -215,7 +223,7 @@ const OrderFulfillmentsPage: React.FC = () => {
       id: 'priority',
       header: t('fulfillments.priority'),
       accessor: (fulfillment) => (
-        <Badge variant={getPriorityBadgeVariant(fulfillment.priorityLevel) as any}>
+        <Badge variant={getPriorityBadgeVariant(fulfillment.priorityLevel) as 'warning' | 'info' | 'success' | 'destructive' | 'secondary' | 'default'}>
           {t(`fulfillments.priority_types.${fulfillment.priorityLevel}`)}
         </Badge>
       ),

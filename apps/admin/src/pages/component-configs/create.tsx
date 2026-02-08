@@ -96,7 +96,7 @@ const ComponentConfigCreatePage: React.FC = () => {
         'componentConfigs.createDescription',
         'Define storefront building blocks, schema, and defaults without modal constraints.',
       )}
-      icon={<FiBox className="w-5 h-5 text-primary-600" />}
+      icon={<FiBox className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
       entityName={t('componentConfigs.title', 'Component')}
       entityNamePlural={t('componentConfigs.title', 'Component Library')}
       backUrl="/component-configs"

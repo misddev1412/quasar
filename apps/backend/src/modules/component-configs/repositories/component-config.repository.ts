@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { ComponentConfigEntity } from '../entities/component-config.entity';
+import { ComponentConfigEntity } from '@backend/modules/component-configs/entities/component-config.entity';
 
 @Injectable()
 export class ComponentConfigRepository extends BaseRepository<ComponentConfigEntity> {

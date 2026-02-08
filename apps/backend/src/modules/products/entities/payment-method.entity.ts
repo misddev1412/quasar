@@ -8,7 +8,7 @@ import {
   Index,
   OneToOne,
 } from 'typeorm';
-import { PaymentMethodProvider } from './payment-method-provider.entity';
+import { PaymentMethodProvider } from '@backend/modules/products/entities/payment-method-provider.entity';
 
 export enum PaymentMethodType {
   CREDIT_CARD = 'CREDIT_CARD',

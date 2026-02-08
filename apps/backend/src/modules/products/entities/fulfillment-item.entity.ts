@@ -1,10 +1,10 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { OrderFulfillment } from './order-fulfillment.entity';
-import { OrderItem } from './order-item.entity';
+import { OrderFulfillment } from '@backend/modules/products/entities/order-fulfillment.entity';
+import { OrderItem } from '@backend/modules/products/entities/order-item.entity';
 import { User } from '@backend/modules/user/entities/user.entity';
-import { decimalColumnTransformer } from './transformers/decimal-column.transformer';
+import { decimalColumnTransformer } from '@backend/modules/products/entities/transformers/decimal-column.transformer';
 
 export enum FulfillmentItemStatus {
   PENDING = 'PENDING',

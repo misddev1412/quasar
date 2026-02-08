@@ -1,9 +1,9 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
-import { MailProvider } from '../../mail-provider/entities/mail-provider.entity';
-import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
-import { EmailFlow } from '../../email-flow/entities/email-flow.entity';
-import { User } from '../../user/entities/user.entity';
+import { MailProvider } from '@backend/modules/mail-provider/entities/mail-provider.entity';
+import { MailTemplate } from '@backend/modules/mail-template/entities/mail-template.entity';
+import { EmailFlow } from '@backend/modules/email-flow/entities/email-flow.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 export enum MailLogStatus {
   QUEUED = 'queued',

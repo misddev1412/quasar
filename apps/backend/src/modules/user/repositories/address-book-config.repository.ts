@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { AddressBookConfig, AddressConfigType } from '../entities/address-book-config.entity';
-import { AddressType } from '../entities/address-book.entity';
+import { AddressBookConfig, AddressConfigType } from '@backend/modules/user/entities/address-book-config.entity';
+import { AddressType } from '@backend/modules/user/entities/address-book.entity';
 
 @Injectable()
 export class AddressBookConfigRepository {

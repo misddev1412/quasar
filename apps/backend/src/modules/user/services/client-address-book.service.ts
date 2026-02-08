@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { AddressBookRepository } from '../repositories/address-book.repository';
-import { AddressBookConfigRepository } from '../repositories/address-book-config.repository';
-import { AddressBook, AddressType } from '../entities/address-book.entity';
-import { CountryRepository } from '../../products/repositories/country.repository';
-import { AdministrativeDivisionRepository } from '../../products/repositories/administrative-division.repository';
-import { AddressConfigType } from '../entities/address-book-config.entity';
-import { CustomerRepository } from '../../products/repositories/customer.repository';
+import { AddressBookRepository } from '@backend/modules/user/repositories/address-book.repository';
+import { AddressBookConfigRepository } from '@backend/modules/user/repositories/address-book-config.repository';
+import { AddressBook, AddressType } from '@backend/modules/user/entities/address-book.entity';
+import { CountryRepository } from '@backend/modules/products/repositories/country.repository';
+import { AdministrativeDivisionRepository } from '@backend/modules/products/repositories/administrative-division.repository';
+import { AddressConfigType } from '@backend/modules/user/entities/address-book-config.entity';
+import { CustomerRepository } from '@backend/modules/products/repositories/customer.repository';
 
 @Injectable()
 export class ClientAddressBookService {

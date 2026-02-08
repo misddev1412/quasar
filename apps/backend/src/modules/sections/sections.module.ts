@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SectionEntity } from './entities/section.entity';
-import { SectionTranslationEntity } from './entities/section-translation.entity';
-import { SectionRepository } from './repositories/section.repository';
-import { SectionTranslationRepository } from './repositories/section-translation.repository';
-import { SectionsService } from './services/sections.service';
-import { LanguageModule } from '../language/language.module';
-import { SharedModule } from '../shared/shared.module';
-import { ComponentConfigsModule } from '../component-configs/component-configs.module';
-import { ProductsModule } from '../products/products.module';
+import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
+import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
+import { SectionRepository } from '@backend/modules/sections/repositories/section.repository';
+import { SectionTranslationRepository } from '@backend/modules/sections/repositories/section-translation.repository';
+import { SectionsService } from '@backend/modules/sections/services/sections.service';
+import { LanguageModule } from '@backend/modules/language/language.module';
+import { SharedModule } from '@backend/modules/shared/shared.module';
+import { ComponentConfigsModule } from '@backend/modules/component-configs/component-configs.module';
+import { ProductsModule } from '@backend/modules/products/products.module';
 
 @Module({
   imports: [

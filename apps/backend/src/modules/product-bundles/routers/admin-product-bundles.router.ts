@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, Input, UseMiddlewares } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ProductBundlesService } from '../services/product-bundles.service';
-import { ResponseService } from '../../shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
+import { ProductBundlesService } from '@backend/modules/product-bundles/services/product-bundles.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import {
     createProductBundleSchema,
     updateProductBundleInputSchema,
     productBundleListInputSchema,
     productBundleIdSchema,
     CreateProductBundleDto,
-} from '../dto/product-bundle.dto';
-import { AuthenticatedContext } from '../../../trpc/context';
+} from '@backend/modules/product-bundles/dto/product-bundle.dto';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 @Router({ alias: 'productBundles' })

@@ -2,14 +2,14 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { WishlistRepository } from '../repositories/wishlist.repository';
-import { CustomerRepository } from '../repositories/customer.repository';
-import { ProductRepository } from '../repositories/product.repository';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { UserInjectionMiddleware } from '../../../trpc/middlewares/user-injection.middleware';
+import { WishlistRepository } from '@backend/modules/products/repositories/wishlist.repository';
+import { CustomerRepository } from '@backend/modules/products/repositories/customer.repository';
+import { ProductRepository } from '@backend/modules/products/repositories/product.repository';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { UserInjectionMiddleware } from '@backend/trpc/middlewares/user-injection.middleware';
 import { UserRole } from '@shared';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 // Zod schemas for validation
 const adminWishlistFiltersSchema = z.object({

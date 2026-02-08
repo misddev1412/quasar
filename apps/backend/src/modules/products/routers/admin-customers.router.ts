@@ -2,11 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AdminCustomerService } from '../services/admin-customer.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { Customer, CustomerStatus, CustomerType } from '../entities/customer.entity';
+import { AdminCustomerService } from '@backend/modules/products/services/admin-customer.service';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { Customer, CustomerStatus, CustomerType } from '@backend/modules/products/entities/customer.entity';
 
 export const customerStatusSchema = z.nativeEnum(CustomerStatus);
 export const customerTypeSchema = z.nativeEnum(CustomerType);

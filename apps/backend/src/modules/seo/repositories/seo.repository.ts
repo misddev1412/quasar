@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '@shared';
-import { SEOEntity } from '../entities/seo.entity';
-import { SEORepositoryInterface } from '../interfaces/seo-repository.interface';
+import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
+import { SEORepositoryInterface } from '@backend/modules/seo/interfaces/seo-repository.interface';
 
 @Injectable()
 export class SEORepository extends BaseRepository<SEOEntity> implements SEORepositoryInterface {

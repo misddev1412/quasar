@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
+import { User } from '@backend/modules/user/entities/user.entity';
 
 export enum TwoFactorMethod {
   EMAIL = 'email',

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Attribute, AttributeType } from '../../modules/products/entities/attribute.entity';
-import { AttributeValue } from '../../modules/products/entities/attribute-value.entity';
+import { Attribute, AttributeType } from '@backend/modules/products/entities/attribute.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
 
 @Injectable()
 export class AttributesSeeder {

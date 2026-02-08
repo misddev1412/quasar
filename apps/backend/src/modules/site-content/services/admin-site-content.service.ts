@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { SiteContentRepository, SiteContentListParams } from '../repositories/site-content.repository';
+import { SiteContentRepository, SiteContentListParams } from '@backend/modules/site-content/repositories/site-content.repository';
 import {
   CreateSiteContentDto,
   ListSiteContentQueryDto,
   UpdateSiteContentDto,
-} from '../dto/site-content.dto';
+} from '@backend/modules/site-content/dto/site-content.dto';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
-import { SiteContentEntity } from '../entities/site-content.entity';
+import { SiteContentEntity } from '@backend/modules/site-content/entities/site-content.entity';
 import { SortOrder } from '@shared/enums/common.enums';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 

@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Country } from '../../products/entities/country.entity';
-import { AddressType } from './address-book.entity';
+import { Country } from '@backend/modules/products/entities/country.entity';
+import { AddressType } from '@backend/modules/user/entities/address-book.entity';
 
 export enum AddressConfigType {
   REQUIRE_POSTAL_CODE = 'REQUIRE_POSTAL_CODE',

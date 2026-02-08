@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, IsNull } from 'typeorm';
-import { DeliveryMethod, DeliveryMethodType, CostCalculationType } from '../entities/delivery-method.entity';
+import { DeliveryMethod, DeliveryMethodType, CostCalculationType } from '@backend/modules/products/entities/delivery-method.entity';
 
 export interface CreateDeliveryMethodDto {
   name: string;

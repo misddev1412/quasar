@@ -1,8 +1,8 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { StorageService } from './storage.service';
-import { UploadResult, FileUploadOptions, S3StorageConfig } from '../interfaces/storage.interface';
-import { buildS3PublicUrl, extractS3KeyFromUrl } from '../utils/storage-url.util';
+import { StorageService } from '@backend/modules/storage/services/storage.service';
+import { UploadResult, FileUploadOptions, S3StorageConfig } from '@backend/modules/storage/interfaces/storage.interface';
+import { buildS3PublicUrl, extractS3KeyFromUrl } from '@backend/modules/storage/utils/storage-url.util';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';

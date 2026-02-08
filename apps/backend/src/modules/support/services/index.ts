@@ -1,1 +1,1 @@
-export * from './support-client.service';
+export * from '@backend/modules/support/services/support-client.service';

@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { UserImpersonationService } from '../services/user-impersonation.service';
+import { UserImpersonationService } from '@backend/modules/user/services/user-impersonation.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { SuperAdminMiddleware } from '../../../trpc/middlewares/super-admin.middleware';
-import { ImpersonationStatus } from '../entities/user-impersonation-log.entity';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { SuperAdminMiddleware } from '@backend/trpc/middlewares/super-admin.middleware';
+import { ImpersonationStatus } from '@backend/modules/user/entities/user-impersonation-log.entity';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 // Zod schemas for validation
 const startImpersonationSchema = z.object({

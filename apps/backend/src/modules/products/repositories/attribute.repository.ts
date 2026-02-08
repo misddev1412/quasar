@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Attribute, AttributeType } from '../entities/attribute.entity';
-import { AttributeValue } from '../entities/attribute-value.entity';
-import { AttributeTranslation } from '../entities/attribute-translation.entity';
+import { Attribute, AttributeType } from '@backend/modules/products/entities/attribute.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
+import { AttributeTranslation } from '@backend/modules/products/entities/attribute-translation.entity';
 
 export interface AttributeFilters {
   search?: string;

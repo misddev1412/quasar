@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
-import { EmailFlow } from '../entities/email-flow.entity';
-import { EmailFlowRepository } from '../repositories/email-flow.repository';
-import { MailProviderRepository } from '../../mail-provider/repositories/mail-provider.repository';
-import { MailTemplateRepository } from '../../mail-template/repositories/mail-template.repository';
+import { EmailFlow } from '@backend/modules/email-flow/entities/email-flow.entity';
+import { EmailFlowRepository } from '@backend/modules/email-flow/repositories/email-flow.repository';
+import { MailProviderRepository } from '@backend/modules/mail-provider/repositories/mail-provider.repository';
+import { MailTemplateRepository } from '@backend/modules/mail-template/repositories/mail-template.repository';
 
 @Injectable()
 export class EmailFlowService {

@@ -23,13 +23,28 @@ type RolesListResponse = {
   };
 };
 
+type UserDetailsResponse = {
+  data?: {
+    id: string;
+    username: string;
+    email: string;
+    role?: UserRole;
+    isActive?: boolean;
+    profile?: {
+      firstName?: string;
+      lastName?: string;
+      phoneNumber?: string;
+    };
+  };
+};
+
 // Form data type for update (extended to include profile and password fields)
 type UpdateUserFormData = {
   // General Information
   firstName?: string;
   lastName?: string;
-  username: string;
-  email: string;
+  username?: string;
+  email?: string;
   phoneNumber?: string;
   // Settings
   role?: UserRole;
@@ -41,6 +56,21 @@ type UpdateUserFormData = {
   emailNotifications?: boolean;
   smsNotifications?: boolean;
   marketingEmails?: boolean;
+};
+
+type BackendUserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'USER' | 'GUEST';
+
+const toBackendUserRole = (role?: UserRole): BackendUserRole | undefined => {
+  if (!role) return undefined;
+  const mapping: Record<UserRole, BackendUserRole> = {
+    [UserRole.SUPER_ADMIN]: 'SUPER_ADMIN',
+    [UserRole.ADMIN]: 'ADMIN',
+    [UserRole.MANAGER]: 'MANAGER',
+    [UserRole.STAFF]: 'USER',
+    [UserRole.USER]: 'USER',
+    [UserRole.GUEST]: 'GUEST',
+  };
+  return mapping[role];
 };
 
 // Validation schema for update
@@ -100,7 +130,7 @@ const UserUpdatePage: React.FC = () => {
   });
 
   // Mutation for updating any user's profile by ID (admin-only)
-  const updateProfileByIdMutation = (trpc as any).adminUser.updateUserProfileById.useMutation({
+  const updateProfileByIdMutation = (trpc.adminUser as any).updateUserProfileById.useMutation({
     onError: (err) => {
       addToast({ type: 'error', title: t('common.error'), description: err.message || t('messages.operation_failed') });
     },
@@ -112,7 +142,7 @@ const UserUpdatePage: React.FC = () => {
   });
 
   const initialValues: Partial<UpdateUserFormData> = useMemo(() => {
-    const data = (userResponse as any)?.data;
+    const data = (userResponse as UserDetailsResponse | undefined)?.data;
     if (!data) return {};
     return {
       firstName: data.profile?.firstName || '',
@@ -169,12 +199,11 @@ const UserUpdatePage: React.FC = () => {
       // 1) Update account fields
       await updateUserMutation.mutateAsync({
         id,
-        email: formData.email,
-        username: formData.username,
+        email: formData.email || '',
+        username: formData.username || '',
         isActive: formData.isActive,
-        role: nextRole,
-        password: formData.newPassword,
-      } as any);
+        role: toBackendUserRole(nextRole),
+      });
 
       // 2) Update profile fields — now allowed for any user by admin
       if (formData.firstName || formData.lastName || formData.phoneNumber) {
@@ -183,7 +212,7 @@ const UserUpdatePage: React.FC = () => {
           firstName: formData.firstName || undefined,
           lastName: formData.lastName || undefined,
           phoneNumber: formData.phoneNumber || undefined,
-        } as any);
+        });
       }
 
       // Password update is now handled in step 1
@@ -360,7 +389,7 @@ const UserUpdatePage: React.FC = () => {
     if (error) {
       return (
         <div className="p-4 md:p-8 text-red-500">
-          {t('common.error')}: {(error as any)?.message || 'Failed to load user'}
+          {t('common.error')}: {error?.message || 'Failed to load user'}
         </div>
       );
     }
@@ -373,7 +402,7 @@ const UserUpdatePage: React.FC = () => {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={updateUserMutation.isPending}
-        validationSchema={updateUserSchema as any}
+        validationSchema={updateUserSchema}
         submitButtonText={t('common.update')}
         cancelButtonText={t('common.cancel')}
         showCancelButton={true}

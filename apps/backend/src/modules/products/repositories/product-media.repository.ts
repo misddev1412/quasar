@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductMedia, MediaType } from '../entities/product-media.entity';
+import { ProductMedia, MediaType } from '@backend/modules/products/entities/product-media.entity';
 
 export interface CreateProductMediaDto {
   productId: string;

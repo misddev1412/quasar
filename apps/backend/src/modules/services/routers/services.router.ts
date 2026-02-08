@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ServicesService } from '../services.service';
+import { ServicesService } from '@backend/modules/services/services.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
-import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { AuthenticatedContext } from '../../../trpc/context';
+import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
+import { apiResponseSchema, paginatedResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 import {
   CreateServiceSchema,
   UpdateServiceSchema,
   ServiceFilterSchema,
   CreateServiceDto,
   UpdateServiceDto,
-} from '../dto/service.dto';
+} from '@backend/modules/services/dto/service.dto';
 
 const getServiceByIdSchema = z.object({
   id: z.string().uuid(),

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ShippingProvider } from '../entities/shipping-provider.entity';
-import { CreateShippingProviderDto } from '../dto/create-shipping-provider.dto';
-import { UpdateShippingProviderDto } from '../dto/update-shipping-provider.dto';
+import { ShippingProvider } from '@backend/modules/products/entities/shipping-provider.entity';
+import { CreateShippingProviderDto } from '@backend/modules/products/dto/create-shipping-provider.dto';
+import { UpdateShippingProviderDto } from '@backend/modules/products/dto/update-shipping-provider.dto';
 
 @Injectable()
 export class AdminShippingProviderService {

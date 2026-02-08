@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ApiStatusCodes } from '@shared';
-import { BrandRepository } from '../repositories/brand.repository';
-import { DataExportService } from '../../export/services/data-export.service';
-import { ExportJobRunnerService } from '../../export/services/export-job-runner.service';
-import { ExportJobPayload } from '../../export/interfaces/export-payload.interface';
-import { ExportFormat } from '../../export/entities/data-export-job.entity';
-import { BRAND_EXPORT_COLUMNS, BRAND_TEMPLATE_EXPORT_COLUMNS } from '../export/brand-export.columns';
-import { ImportJobService } from '../../import/services/import-job.service';
+import { BrandRepository } from '@backend/modules/products/repositories/brand.repository';
+import { DataExportService } from '@backend/modules/export/services/data-export.service';
+import { ExportJobRunnerService } from '@backend/modules/export/services/export-job-runner.service';
+import { ExportJobPayload } from '@backend/modules/export/interfaces/export-payload.interface';
+import { ExportFormat } from '@backend/modules/export/entities/data-export-job.entity';
+import { BRAND_EXPORT_COLUMNS, BRAND_TEMPLATE_EXPORT_COLUMNS } from '@backend/modules/products/export/brand-export.columns';
+import { ImportJobService } from '@backend/modules/import/services/import-job.service';
 import * as XLSX from 'xlsx';
 
 @Injectable()

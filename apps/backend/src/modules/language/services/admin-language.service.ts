@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { Language } from '../entities/language.entity';
-import { LanguageRepository } from '../repositories/language.repository';
-import { CreateLanguageDto, UpdateLanguageDto, LanguageFiltersDto } from '../dto/language.dto';
+import { Language } from '@backend/modules/language/entities/language.entity';
+import { LanguageRepository } from '@backend/modules/language/repositories/language.repository';
+import { CreateLanguageDto, UpdateLanguageDto, LanguageFiltersDto } from '@backend/modules/language/dto/language.dto';
 
 @Injectable()
 export class AdminLanguageService {

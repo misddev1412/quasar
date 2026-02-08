@@ -7,20 +7,20 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
-import { SeederModule } from './seeder.module';
-import { PermissionSeeder } from './permission.seeder';
-import { SeoSeeder } from './seo.seeder';
-import { AdminSeeder } from './admin.seeder';
-import { SettingsSeeder } from './settings.seeder';
-import { UserActivitySeeder } from './user-activity.seeder';
-import { CountriesSeeder } from './countries.seeder';
-import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
-import databaseConfig from '../../config/database.config';
-import { SectionsSeeder } from './sections.seeder';
-import { MenusSeeder } from './menus.seeder';
-import { ComponentConfigsSeeder } from './component-configs.seeder';
-import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
-import { ServicesSeeder } from './services.seeder';
+import { SeederModule } from '@backend/database/seeders/seeder.module';
+import { PermissionSeeder } from '@backend/database/seeders/permission.seeder';
+import { SeoSeeder } from '@backend/database/seeders/seo.seeder';
+import { AdminSeeder } from '@backend/database/seeders/admin.seeder';
+import { SettingsSeeder } from '@backend/database/seeders/settings.seeder';
+import { UserActivitySeeder } from '@backend/database/seeders/user-activity.seeder';
+import { CountriesSeeder } from '@backend/database/seeders/countries.seeder';
+import { AdministrativeDivisionsSeeder } from '@backend/database/seeders/administrative-divisions.seeder';
+import databaseConfig from '@backend/config/database.config';
+import { SectionsSeeder } from '@backend/database/seeders/sections.seeder';
+import { MenusSeeder } from '@backend/database/seeders/menus.seeder';
+import { ComponentConfigsSeeder } from '@backend/database/seeders/component-configs.seeder';
+import { NotificationEventFlowSeeder } from '@backend/database/seeders/notification-event-flow.seeder';
+import { ServicesSeeder } from '@backend/database/seeders/services.seeder';
 
 @Module({
   imports: [
