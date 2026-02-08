@@ -25,7 +25,11 @@ interface AIGenerationOptionsModalProps {
     onRegenerate?: () => void;
     contextLabel?: string;
     entityType?: 'product' | 'post';
-    contentType?: 'title' | 'description';
+    contentType?: 'title' | 'description' | 'keywords' | 'image';
+    allowImages?: boolean;
+    allowLengthOptions?: boolean;
+    allowProductLinks?: boolean;
+    allowStyleOptions?: boolean;
 }
 
 export interface AIGenerationOptions {
@@ -77,6 +81,10 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
     contextLabel,
     entityType,
     contentType,
+    allowImages = true,
+    allowLengthOptions = true,
+    allowProductLinks = true,
+    allowStyleOptions = true,
 }) => {
     const { t } = useTranslationWithBackend();
 
@@ -171,17 +179,19 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                             />
                         </div>
 
-                        <div className="grid gap-2">
-                            <Select
-                                id="ai-style"
-                                label={t('ai.style', 'Content Style')}
-                                value={options.style}
-                                onChange={(value) => setOptions({ ...options, style: value })}
-                                options={styleOptions}
-                            />
-                        </div>
+                        {allowStyleOptions && (
+                            <div className="grid gap-2">
+                                <Select
+                                    id="ai-style"
+                                    label={t('ai.style', 'Content Style')}
+                                    value={options.style}
+                                    onChange={(value) => setOptions({ ...options, style: value })}
+                                    options={styleOptions}
+                                />
+                            </div>
+                        )}
 
-                        {contentType === 'description' && (
+                        {contentType === 'description' && allowLengthOptions && (
                             <div className="grid gap-2">
                                 <Select
                                     id="ai-length"
@@ -194,7 +204,7 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                         )}
 
                         <div className="flex flex-wrap gap-4 px-1">
-                            {entityType === 'post' && contentType === 'description' && (
+                            {entityType === 'post' && contentType === 'description' && allowProductLinks && (
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
@@ -212,7 +222,7 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                                 </div>
                             )}
 
-                            {contentType === 'description' && (
+                            {contentType === 'description' && allowImages && (
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
@@ -238,7 +248,15 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                                 {t('ai.preview_result', 'Preview Result')}
                             </h4>
                             <div className="prose prose-sm dark:prose-invert max-w-none mb-3 max-h-60 overflow-y-auto bg-white dark:bg-neutral-900 p-3 rounded border border-neutral-200 dark:border-neutral-700">
-                                <div dangerouslySetInnerHTML={{ __html: generatedContent || '' }} />
+                                {contentType === 'image' && generatedContent ? (
+                                    <img
+                                        src={generatedContent}
+                                        alt={t('ai.preview_image_alt', 'Generated image preview')}
+                                        className="rounded-md max-h-56 w-auto mx-auto"
+                                    />
+                                ) : (
+                                    <div dangerouslySetInnerHTML={{ __html: generatedContent || '' }} />
+                                )}
                             </div>
 
                             {tokenUsage && (

@@ -23,7 +23,7 @@ export class AdminPostsService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   async getAllPosts(filters: AdminPostFilters): Promise<PaginatedDto<Post>> {
     try {
@@ -116,6 +116,19 @@ export class AdminPostsService {
       throw this.responseHandler.createError(
         500,
         'Failed to update post status',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
+  async migrateMedia(): Promise<number> {
+    try {
+      return await this.postRepository.migratePostMedia();
+    } catch (error) {
+      console.error('AdminPostsService.migrateMedia error:', error);
+      throw this.responseHandler.createError(
+        500,
+        'Failed to migrate media',
         'INTERNAL_SERVER_ERROR'
       );
     }

@@ -111,6 +111,9 @@ export class Post extends BaseEntity {
   @Column({ nullable: true })
   featured_image: string;
 
+  @Column({ nullable: true })
+  banner_image: string;
+
   @Column('uuid')
   author_id: string;
 

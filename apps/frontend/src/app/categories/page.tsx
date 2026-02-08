@@ -3,6 +3,7 @@ import Layout from '../../components/layout/Layout';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import CategoriesContainer from '../../components/ecommerce/CategoriesContainer';
 import { getPublicSiteName } from '../../lib/site-name';
+import { getTranslations } from 'next-intl/server';
 
 // Generate metadata for categories page
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,7 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const tCommon = await getTranslations('common');
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -50,8 +53,8 @@ export default function CategoriesPage() {
       {/* Breadcrumb */}
       <PageBreadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Categories', isCurrent: true },
+          { label: tCommon('home'), href: '/' },
+          { label: tCommon('categories'), isCurrent: true },
         ]}
         fullWidth={true}
       />

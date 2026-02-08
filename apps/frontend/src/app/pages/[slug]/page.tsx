@@ -6,6 +6,7 @@ import Layout from '../../../components/layout/Layout';
 import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import type { SiteContent } from '../../../types/site-content';
 import { getPublicSiteName } from '../../../lib/site-name';
+import { getTranslations } from 'next-intl/server';
 import {
   buildMetadataFromSiteContent,
   extractSummary,
@@ -108,6 +109,7 @@ const SiteContentBody = ({ siteContent }: { siteContent: SiteContent }) => {
 export default async function SiteContentPage({ params }: SiteContentPageProps) {
   const { slug } = await params;
   const locale = await resolvePreferredLocale();
+  const tCommon = await getTranslations('common');
   const siteContent = await fetchSiteContentBySlug(slug, locale);
 
   if (!siteContent) {
@@ -219,8 +221,8 @@ export default async function SiteContentPage({ params }: SiteContentPageProps) 
 
         <PageBreadcrumbs
           items={[
-            { label: 'Home', href: '/' },
-            { label: 'Pages', href: '/pages' },
+            { label: tCommon('home'), href: '/' },
+            { label: tCommon('pages'), href: '/pages' },
             { label: siteContent.title, isCurrent: true },
           ]}
           fullWidth={true}

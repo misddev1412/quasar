@@ -137,6 +137,11 @@
     "home": "Trang chủ",
     "products": "Sản phẩm",
     "categories": "Danh mục",
+    "news": "Tin tức",
+    "services": "Dịch vụ",
+    "pages": "Trang",
+    "blog": "Blog",
+    "service_details": "Chi tiết dịch vụ",
     "currencies": "Quản lý tiền tệ",
     "about": "Giới thiệu",
     "contact": "Liên hệ",
@@ -147,6 +152,7 @@
       "loading": "Đang tải..."
     },
     "search": {
+      "label": "Tìm kiếm",
       "placeholder": "Tìm kiếm sản phẩm..."
     },
     "searchBar": {

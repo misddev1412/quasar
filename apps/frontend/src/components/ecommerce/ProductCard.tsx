@@ -13,6 +13,8 @@ import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 import { useProductCardConfig } from '../../hooks/useProductCardConfig';
 import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
 import { trpc } from '../../utils/trpc';
+import toast from 'react-hot-toast';
+import { usePathname } from 'next/navigation';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -150,8 +152,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
-  const { addToCart, isAdding } = useAddToCart();
+  const { addToCart, isAdding: isCartAdding } = useAddToCart();
   const { t } = useTranslation();
+  const pathname = usePathname();
+
+  // Contact form state
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+
+  const submitInquiry = trpc.inquiry.submit.useMutation();
   const { formatCurrency } = useCurrencyFormatter({
     currency: priceSettings.currency || product.currencyCode,
     locale: priceSettings.locale,
@@ -419,13 +429,39 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleQuickView = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleInquirySubmit = useCallback(async () => {
+    if (!contactName || !contactEmail || !contactPhone) {
+      toast.error(t('common.pleaseFillAllFields', 'Please fill in all required fields'));
+      return;
+    }
+
+    try {
+      await submitInquiry.mutateAsync({
+        name: contactName,
+        email: contactEmail,
+        phone: contactPhone,
+        message: contactMessage,
+        productId: id,
+        url: typeof window !== 'undefined' ? window.location.href : pathname,
+        subject: `Inquiry for ${displayName}`,
+      });
+
+      toast.success(t('ecommerce.product.contactSuccess', 'Your inquiry has been submitted successfully!'));
+      onCloseContactModal();
+      // Reset form
+      setContactName('');
+      setContactEmail('');
+      setContactMessage('');
+    } catch (error: any) {
+      toast.error(error.message || t('common.errorOccurred', 'An error occurred while submitting your inquiry'));
+    }
+  }, [contactName, contactEmail, contactPhone, contactMessage, id, displayName, pathname, submitInquiry, onCloseContactModal, t]);
+
+  const handleQuickView = useCallback(() => {
     if (onQuickView) {
       onQuickView(product);
     }
-  };
+  }, [onQuickView, product]);
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -761,8 +797,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddToCartWithVariant}
-                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding || matchingVariant.price === 0}
-                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding || matchingVariant.price === 0
+                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isCartAdding || matchingVariant.price === 0}
+                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isCartAdding || matchingVariant.price === 0
                       ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
                       }`}
@@ -775,7 +811,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           ? t('ecommerce.cart.outOfStock', 'Out of Stock')
                           : matchingVariant.price === 0
                             ? t('ecommerce.product.priceUpdating', 'Price Updating')
-                            : isAdding
+                            : isCartAdding
                               ? t('ecommerce.cart.adding', 'Adding...')
                               : isContactOnlyProduct
                                 ? t('ecommerce.cart.addToQuote')
@@ -904,6 +940,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <span className="font-medium">{t('common.name', 'Name')}</span>
                     <input
                       type="text"
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
                       className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
                     />
                   </label>
@@ -920,12 +958,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <span className="font-medium">{t('common.email', 'Email')}</span>
                   <input
                     type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
                     className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
                   />
                 </label>
                 <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
                   <span className="font-medium">{t('common.message', 'Message')}</span>
                   <textarea
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
                     className="mt-2 min-h-[120px] rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
                   />
                 </label>
@@ -939,7 +981,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </Button>
                   <Button
                     className="rounded-full bg-gray-900 text-white hover:bg-gray-800"
-                    onPress={onCloseContactModal}
+                    onPress={handleInquirySubmit}
+                    isLoading={submitInquiry.isPending}
                   >
                     {t('common.submit', 'Submit')}
                   </Button>

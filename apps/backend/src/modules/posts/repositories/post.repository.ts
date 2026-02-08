@@ -7,11 +7,14 @@ import { Post, PostStatus, PostType } from '../entities/post.entity';
 import { PostTranslation } from '../entities/post-translation.entity';
 import { PostCategory } from '../entities/post-category.entity';
 import { PostTag } from '../entities/post-tag.entity';
+import { Media } from '../../storage/entities/media.entity';
+import { MediaService } from '../../storage/services/media.service';
 
 export interface CreatePostDto {
   status?: PostStatus;
   type?: PostType;
   featuredImage?: string;
+  bannerImage?: string;
   authorId?: string;
   publishedAt?: Date;
   scheduledAt?: Date;
@@ -38,6 +41,7 @@ export interface UpdatePostDto {
   status?: PostStatus;
   type?: PostType;
   featuredImage?: string;
+  bannerImage?: string;
   publishedAt?: Date;
   scheduledAt?: Date;
   isFeatured?: boolean;
@@ -70,6 +74,7 @@ export class PostRepository extends BaseRepository<Post> {
     private readonly postCategoryRepository: Repository<PostCategory>,
     @InjectRepository(PostTag)
     private readonly postTagRepository: Repository<PostTag>,
+    private readonly mediaService: MediaService,
   ) {
     super(postRepository);
   }
@@ -82,6 +87,7 @@ export class PostRepository extends BaseRepository<Post> {
       status: dtoData.status,
       type: dtoData.type,
       featured_image: dtoData.featuredImage,
+      banner_image: dtoData.bannerImage,
       author_id: dtoData.authorId,
       published_at: dtoData.publishedAt,
       scheduled_at: dtoData.scheduledAt,
@@ -124,6 +130,14 @@ export class PostRepository extends BaseRepository<Post> {
       await this.repository.save(savedPost);
     }
 
+    // Sync media relations
+    if (dtoData.featuredImage) {
+      await this.mediaService.syncMediaRelations(savedPost.id, 'post', 'featured_image', dtoData.featuredImage);
+    }
+    if (dtoData.bannerImage) {
+      await this.mediaService.syncMediaRelations(savedPost.id, 'post', 'banner_image', dtoData.bannerImage);
+    }
+
     return this.findByIdWithRelations(savedPost.id);
   }
 
@@ -157,6 +171,7 @@ export class PostRepository extends BaseRepository<Post> {
       status: dtoData.status,
       type: dtoData.type,
       featured_image: dtoData.featuredImage,
+      banner_image: dtoData.bannerImage,
       published_at: dtoData.publishedAt,
       scheduled_at: dtoData.scheduledAt,
       is_featured: dtoData.isFeatured,
@@ -178,7 +193,7 @@ export class PostRepository extends BaseRepository<Post> {
     if (translations && translations.length > 0) {
       // Remove existing translations
       await this.postTranslationRepository.delete({ post_id: id });
-      
+
       // Create new translations
       const translationEntities = translations.map(translation =>
         this.postTranslationRepository.create({
@@ -203,18 +218,14 @@ export class PostRepository extends BaseRepository<Post> {
       }
     }
 
-    // Update tags
-    if (tagIds !== undefined) {
-      const post = await this.repository.findOne({ where: { id }, relations: ['tags'] });
-      if (post) {
-        if (tagIds.length > 0) {
-          const tags = await this.postTagRepository.findBy({ id: In(tagIds) });
-          post.tags = tags;
-        } else {
-          post.tags = [];
-        }
-        await this.repository.save(post);
-      }
+
+
+    // Sync media relations if images are updated
+    if (dtoData.featuredImage !== undefined) {
+      await this.mediaService.syncMediaRelations(id, 'post', 'featured_image', dtoData.featuredImage);
+    }
+    if (dtoData.bannerImage !== undefined) {
+      await this.mediaService.syncMediaRelations(id, 'post', 'banner_image', dtoData.bannerImage);
     }
 
     return this.findByIdWithRelations(id);
@@ -250,5 +261,25 @@ export class PostRepository extends BaseRepository<Post> {
 
   async incrementViewCount(id: string): Promise<void> {
     await this.repository.increment({ id }, 'view_count', 1);
+  }
+
+
+
+  async migratePostMedia(): Promise<number> {
+    const posts = await this.repository.find();
+    let count = 0;
+
+    for (const post of posts) {
+      if (post.featured_image) {
+        await this.mediaService.syncMediaRelations(post.id, 'post', 'featured_image', post.featured_image);
+        count++;
+      }
+      if (post.banner_image) {
+        await this.mediaService.syncMediaRelations(post.id, 'post', 'banner_image', post.banner_image);
+        count++;
+      }
+    }
+
+    return count;
   }
 }

@@ -11,6 +11,7 @@ interface TextareaInputProps {
   error?: string;
   className?: string;
   rows?: number;
+  rightElement?: React.ReactNode;
 }
 
 export const TextareaInput: React.FC<TextareaInputProps & { [key: string]: any }> = ({
@@ -23,13 +24,17 @@ export const TextareaInput: React.FC<TextareaInputProps & { [key: string]: any }
   error,
   className = '',
   rows = 4,
+  rightElement,
   ...rest
 }) => {
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className={BASE_LABEL_CLASS}>
-        {label}
-      </label>
+      <div className="flex items-end justify-between gap-2">
+        <label htmlFor={id} className={BASE_LABEL_CLASS}>
+          {label}
+        </label>
+        {rightElement}
+      </div>
       <textarea
         id={id}
         value={value}

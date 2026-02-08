@@ -16,6 +16,7 @@ const newsItemSchema = z.object({
   publishDate: z.string(),
   category: z.string(),
   image: z.string().optional(),
+  bannerImage: z.string().optional(),
   isActive: z.boolean(),
   sortOrder: z.number(),
   createdAt: z.date(),
@@ -49,7 +50,7 @@ export class ClientNewsRouter {
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
     private readonly clientPostsService: ClientPostsService,
-  ) {}
+  ) { }
 
   @Query({
     input: newsListQuerySchema,

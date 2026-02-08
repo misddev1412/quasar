@@ -181,7 +181,7 @@ export class AdminOpenAiConfigRouter {
   @Mutation({
     input: z.object({
       entityType: z.enum(['product', 'post']),
-      contentType: z.enum(['title', 'description']),
+      contentType: z.enum(['title', 'description', 'keywords', 'image']),
       context: z.string().optional(),
       keywords: z.array(z.string()).optional(),
       language: z.string().optional(),
@@ -196,7 +196,7 @@ export class AdminOpenAiConfigRouter {
   async generateContent(
     @Input() input: {
       entityType: 'product' | 'post';
-      contentType: 'title' | 'description';
+      contentType: 'title' | 'description' | 'keywords' | 'image';
       context?: string;
       keywords?: string[];
       language?: string;

@@ -24,6 +24,7 @@ export interface NewsItem {
   publishDate: string;
   category: string;
   image?: string;
+  bannerImage?: string;
   isActive: boolean;
   sortOrder: number;
   createdAt: Date;
@@ -137,6 +138,7 @@ export class ClientPostsService {
           publishDate: post.published_at?.toISOString().split('T')[0] || post.createdAt.toISOString().split('T')[0],
           category: categoryName,
           image: post.featured_image || undefined,
+          bannerImage: post.banner_image || undefined,
           isActive: post.status === PostStatus.PUBLISHED && (!post.published_at || post.published_at <= new Date()),
           sortOrder: 0, // post doesn't have sortOrder field
           createdAt: post.createdAt,
@@ -192,6 +194,7 @@ export class ClientPostsService {
         publishDate: post.published_at?.toISOString().split('T')[0] || post.createdAt.toISOString().split('T')[0],
         category: categoryName,
         image: post.featured_image || undefined,
+        bannerImage: post.banner_image || undefined,
         isActive: post.status === PostStatus.PUBLISHED && (!post.published_at || post.published_at <= new Date()),
         sortOrder: 0, // post doesn't have sortOrder field
         createdAt: post.createdAt,

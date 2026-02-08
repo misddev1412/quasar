@@ -3,6 +3,7 @@
 import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
 import { AddressBook } from '../../../components/profile/AddressBook';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Helmet } from 'react-helmet-async';
@@ -22,6 +23,14 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.addresses.description')} />
       </Helmet>
       <Layout>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('profile.title'), href: '/profile' },
+            { label: t('profile.pages.addresses.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
         <ProfileLayout activeSection="addresses">
           <div className="p-6">
             <AddressBook />

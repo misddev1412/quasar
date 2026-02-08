@@ -1130,6 +1130,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               validation: {
                 maxLength: 60,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaTitle"
+                  sourceFieldName="name"
+                  targetLabel={t('products.meta_title', 'Meta Title')}
+                  sourceLabel={t('products.name', 'Product Name')}
+                  entityType="product"
+                  contentType="title"
+                  tone="seo"
+                  allowImages={false}
+                />
+              ),
+              rightElementPosition: 'inside-input',
               description: t('products.meta_title_description', 'Recommended length: 50-60 characters'),
             },
             {
@@ -1138,6 +1151,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               type: 'text',
               placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
               required: false,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaKeywords"
+                  sourceFieldName="description"
+                  targetLabel={t('products.meta_keywords', 'Meta Keywords')}
+                  sourceLabel={t('products.description', 'Description')}
+                  entityType="product"
+                  contentType="keywords"
+                  tone="seo"
+                  allowImages={false}
+                  allowLengthOptions={false}
+                  allowProductLinks={false}
+                  allowStyleOptions={false}
+                  stripHtmlOutput={true}
+                />
+              ),
+              rightElementPosition: 'inside-input',
               description: t('products.meta_keywords_description', 'Separate keywords with commas'),
             },
             {
@@ -1150,6 +1180,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               validation: {
                 maxLength: 160,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaDescription"
+                  sourceFieldName="description"
+                  targetLabel={t('products.meta_description', 'Meta Description')}
+                  sourceLabel={t('products.description', 'Description')}
+                  entityType="product"
+                  contentType="description"
+                  tone="seo"
+                  allowImages={false}
+                  stripHtmlOutput={true}
+                />
+              ),
               description: t('products.meta_description_help', 'Recommended length: 150-160 characters'),
             },
             {
@@ -1158,6 +1201,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               type: 'media-upload',
               placeholder: t('products.og_image_placeholder', 'Select OG image'),
               required: false,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="ogImage"
+                  sourceFieldName="description"
+                  targetLabel={t('products.og_image', 'OG Image')}
+                  sourceLabel={t('products.description', 'Description')}
+                  entityType="product"
+                  contentType="image"
+                  tone="seo"
+                  allowImages={true}
+                  allowLengthOptions={false}
+                  allowProductLinks={false}
+                  allowStyleOptions={false}
+                  stripHtmlOutput={true}
+                />
+              ),
               description: t('products.og_image_description', 'Recommended size: 1200x630px. This image will be shown when shared on social media.'),
             },
           ],

@@ -10,6 +10,7 @@ interface MediaUploadProps {
   value?: string | string[]; // Support single or multiple files
   onChange?: (value: string | string[]) => void;
   label?: string;
+  rightElement?: React.ReactNode;
   description?: string;
   accept?: string;
   maxSize?: number; // in MB
@@ -32,6 +33,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   value,
   onChange,
   label,
+  rightElement,
   description,
   accept = 'image/*,video/*',
   maxSize = 10,
@@ -277,10 +279,13 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   return (
     <div className={clsx('space-y-2', className)}>
       {label && (
-        <label className={BASE_LABEL_CLASS}>
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        <div className="flex items-end justify-between gap-2">
+          <label className={BASE_LABEL_CLASS}>
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {rightElement}
+        </div>
       )}
 
       {/* Upload Area */}
@@ -438,7 +443,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                     {media.originalName}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {media.sizeFormatted || `${(media.size / 1024 / 1024).toFixed(2)} MB`}
+                    {media.sizeFormatted || (typeof media.size === 'number' ? `${(media.size / 1024 / 1024).toFixed(2)} MB` : '')}
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400">
                     {t('common.media.fromMediaLibrary')}

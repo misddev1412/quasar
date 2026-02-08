@@ -3107,7 +3107,7 @@ export const appRouter = router({
     bulkAction: procedure
       .input(z.object({
         ids: z.array(z.string().uuid()).min(1),
-        action: z.enum(['activate', 'deactivate', 'delete']),
+        action: z.enum(['activate', 'deactivate', 'delete', 'contact_price']),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -3528,7 +3528,7 @@ export const appRouter = router({
     generateContent: procedure
       .input(z.object({
         entityType: z.enum(['product', 'post']),
-        contentType: z.enum(['title', 'description']),
+        contentType: z.enum(['title', 'description', 'keywords', 'image']),
         context: z.string().optional(),
         keywords: z.array(z.string()).optional(),
         language: z.string().optional(),

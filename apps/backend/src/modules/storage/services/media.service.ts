@@ -1,7 +1,8 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Media, MediaType } from '../entities/media.entity';
+import { MediaRelation } from '../entities/media-relation.entity';
 import { FileUploadService } from './file-upload.service';
 import { CreateMediaDto, UpdateMediaDto, MediaListQueryDto } from '../dto/media.dto';
 
@@ -12,8 +13,10 @@ export class MediaService {
   constructor(
     @InjectRepository(Media)
     private readonly mediaRepository: Repository<Media>,
+    @InjectRepository(MediaRelation)
+    private readonly mediaRelationRepository: Repository<MediaRelation>,
     private readonly fileUploadService: FileUploadService,
-  ) {}
+  ) { }
 
   async createMedia(
     data: {
@@ -52,7 +55,7 @@ export class MediaService {
 
       const savedMedia = await this.mediaRepository.save(media);
       this.logger.log(`Media record created successfully: ${savedMedia.id} by user ${userId}`);
-      
+
       return savedMedia;
     } catch (error) {
       this.logger.error(`Failed to create media record for user ${userId}:`, error);
@@ -254,5 +257,59 @@ export class MediaService {
       return MediaType.DOCUMENT;
     }
     return MediaType.OTHER;
+  }
+
+  async syncMediaRelations(
+    objectId: string,
+    objectType: string,
+    fieldName: string,
+    urls: string | string[] | undefined | null,
+  ): Promise<void> {
+    // 1. Delete existing relations for this field
+    await this.mediaRelationRepository.delete({
+      objectId,
+      objectType,
+      fieldName,
+    });
+
+    if (!urls) {
+      return;
+    }
+
+    const urlList = Array.isArray(urls) ? urls : [urls];
+    if (urlList.length === 0) {
+      return;
+    }
+
+    // 2. Find media by URLs
+    const mediaItems = await this.mediaRepository.find({
+      where: { url: In(urlList) },
+    });
+
+    if (mediaItems.length === 0) {
+      return;
+    }
+
+    // 3. Create new relations
+    const relations: MediaRelation[] = [];
+
+    urlList.forEach((url, index) => {
+      const media = mediaItems.find(m => m.url === url);
+      if (media) {
+        relations.push(
+          this.mediaRelationRepository.create({
+            mediaId: media.id,
+            objectId,
+            objectType,
+            fieldName,
+            order: index,
+          })
+        );
+      }
+    });
+
+    if (relations.length > 0) {
+      await this.mediaRelationRepository.save(relations);
+    }
   }
 }

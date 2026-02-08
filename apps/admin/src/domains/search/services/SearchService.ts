@@ -8,14 +8,7 @@ export class SearchService implements ISearchService {
     
     menuGroups.forEach(group => {
       group.items.forEach(item => {
-        results.push({
-          icon: item.icon,
-          label: item.label,
-          path: item.path,
-          group: group.title
-        });
-        
-        if (item.subItems) {
+        if (item.subItems && item.subItems.length > 0) {
           item.subItems.forEach(subItem => {
             results.push({
               icon: subItem.icon,
@@ -23,6 +16,13 @@ export class SearchService implements ISearchService {
               path: subItem.path,
               group: group.title
             });
+          });
+        } else {
+          results.push({
+            icon: item.icon,
+            label: item.label,
+            path: item.path,
+            group: group.title
           });
         }
       });

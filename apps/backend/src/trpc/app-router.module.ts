@@ -63,6 +63,9 @@ import { AdminProductBundlesRouter } from '../modules/product-bundles/routers/ad
 import { AdminOpenAiConfigRouter } from '../modules/openai/routers/admin-openai-config.router';
 import { ImportModule } from '../modules/import/import.module';
 import { AdminImportRouter } from '../modules/import/routers/admin-import.router';
+import { NewsletterModule } from '../modules/newsletter/newsletter.module';
+
+import { ClientNewsletterRouter } from './routers/client/newsletter.router';
 
 @Module({
   imports: [
@@ -97,6 +100,7 @@ import { AdminImportRouter } from '../modules/import/routers/admin-import.router
     TranslationModule,
     ProductBundlesModule,
     ImportModule,
+    NewsletterModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -135,6 +139,8 @@ import { AdminImportRouter } from '../modules/import/routers/admin-import.router
     AdminProductBundlesRouter,
     AdminOpenAiConfigRouter,
     AdminImportRouter,
+    ClientNewsletterRouter,
   ],
 })
 export class AppRouterModule { }
+

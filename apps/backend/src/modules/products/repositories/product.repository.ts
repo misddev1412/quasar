@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions, SelectQueryBuilder } from 'typeorm';
 import { Product, ProductStatus } from '../entities/product.entity';
+import { ProductVariant } from '../entities/product-variant.entity';
 import { ProductCategory } from '../entities/product-category.entity';
 import { ProductTranslation } from '../entities/product-translation.entity';
+import { MediaService } from '../../storage/services/media.service';
 
 export interface ProductFilters {
   search?: string;
@@ -54,6 +56,7 @@ export class ProductRepository {
     private readonly productCategoryRepository: Repository<ProductCategory>,
     @InjectRepository(ProductTranslation)
     private readonly productTranslationRepository: Repository<ProductTranslation>,
+    private readonly mediaService: MediaService,
   ) { }
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
@@ -284,11 +287,48 @@ export class ProductRepository {
 
   async create(productData: Partial<Product>): Promise<Product> {
     const product = this.productRepository.create(productData);
-    return this.productRepository.save(product);
+    const savedProduct = await this.productRepository.save(product);
+
+    // Sync media relations
+    if (productData.images) {
+      let images: string[] = [];
+      try {
+        images = JSON.parse(productData.images);
+      } catch (e) {
+        // ignore parsing error
+      }
+      if (images.length > 0) {
+        await this.mediaService.syncMediaRelations(savedProduct.id, 'product', 'images', images);
+      }
+    }
+
+    if (productData.ogImage) {
+      await this.mediaService.syncMediaRelations(savedProduct.id, 'product', 'og_image', productData.ogImage);
+    }
+
+    return savedProduct;
   }
 
   async update(id: string, productData: Partial<Product>): Promise<Product | null> {
     await this.productRepository.update(id, productData);
+
+    // Sync media relations if present in update data
+    if (productData.images !== undefined) {
+      let images: string[] = [];
+      try {
+        if (productData.images) {
+          images = JSON.parse(productData.images);
+        }
+      } catch (e) {
+        // ignore parsing error
+      }
+      await this.mediaService.syncMediaRelations(id, 'product', 'images', images);
+    }
+
+    if (productData.ogImage !== undefined) {
+      await this.mediaService.syncMediaRelations(id, 'product', 'og_image', productData.ogImage);
+    }
+
     return this.findById(id);
   }
 
@@ -342,6 +382,37 @@ export class ProductRepository {
       .execute();
 
     return result.affected ?? 0;
+  }
+
+  async bulkSetContactPrice(ids: string[], isContactPrice: boolean): Promise<{ updated: number; variantsUpdated: number }> {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return { updated: 0, variantsUpdated: 0 };
+    }
+
+    const sanitizedIds = ids
+      .map(id => (typeof id === 'string' ? id.trim() : ''))
+      .filter(id => id && ProductRepository.UUID_REGEX.test(id));
+
+    if (sanitizedIds.length === 0) {
+      return { updated: 0, variantsUpdated: 0 };
+    }
+
+    const productResult = await this.productRepository.createQueryBuilder()
+      .update(Product)
+      .set({ isContactPrice })
+      .where('id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    const variantResult = await this.productRepository.manager.createQueryBuilder()
+      .update(ProductVariant)
+      .set({ isContactPrice })
+      .where('product_id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    return {
+      updated: productResult.affected ?? 0,
+      variantsUpdated: variantResult.affected ?? 0,
+    };
   }
 
   async getStats() {

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '@admin/hooks/useLanguages';
 import { TranslationTabs } from '@admin/components/common/TranslationTabs';
@@ -30,17 +31,24 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
 
+  // Get form context to watch the primary language field
+  const { watch } = useFormContext();
+  const formLanguageCode = watch('languageCode');
+
+  // Use the form's selected language if available, otherwise fall back to prop or default
+  const activePrimaryLanguage = formLanguageCode || primaryLanguage || 'en';
+
   // Filter available languages to exclude primary language
   // This logic is critical for isolating "additional" (translated) languages from the main language
   const supportedLocales = useMemo(() => {
     return languageOptions
-      .filter(lang => lang.value !== primaryLanguage)
+      .filter(lang => lang.value !== activePrimaryLanguage)
       .map(lang => ({
         code: lang.value,
         name: lang.label,
         flag: undefined // Flags are handled by TranslationTabs internal logic or can be added if available
       }));
-  }, [languageOptions, primaryLanguage]);
+  }, [languageOptions, activePrimaryLanguage]);
 
   // Transform array format to Record<locale, Record<field, value>> format for TranslationTabs
   const translationsRecord = useMemo(() => {
@@ -205,7 +213,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             label: t('posts.metaKeywords'),
             value: '',
             onChange: () => { },
-            type: 'text',
+            type: 'tags',
             placeholder: t('posts.metaKeywordsPlaceholder'),
             required: false,
             description: t('form.descriptions.meta_keywords_description', 'Separate keywords with commas'),

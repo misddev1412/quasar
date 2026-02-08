@@ -3,6 +3,7 @@
 import Layout from '../../components/layout/Layout';
 import ProfileLayout from '../../components/layout/ProfileLayout';
 import { ProfileOverview } from '../../components/profile/ProfileOverview';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Helmet } from 'react-helmet-async';
@@ -22,6 +23,14 @@ export default function Page() {
         <meta name="description" content={t('pages.profile.pages.overview.description')} />
       </Helmet>
       <Layout>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('profile.title'), href: '/profile' },
+            { label: t('pages.profile.pages.overview.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
         <ProfileLayout activeSection="overview">
           <ProfileOverview onSectionChange={handleSectionChange} />
         </ProfileLayout>

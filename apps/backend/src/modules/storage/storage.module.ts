@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SettingEntity } from '../settings/entities/setting.entity';
 import { Media } from './entities/media.entity';
+import { MediaRelation } from './entities/media-relation.entity';
 import { StorageService } from './services/storage.service';
 import { FileUploadService } from './services/file-upload.service';
 import { MediaService } from './services/media.service';
@@ -12,23 +13,23 @@ import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SettingEntity, Media]),
+    TypeOrmModule.forFeature([SettingEntity, Media, MediaRelation]),
     SharedModule, // For ResponseService
   ],
   controllers: [UploadController],
   providers: [
-    StorageService, 
-    FileUploadService, 
+    StorageService,
+    FileUploadService,
     MediaService,
     AdminStorageRouter,
     AdminMediaRouter,
   ],
   exports: [
-    StorageService, 
-    FileUploadService, 
+    StorageService,
+    FileUploadService,
     MediaService,
     AdminStorageRouter,
     AdminMediaRouter,
   ],
 })
-export class StorageModule {}
+export class StorageModule { }

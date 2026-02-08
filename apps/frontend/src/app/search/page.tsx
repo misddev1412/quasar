@@ -256,6 +256,7 @@ export default async function SearchPage({
   const resolved = searchParams || {};
   const locale = await getPreferredLocale(resolved);
   const t = await getTranslations({ locale, namespace: 'common.searchBar' });
+  const tCommon = await getTranslations({ locale, namespace: 'common' });
   const currencyResponse = await serverTrpc.clientCurrency.getDefaultCurrency.query();
   const currencyData = (currencyResponse as any)?.data ?? {};
   const currencyCode = currencyData?.code || 'USD';
@@ -490,8 +491,8 @@ export default async function SearchPage({
       {/* Breadcrumb */}
       <PageBreadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Search', isCurrent: true },
+          { label: tCommon('home'), href: '/' },
+          { label: tCommon('search.label'), isCurrent: true },
         ]}
         fullWidth={true}
       />

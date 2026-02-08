@@ -47,25 +47,25 @@ export const SEOChecklist: React.FC = () => {
         if (!metaTitle) {
             reqs.push({
                 id: 'title-presence',
-                label: t('seo.requirements.title_presence', 'Meta Title Presence'),
+                label: t('common.seo.requirements.title_presence', 'Meta Title Presence'),
                 status: 'error',
-                message: t('seo.tips.title_missing', 'Add a meta title to improve visibility.'),
+                message: t('common.seo.tips.title_missing', 'Add a meta title to improve visibility.'),
                 importance: 'high'
             });
         } else if (metaTitle.length < 50 || metaTitle.length > 60) {
             reqs.push({
                 id: 'title-length',
-                label: t('seo.requirements.title_length', 'Meta Title Length'),
+                label: t('common.seo.requirements.title_length', 'Meta Title Length'),
                 status: 'warning',
-                message: t('seo.tips.title_length', 'Recommended length is 50-60 characters. Current: {{length}}', { length: metaTitle.length }),
+                message: t('common.seo.tips.title_length', 'Recommended length is 50-60 characters. Current: {{length}}', { length: metaTitle.length }),
                 importance: 'medium'
             });
         } else {
             reqs.push({
                 id: 'title-ok',
-                label: t('seo.requirements.title_ok', 'Meta Title Optimization'),
+                label: t('common.seo.requirements.title_ok', 'Meta Title Optimization'),
                 status: 'success',
-                message: t('seo.tips.title_ok', 'Your meta title is well-optimized.'),
+                message: t('common.seo.tips.title_ok', 'Your meta title is well-optimized.'),
                 importance: 'high'
             });
         }
@@ -74,25 +74,25 @@ export const SEOChecklist: React.FC = () => {
         if (!metaDescription) {
             reqs.push({
                 id: 'desc-presence',
-                label: t('seo.requirements.desc_presence', 'Meta Description Presence'),
+                label: t('common.seo.requirements.desc_presence', 'Meta Description Presence'),
                 status: 'error',
-                message: t('seo.tips.desc_missing', 'Add a meta description to encourage clicks.'),
+                message: t('common.seo.tips.desc_missing', 'Add a meta description to encourage clicks.'),
                 importance: 'high'
             });
         } else if (metaDescription.length < 150 || metaDescription.length > 160) {
             reqs.push({
                 id: 'desc-length',
-                label: t('seo.requirements.desc_length', 'Meta Description Length'),
+                label: t('common.seo.requirements.desc_length', 'Meta Description Length'),
                 status: 'warning',
-                message: t('seo.tips.desc_length', 'Recommended length is 150-160 characters. Current: {{length}}', { length: metaDescription.length }),
+                message: t('common.seo.tips.desc_length', 'Recommended length is 150-160 characters. Current: {{length}}', { length: metaDescription.length }),
                 importance: 'medium'
             });
         } else {
             reqs.push({
                 id: 'desc-ok',
-                label: t('seo.requirements.desc_ok', 'Meta Description Optimization'),
+                label: t('common.seo.requirements.desc_ok', 'Meta Description Optimization'),
                 status: 'success',
-                message: t('seo.tips.desc_ok', 'Your meta description is well-optimized.'),
+                message: t('common.seo.tips.desc_ok', 'Your meta description is well-optimized.'),
                 importance: 'high'
             });
         }
@@ -101,25 +101,25 @@ export const SEOChecklist: React.FC = () => {
         if (!slug) {
             reqs.push({
                 id: 'slug-presence',
-                label: t('seo.requirements.slug_presence', 'Url Slug Presence'),
+                label: t('common.seo.requirements.slug_presence', 'Url Slug Presence'),
                 status: 'error',
-                message: t('seo.tips.slug_missing', 'A search-friendly URL is essential.'),
+                message: t('common.seo.tips.slug_missing', 'A search-friendly URL is essential.'),
                 importance: 'high'
             });
         } else if (/[A-Z]/.test(slug) || /\s/.test(slug) || /[^a-z0-9-]/.test(slug)) {
             reqs.push({
                 id: 'slug-format',
-                label: t('seo.requirements.slug_format', 'Url Slug Format'),
+                label: t('common.seo.requirements.slug_format', 'Url Slug Format'),
                 status: 'warning',
-                message: t('seo.tips.slug_format', 'Use lowercase and hyphens for a clean URL.'),
+                message: t('common.seo.tips.slug_format', 'Use lowercase and hyphens for a clean URL.'),
                 importance: 'medium'
             });
         } else {
             reqs.push({
                 id: 'slug-ok',
-                label: t('seo.requirements.slug_ok', 'Url Slug Optimization'),
+                label: t('common.seo.requirements.slug_ok', 'Url Slug Optimization'),
                 status: 'success',
-                message: t('seo.tips.slug_ok', 'Your URL is search-friendly.'),
+                message: t('common.seo.tips.slug_ok', 'Your URL is search-friendly.'),
                 importance: 'high'
             });
         }
@@ -129,17 +129,17 @@ export const SEOChecklist: React.FC = () => {
         if (wordCount < minWords) {
             reqs.push({
                 id: 'content-length',
-                label: t('seo.requirements.content_length', 'Content Length'),
+                label: t('common.seo.requirements.content_length', 'Content Length'),
                 status: 'warning',
-                message: t('seo.tips.content_short', 'Content seems a bit short. Aim for at least {{min}} words.', { min: minWords }),
+                message: t('common.seo.tips.content_short', 'Content seems a bit short. Aim for at least {{min}} words.', { min: minWords }),
                 importance: 'medium'
             });
         } else {
             reqs.push({
                 id: 'content-ok',
-                label: t('seo.requirements.content_ok', 'Content Depth'),
+                label: t('common.seo.requirements.content_ok', 'Content Depth'),
                 status: 'success',
-                message: t('seo.tips.content_ok', 'Your content has a good depth for SEO.'),
+                message: t('common.seo.tips.content_ok', 'Your content has a good depth for SEO.'),
                 importance: 'medium'
             });
         }
@@ -149,17 +149,17 @@ export const SEOChecklist: React.FC = () => {
         if (!hasImage) {
             reqs.push({
                 id: 'image-presence',
-                label: t('seo.requirements.image_presence', 'Visual Content'),
+                label: t('common.seo.requirements.image_presence', 'Visual Content'),
                 status: 'warning',
-                message: t('seo.tips.image_missing', 'Add at least one image to improve engagement.'),
+                message: t('common.seo.tips.image_missing', 'Add at least one image to improve engagement.'),
                 importance: 'medium'
             });
         } else {
             reqs.push({
                 id: 'image-ok',
-                label: t('seo.requirements.image_ok', 'Visual Content'),
+                label: t('common.seo.requirements.image_ok', 'Visual Content'),
                 status: 'success',
-                message: t('seo.tips.image_ok', 'Image present.'),
+                message: t('common.seo.tips.image_ok', 'Image present.'),
                 importance: 'medium'
             });
         }
@@ -168,17 +168,17 @@ export const SEOChecklist: React.FC = () => {
         if (!metaKeywords || (typeof metaKeywords === 'string' && metaKeywords.trim() === '')) {
             reqs.push({
                 id: 'keywords-presence',
-                label: t('seo.requirements.keywords_presence', 'Keywords Presence'),
+                label: t('common.seo.requirements.keywords_presence', 'Keywords Presence'),
                 status: 'warning',
-                message: t('seo.tips.keywords_missing', 'Define keywords to help search engines understand your topic.'),
+                message: t('common.seo.tips.keywords_missing', 'Define keywords to help search engines understand your topic.'),
                 importance: 'low'
             });
         } else {
             reqs.push({
                 id: 'keywords-ok',
-                label: t('seo.requirements.keywords_ok', 'Keywords Optimization'),
+                label: t('common.seo.requirements.keywords_ok', 'Keywords Optimization'),
                 status: 'success',
-                message: t('seo.tips.keywords_ok', 'Keywords are defined.'),
+                message: t('common.seo.tips.keywords_ok', 'Keywords are defined.'),
                 importance: 'low'
             });
         }
@@ -233,10 +233,10 @@ export const SEOChecklist: React.FC = () => {
                     <div className="space-y-1">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                             <BarChart3 className="w-5 h-5" />
-                            {t('seo.score_title', 'SEO Health Score')}
+                            {t('common.seo.score_title', 'SEO Health Score')}
                         </h3>
                         <p className="text-sm opacity-80 max-w-xs">
-                            {t('seo.score_description', 'Real-time evaluation of your content based on SEO best practices.')}
+                            {t('common.seo.score_description', 'Real-time evaluation of your content based on SEO best practices.')}
                         </p>
                     </div>
 
@@ -301,7 +301,7 @@ export const SEOChecklist: React.FC = () => {
                                         req.importance === 'medium' ? "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400" :
                                             "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                                 )}>
-                                    {t(`seo.importance.${req.importance}`, req.importance)}
+                                    {t(`common.seo.importance.${req.importance}`, req.importance)}
                                 </div>
                             </div>
                             <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
@@ -318,8 +318,8 @@ export const SEOChecklist: React.FC = () => {
                     <Info size={16} />
                 </div>
                 <div className="text-xs text-blue-700 dark:text-blue-300 leading-tight">
-                    <p className="font-semibold mb-0.5">{t('seo.pro_tip_title', 'Pro Content Tip')}</p>
-                    {t('seo.pro_tip_desc', 'Use the AI Content Generator to create optimized titles and descriptions automatically.')}
+                    <p className="font-semibold mb-0.5">{t('common.seo.pro_tip_title', 'Pro Content Tip')}</p>
+                    {t('common.seo.pro_tip_desc', 'Use the AI Content Generator to create optimized titles and descriptions automatically.')}
                 </div>
             </div>
         </div>

@@ -137,6 +137,11 @@
     "home": "Home",
     "products": "Products",
     "categories": "Categories",
+    "news": "News",
+    "services": "Services",
+    "pages": "Pages",
+    "blog": "Blog",
+    "service_details": "Service Details",
     "currencies": "Currencies",
     "about": "About",
     "contact": "Contact",
@@ -147,6 +152,7 @@
       "loading": "Loading..."
     },
     "search": {
+      "label": "Search",
       "placeholder": "Search products..."
     },
     "searchBar": {

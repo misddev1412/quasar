@@ -869,3 +869,21 @@ html.dark {
     font-size: 18px;
   }
 }
+
+/* High contrast correction for inputs */
+input.bg-white,
+textarea.bg-white,
+.form-input.bg-white,
+.custom-html-content input,
+.custom-html-content textarea {
+  color: #111827 !important; /* text-gray-900 */
+  background-color: #ffffff; /* Ensure background is white if we force black text, avoiding dark-on-dark */
+}
+
+/* High contrast correction for white buttons */
+button.bg-white,
+.btn.bg-white,
+.custom-html-content button.bg-white,
+.custom-html-content .btn.bg-white {
+  color: #111827 !important; /* text-gray-900 */
+}

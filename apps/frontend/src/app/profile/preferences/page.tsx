@@ -4,6 +4,7 @@ import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
 import { Card, CardBody, CardHeader } from '@heroui/react';
 import { useTranslations } from 'next-intl';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import {
   Settings,
   Globe,
@@ -29,6 +30,14 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.preferences.description')} />
       </Helmet>
       <Layout>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('profile.title'), href: '/profile' },
+            { label: t('profile.pages.preferences.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
         <ProfileLayout activeSection="preferences">
         <div className="space-y-6">
           <Card>

@@ -856,6 +856,18 @@ export class AdminProductService {
     }
   }
 
+  async bulkSetContactPrice(ids: string[], isContactPrice = true): Promise<{ updated: number; variantsUpdated: number }> {
+    try {
+      return await this.productRepository.bulkSetContactPrice(ids, isContactPrice);
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        error.message || 'Failed to bulk update contact price',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
   async getProductStats(): Promise<ProductStatsResponse> {
     try {
       return await this.productRepository.getStats();

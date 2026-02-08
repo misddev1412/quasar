@@ -51,7 +51,7 @@ export class UploadController {
     private readonly mediaService: MediaService,
     private readonly responseService: ResponseService,
     private readonly storageService: StorageService,
-  ) {}
+  ) { }
 
   @Get('uploads/:folder/:filename')
   async serveStaticFile(
@@ -62,10 +62,10 @@ export class UploadController {
     if (!folder || !filename) {
       throw new NotFoundException('File path not provided');
     }
-    
+
     const filePath = `${folder}/${filename}`;
     // Use process.cwd() but go up to the workspace root first, then down to the uploads
-    const workspaceRoot = process.cwd().includes('/apps/backend') 
+    const workspaceRoot = process.cwd().includes('/apps/backend')
       ? path.resolve(process.cwd(), '../..')  // If running from apps/backend, go up 2 levels
       : process.cwd(); // If running from workspace root, stay there
     const absolutePath = path.join(workspaceRoot, 'apps', 'backend', 'uploads', filePath);
@@ -99,11 +99,11 @@ export class UploadController {
       };
 
       const contentType = mimeTypes[ext] || 'application/octet-stream';
-      
+
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', stats.size);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
-      
+
       // Stream the file
       const fileStream = fs.createReadStream(absolutePath);
       fileStream.pipe(res);
@@ -147,6 +147,7 @@ export class UploadController {
         folder,
         alt: alt || uploadResult.originalName.replace(/\.[^/.]+$/, ''), // Remove extension for alt
         caption,
+        provider: uploadResult.provider,
       }, userId);
 
       const response: UploadResponse = {
@@ -199,6 +200,7 @@ export class UploadController {
           folder,
           alt: uploadResult.originalName.replace(/\.[^/.]+$/, ''), // Remove extension for alt
           caption: '',
+          provider: uploadResult.provider,
         }, userId);
 
         uploadResults.push({
@@ -212,10 +214,10 @@ export class UploadController {
         });
       }
 
-      return { 
-        success: true, 
-        data: uploadResults, 
-        message: `${uploadResults.length} files uploaded successfully` 
+      return {
+        success: true,
+        data: uploadResults,
+        message: `${uploadResults.length} files uploaded successfully`
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Upload failed');
@@ -241,7 +243,7 @@ export class UploadController {
       // Process each file with order
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         // Upload file using FileUploadService
         const uploadResult = await this.fileUploadService.uploadFile(file, {
           folder,
@@ -258,6 +260,7 @@ export class UploadController {
           folder,
           alt: uploadResult.originalName.replace(/\.[^/.]+$/, ''), // Remove extension for alt
           caption: '',
+          provider: uploadResult.provider,
         }, userId);
 
         uploadResults.push({
@@ -272,10 +275,10 @@ export class UploadController {
       }
 
       // Return results with order preserved
-      return { 
-        success: true, 
-        data: uploadResults, 
-        message: `${uploadResults.length} gallery images uploaded successfully` 
+      return {
+        success: true,
+        data: uploadResults,
+        message: `${uploadResults.length} gallery images uploaded successfully`
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Gallery upload failed');
@@ -293,7 +296,7 @@ export class UploadController {
     }
   ) {
     const config = await this.storageService.getStorageConfig();
-    
+
     if (config.provider !== 's3') {
       throw new BadRequestException('Presigned URLs are only available for S3 storage');
     }
@@ -305,10 +308,10 @@ export class UploadController {
         body.folder || 'general'
       );
 
-      return { 
-        success: true, 
-        data: presignedUrl, 
-        message: 'Presigned URL generated successfully' 
+      return {
+        success: true,
+        data: presignedUrl,
+        message: 'Presigned URL generated successfully'
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to generate presigned URL');
@@ -327,14 +330,14 @@ export class UploadController {
     }
   ) {
     const config = await this.storageService.getStorageConfig();
-    
+
     if (config.provider !== 's3') {
       throw new BadRequestException('Presigned URLs are only available for S3 storage');
     }
 
     try {
       const presignedUrls = await Promise.all(
-        body.files.map(file => 
+        body.files.map(file =>
           this.storageService.generatePresignedUrl(
             file.filename,
             file.contentType,
@@ -343,10 +346,10 @@ export class UploadController {
         )
       );
 
-      return { 
-        success: true, 
-        data: presignedUrls, 
-        message: `${presignedUrls.length} presigned URLs generated successfully` 
+      return {
+        success: true,
+        data: presignedUrls,
+        message: `${presignedUrls.length} presigned URLs generated successfully`
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to generate presigned URLs');
@@ -381,6 +384,7 @@ export class UploadController {
         folder: body.folder,
         alt: body.alt || body.originalName.replace(/\.[^/.]+$/, ''),
         caption: body.caption || '',
+        provider: 's3',
       }, userId);
 
       const response = {
@@ -393,10 +397,10 @@ export class UploadController {
         provider: 's3',
       };
 
-      return { 
-        success: true, 
-        data: response, 
-        message: 'Upload confirmed and media record saved' 
+      return {
+        success: true,
+        data: response,
+        message: 'Upload confirmed and media record saved'
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to confirm upload');

@@ -5,6 +5,7 @@ import Layout from '../../components/layout/Layout';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import { SiteContentCategory } from '@shared/enums/site-content.enums';
 import { getPublicSiteName } from '../../lib/site-name';
+import { getTranslations } from 'next-intl/server';
 import {
   extractSummary,
   fetchSiteContentList,
@@ -63,6 +64,7 @@ const parseCategoryParam = (value: string | undefined): SiteContentCategory | un
 
 export default async function SiteContentListPage({ searchParams }: SiteContentListPageProps) {
   const resolvedSearchParams = await searchParams;
+  const tCommon = await getTranslations('common');
 
   const pageParam = getSingleParam(resolvedSearchParams, 'page');
   const categoryParam = getSingleParam(resolvedSearchParams, 'category');
@@ -114,8 +116,8 @@ export default async function SiteContentListPage({ searchParams }: SiteContentL
 
         <PageBreadcrumbs
           items={[
-            { label: 'Home', href: '/' },
-            { label: 'Pages', isCurrent: true },
+            { label: tCommon('home'), href: '/' },
+            { label: tCommon('pages'), isCurrent: true },
           ]}
           fullWidth={true}
         />

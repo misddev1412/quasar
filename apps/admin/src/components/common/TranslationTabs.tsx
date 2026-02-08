@@ -7,13 +7,14 @@ import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 import { RichTextEditor } from '@admin/components/common/RichTextEditor';
 import { MediaUpload } from '@admin/components/common/MediaUpload';
 import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
+import { TagInput } from '@admin/components/common/TagInput';
 
 interface TranslationField {
   name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: 'text' | 'textarea' | 'slug' | 'richtext' | 'media-upload';
+  type?: 'text' | 'textarea' | 'slug' | 'richtext' | 'media-upload' | 'tags';
   placeholder?: string;
   required?: boolean;
   rows?: number;
@@ -26,7 +27,7 @@ interface TranslationField {
   disabled?: boolean;
   aiGenerator?: {
     entityType: 'post' | 'product';
-    contentType: 'title' | 'description';
+    contentType: 'title' | 'description' | 'keywords' | 'image';
     sourceFieldName?: string;
     tone?: string;
     keywords?: string[];
@@ -180,6 +181,16 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                   <MediaUpload
                     value={getFieldValue(activeLocale, field.name)}
                     onChange={(value) => handleTranslationChange(activeLocale, field.name, Array.isArray(value) ? value[0] : value)}
+                    placeholder={field.placeholder}
+                    disabled={field.disabled}
+                  />
+                ) : field.type === 'tags' ? (
+                  <TagInput
+                    value={(() => {
+                      const val = getFieldValue(activeLocale, field.name);
+                      return val ? val.split(',').map(t => t.trim()).filter(Boolean) : [];
+                    })()}
+                    onChange={(tags) => handleTranslationChange(activeLocale, field.name, tags.join(', '))}
                     placeholder={field.placeholder}
                     disabled={field.disabled}
                   />

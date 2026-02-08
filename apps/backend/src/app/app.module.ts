@@ -97,6 +97,8 @@ import { ProductBundlesModule } from '../modules/product-bundles/product-bundles
 import { ImportModule } from '../modules/import/import.module';
 import { DataImportJob } from '../modules/import/entities/data-import-job.entity';
 import { WorkerServicesModule } from '../modules/worker-services/worker-services.module';
+import { NewsletterModule } from '../modules/newsletter/newsletter.module';
+import { NewsletterSubscription } from '../modules/newsletter/entities/newsletter-subscription.entity';
 
 
 @Module({
@@ -169,6 +171,7 @@ import { WorkerServicesModule } from '../modules/worker-services/worker-services
           ServiceItemTranslation,
           ThemeEntity,
           DataImportJob,
+          NewsletterSubscription,
         ],
         autoLoadEntities: true
       }),
@@ -209,6 +212,7 @@ import { WorkerServicesModule } from '../modules/worker-services/worker-services
     ProductBundlesModule,
     ImportModule,
     WorkerServicesModule,
+    NewsletterModule,
     AppRouterModule,
   ],
   controllers: [AppController],

@@ -18,6 +18,7 @@ import {
   FiUpload,
   FiCheckCircle,
   FiPauseCircle,
+  FiPhoneCall,
   FiInfo,
   FiChevronRight,
 } from 'react-icons/fi';
@@ -30,6 +31,7 @@ import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { Product, ProductVariant } from '@admin/types/product';
 import { ProductFilters, ProductFiltersType } from '@admin/components/features';
 import { ProductVariantsQuickViewModal, ProductVariantQuickEditModal, ProductImportModal } from '@admin/components/products';
+import Swal from 'sweetalert2';
 
 interface ProductVariantInlineListProps {
   product: Product;
@@ -647,7 +649,7 @@ export const ProductsPage: React.FC = () => {
   // Handle bulk actions
 
   // Handle bulk actions
-  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete') => {
+  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete' | 'contact_price') => {
     if (!selectedProductIds || selectedProductIds.size === 0) {
       addToast({
         type: 'info',
@@ -666,6 +668,26 @@ export const ProductsPage: React.FC = () => {
       }
     }
 
+    if (action === 'contact_price') {
+      const confirmResult = await Swal.fire({
+        title: t('products.bulk_contact_price_confirm_title', 'Switch selected products to Contact Price?'),
+        text: t(
+          'products.bulk_contact_price_confirm_text',
+          'This will hide prices for {{count}} products and their variants.',
+          { count: selectedProductIds.size }
+        ),
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: t('common.confirm', 'Confirm'),
+        cancelButtonText: t('common.cancel', 'Cancel'),
+        reverseButtons: true,
+      });
+
+      if (!confirmResult.isConfirmed) {
+        return;
+      }
+    }
+
     try {
       const ids = Array.from(selectedProductIds).map(String);
       const response = await bulkActionMutation.mutateAsync({ ids, action });
@@ -675,6 +697,7 @@ export const ProductsPage: React.FC = () => {
       const successMessages = {
         activate: t('products.bulk_activate_success', 'Activated {{count}} products').replace('{{count}}', String(affected)),
         deactivate: t('products.bulk_deactivate_success', 'Deactivated {{count}} products').replace('{{count}}', String(affected)),
+        contact_price: t('products.bulk_contact_price_success', 'Updated {{count}} products to Contact Price').replace('{{count}}', String(affected)),
         delete: t('products.bulk_delete_success', 'Deleted {{count}} products').replace('{{count}}', String(affected)),
       };
 
@@ -932,6 +955,13 @@ export const ProductsPage: React.FC = () => {
       variant: 'outline' as const,
       disabled: bulkActionMutation.isPending,
       icon: <FiPauseCircle className="w-4 h-4" />,
+    },
+    {
+      label: t('products.bulk_contact_price', 'Switch to Contact Price'),
+      value: 'contact_price',
+      variant: 'outline' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiPhoneCall className="w-4 h-4" />,
     },
     {
       label: t('products.delete_selected', 'Delete Selected'),

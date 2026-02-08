@@ -909,12 +909,12 @@ export class AdminProductsRouter {
   @Mutation({
     input: z.object({
       ids: z.array(z.string()).min(1),
-      action: z.enum(['activate', 'deactivate', 'delete']),
+      action: z.enum(['activate', 'deactivate', 'delete', 'contact_price']),
     }),
     output: apiResponseSchema,
   })
   async bulkAction(
-    @Input() input: { ids: string[]; action: 'activate' | 'deactivate' | 'delete' }
+    @Input() input: { ids: string[]; action: 'activate' | 'deactivate' | 'delete' | 'contact_price' }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       let result: { updated?: number; deleted?: number };
@@ -925,6 +925,9 @@ export class AdminProductsRouter {
           break;
         case 'deactivate':
           result = await this.productService.bulkUpdateStatus(input.ids, ProductStatus.INACTIVE);
+          break;
+        case 'contact_price':
+          result = await this.productService.bulkSetContactPrice(input.ids, true);
           break;
         case 'delete':
           result = await this.productService.bulkDelete(input.ids);

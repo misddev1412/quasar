@@ -15,6 +15,7 @@ import {
 } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { Notification, NotificationType, NotificationWithPagination } from '../../types/trpc';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 // Import icons directly instead of from Header to avoid circular dependency
 const Icons = {
   Bell: ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -201,123 +202,140 @@ export default function NotificationsPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <Card className="w-full max-w-md">
-          <CardBody className="text-center py-8">
-            <Icons.Bell className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <h2 className="text-xl font-semibold mb-2">{t('notifications.loginRequired')}</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {t('notifications.pleaseLogin')}
-            </p>
-            <Button
-              color="primary"
-              onPress={() => window.location.href = '/login'}
-            >
-              {t('notifications.signIn')}
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
+      <>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('notifications.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <Card className="w-full max-w-md">
+            <CardBody className="text-center py-8">
+              <Icons.Bell className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <h2 className="text-xl font-semibold mb-2">{t('notifications.loginRequired')}</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {t('notifications.pleaseLogin')}
+              </p>
+              <Button
+                color="primary"
+                onPress={() => window.location.href = '/login'}
+              >
+                {t('notifications.signIn')}
+              </Button>
+            </CardBody>
+          </Card>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('notifications.title')}</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('notifications.description')}
-        </p>
-      </div>
+    <>
+      <PageBreadcrumbs
+        items={[
+          { label: t('common.home'), href: '/' },
+          { label: t('notifications.title'), isCurrent: true },
+        ]}
+        fullWidth
+      />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">{t('notifications.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t('notifications.description')}
+          </p>
+        </div>
 
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardBody>
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={!filters.type ? 'solid' : 'flat'}
-                color="primary"
-                onPress={() => handleFilterChange({ ...filters, type: undefined })}
-              >
-                {t('notifications.allTypes')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.type === NotificationType.INFO ? 'solid' : 'flat'}
-                color="default"
-                onPress={() => handleFilterChange({ ...filters, type: NotificationType.INFO })}
-              >
-                {t('notifications.types.info')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.type === NotificationType.SUCCESS ? 'solid' : 'flat'}
-                color="success"
-                onPress={() => handleFilterChange({ ...filters, type: NotificationType.SUCCESS })}
-              >
-                {t('notifications.types.success')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.type === NotificationType.WARNING ? 'solid' : 'flat'}
-                color="warning"
-                onPress={() => handleFilterChange({ ...filters, type: NotificationType.WARNING })}
-              >
-                {t('notifications.types.warning')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.type === NotificationType.ERROR ? 'solid' : 'flat'}
-                color="danger"
-                onPress={() => handleFilterChange({ ...filters, type: NotificationType.ERROR })}
-              >
-                {t('notifications.types.error')}
-              </Button>
+        {/* Filters */}
+        <Card className="mb-6">
+          <CardBody>
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant={!filters.type ? 'solid' : 'flat'}
+                  color="primary"
+                  onPress={() => handleFilterChange({ ...filters, type: undefined })}
+                >
+                  {t('notifications.allTypes')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.type === NotificationType.INFO ? 'solid' : 'flat'}
+                  color="default"
+                  onPress={() => handleFilterChange({ ...filters, type: NotificationType.INFO })}
+                >
+                  {t('notifications.types.info')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.type === NotificationType.SUCCESS ? 'solid' : 'flat'}
+                  color="success"
+                  onPress={() => handleFilterChange({ ...filters, type: NotificationType.SUCCESS })}
+                >
+                  {t('notifications.types.success')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.type === NotificationType.WARNING ? 'solid' : 'flat'}
+                  color="warning"
+                  onPress={() => handleFilterChange({ ...filters, type: NotificationType.WARNING })}
+                >
+                  {t('notifications.types.warning')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.type === NotificationType.ERROR ? 'solid' : 'flat'}
+                  color="danger"
+                  onPress={() => handleFilterChange({ ...filters, type: NotificationType.ERROR })}
+                >
+                  {t('notifications.types.error')}
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant={!filters.read ? 'solid' : 'flat'}
+                  color="primary"
+                  onPress={() => handleFilterChange({ ...filters, read: undefined })}
+                >
+                  {t('notifications.allStatus')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.read === false ? 'solid' : 'flat'}
+                  color="warning"
+                  onPress={() => handleFilterChange({ ...filters, read: false })}
+                >
+                  {t('notifications.unread')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filters.read === true ? 'solid' : 'flat'}
+                  color="default"
+                  onPress={() => handleFilterChange({ ...filters, read: true })}
+                >
+                  {t('notifications.read')}
+                </Button>
+              </div>
+              <div className="ml-auto">
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="primary"
+                  onPress={markAllAsRead}
+                >
+                  {t('notifications.markAllAsRead')}
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={!filters.read ? 'solid' : 'flat'}
-                color="primary"
-                onPress={() => handleFilterChange({ ...filters, read: undefined })}
-              >
-                {t('notifications.allStatus')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.read === false ? 'solid' : 'flat'}
-                color="warning"
-                onPress={() => handleFilterChange({ ...filters, read: false })}
-              >
-                {t('notifications.unread')}
-              </Button>
-              <Button
-                size="sm"
-                variant={filters.read === true ? 'solid' : 'flat'}
-                color="default"
-                onPress={() => handleFilterChange({ ...filters, read: true })}
-              >
-                {t('notifications.read')}
-              </Button>
-            </div>
-            <div className="ml-auto">
-              <Button
-                size="sm"
-                variant="flat"
-                color="primary"
-                onPress={markAllAsRead}
-              >
-                {t('notifications.markAllAsRead')}
-              </Button>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
 
-      {/* Notifications List */}
-      <div className="space-y-4">
+        {/* Notifications List */}
+        <div className="space-y-4">
         {isLoading ? (
           <Card>
             <CardBody className="flex items-center justify-center py-12">
@@ -435,5 +453,6 @@ export default function NotificationsPage() {
         </Card>
       )}
     </div>
+    </>
   );
 }

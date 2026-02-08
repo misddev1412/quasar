@@ -4,6 +4,7 @@ import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
 import { Card, CardBody, CardHeader } from '@heroui/react';
 import { CreditCard } from 'lucide-react';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Helmet } from 'react-helmet-async';
@@ -23,6 +24,14 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.payment.description')} />
       </Helmet>
       <Layout>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('profile.title'), href: '/profile' },
+            { label: t('profile.pages.payment.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
         <ProfileLayout activeSection="payment">
         <Card className="border-0 bg-transparent shadow-none">
           <CardHeader className="pb-4">

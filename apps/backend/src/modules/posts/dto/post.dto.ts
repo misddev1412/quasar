@@ -7,11 +7,11 @@ export const PostTranslationSchema = z.object({
   title: z.string().min(1).max(255),
   slug: z.string().min(1).max(255).refine((val) => {
     // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    return val.length > 0 &&
+      !val.startsWith('-') &&
+      !val.endsWith('-') &&
+      !/-{2,}/.test(val) &&
+      !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
   }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1),
   excerpt: z.string().optional(),
@@ -25,6 +25,7 @@ export const CreatePostSchema = z.object({
   status: z.nativeEnum(PostStatus).optional().default(PostStatus.DRAFT),
   type: z.nativeEnum(PostType).optional().default(PostType.POST),
   featuredImage: z.string().url().optional(),
+  bannerImage: z.string().url().optional(),
   authorId: z.string().uuid(),
   publishedAt: z.coerce.date().optional().nullable(),
   scheduledAt: z.coerce.date().optional().nullable(),
@@ -43,6 +44,7 @@ export const UpdatePostSchema = z.object({
   status: z.nativeEnum(PostStatus).optional(),
   type: z.nativeEnum(PostType).optional(),
   featuredImage: z.string().url().optional(),
+  bannerImage: z.string().url().optional(),
   publishedAt: z.coerce.date().optional().nullable(),
   scheduledAt: z.coerce.date().optional().nullable(),
   isFeatured: z.boolean().optional(),
@@ -74,11 +76,11 @@ export const CreatePostCategorySchema = z.object({
   name: z.string().min(1).max(255),
   slug: z.string().min(1).max(255).refine((val) => {
     // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    return val.length > 0 &&
+      !val.startsWith('-') &&
+      !val.endsWith('-') &&
+      !/-{2,}/.test(val) &&
+      !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
   }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   description: z.string().optional(),
   parentId: z.string().uuid().optional(),
@@ -100,11 +102,11 @@ export const CreatePostTagSchema = z.object({
   name: z.string().min(1).max(255),
   slug: z.string().min(1).max(255).refine((val) => {
     // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    return val.length > 0 &&
+      !val.startsWith('-') &&
+      !val.endsWith('-') &&
+      !/-{2,}/.test(val) &&
+      !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
   }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   description: z.string().optional(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color').optional(),

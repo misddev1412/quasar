@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import {
   Package,
   Calendar,
@@ -245,6 +246,14 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.orders.description')} />
       </Helmet>
       <Layout>
+        <PageBreadcrumbs
+          items={[
+            { label: t('common.home'), href: '/' },
+            { label: t('profile.title'), href: '/profile' },
+            { label: t('profile.pages.orders.title'), isCurrent: true },
+          ]}
+          fullWidth
+        />
         <ProfileLayout
           activeSection="orders"
           sectionHeader={{

@@ -712,6 +712,10 @@
     "bulk_deactivate_coming_soon": "Tính năng vô hiệu hóa hàng loạt sẽ sớm có sẵn",
     "bulk_delete_coming_soon": "Tính năng xóa hàng loạt sẽ sớm có sẵn",
     "bulk_delete_confirm": "Bạn có chắc chắn muốn xóa {count} sản phẩm không? Hành động này không thể hoàn tác.",
+    "bulk_contact_price": "Chuyển sang giá liên hệ",
+    "bulk_contact_price_confirm_title": "Chuyển các sản phẩm đã chọn sang giá liên hệ?",
+    "bulk_contact_price_confirm_text": "Thao tác này sẽ ẩn giá của {{count}} sản phẩm và các biến thể của chúng.",
+    "bulk_contact_price_success": "Đã chuyển {{count}} sản phẩm sang giá liên hệ",
     "import": {
       "title": "Nhập sản phẩm từ Excel",
       "subtitle": "Tải lên tệp Excel (.xlsx) hoặc CSV xuất từ Excel để tạo hoặc cập nhật sản phẩm hàng loạt.",

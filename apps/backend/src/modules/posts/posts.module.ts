@@ -13,6 +13,7 @@ import { AdminPostsRouter } from './routers/admin-posts.router';
 import { AdminPostCategoriesRouter } from './routers/admin-post-categories.router';
 import { AdminPostTagsRouter } from './routers/admin-post-tags.router';
 import { SharedModule } from '../shared/shared.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SharedModule } from '../shared/shared.module';
       PostTag,
     ]),
     SharedModule,
+    StorageModule,
   ],
   providers: [
     PostRepository,
@@ -45,4 +47,4 @@ import { SharedModule } from '../shared/shared.module';
     AdminPostTagsRouter,
   ],
 })
-export class PostsModule {}
+export class PostsModule { }

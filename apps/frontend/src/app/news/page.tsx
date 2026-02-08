@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Layout from '../../components/layout/Layout';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import Link from 'next/link';
 import { serverTrpc } from '../../utils/trpc-server';
 import { notFound } from 'next/navigation';
@@ -8,6 +9,8 @@ import { getPublicSiteName } from '../../lib/site-name';
 import { fetchSections } from '../../services/sections.service';
 import { renderSections } from '../../components/sections';
 import { getPreferredLocale } from '../../lib/server-locale';
+import NewsletterSubscription from '../../components/news/NewsletterSubscription';
+import { getTranslations } from 'next-intl/server';
 
 // News item interface
 interface NewsItem {
@@ -84,6 +87,10 @@ const renderFallbackNewsPage = (
   categories: CategoriesResponse['categories'],
   category?: string,
   search?: string,
+  labels?: {
+    home: string;
+    news: string;
+  },
 ) => (
   <>
     {/* Hero Section */}
@@ -102,6 +109,14 @@ const renderFallbackNewsPage = (
         </div>
       </div>
     </section>
+
+    <PageBreadcrumbs
+      items={[
+        { label: labels?.home ?? 'Home', href: '/' },
+        { label: labels?.news ?? 'News', isCurrent: true },
+      ]}
+      fullWidth
+    />
 
     {/* Filter Section */}
     <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -184,26 +199,7 @@ const renderFallbackNewsPage = (
     </section>
 
     {/* Newsletter Section */}
-    <section className="bg-gray-100 dark:bg-gray-800 py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Stay Updated
-        </h2>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-          Subscribe to our newsletter to receive the latest news and updates directly in your inbox.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-            Subscribe
-          </button>
-        </div>
-      </div>
-    </section>
+    <NewsletterSubscription />
   </>
 );
 
@@ -270,6 +266,7 @@ async function NewsPageContent({
   // Parse search parameters (await the Promise in Next.js 15)
   const resolvedParams = await searchParams;
   const locale = await getPreferredLocale(resolvedParams);
+  const tCommon = await getTranslations('common');
   const sections = await fetchSections('news', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
   const renderedSections = await renderSections(orderedSections);
@@ -294,7 +291,10 @@ async function NewsPageContent({
 
   return (
     <Layout>
-      {renderFallbackNewsPage(newsData, categories, category, search)}
+      {renderFallbackNewsPage(newsData, categories, category, search, {
+        home: tCommon('home'),
+        news: tCommon('news'),
+      })}
     </Layout>
   );
 }

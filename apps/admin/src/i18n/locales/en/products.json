@@ -674,6 +674,10 @@
     "bulk_deactivate_coming_soon": "Bulk deactivate will be available soon",
     "bulk_delete_coming_soon": "Bulk delete will be available soon",
     "bulk_delete_confirm": "Are you sure you want to delete {count} products? This action cannot be undone.",
+    "bulk_contact_price": "Switch to Contact Price",
+    "bulk_contact_price_confirm_title": "Switch selected products to Contact Price?",
+    "bulk_contact_price_confirm_text": "This will hide prices for {{count}} products and their variants.",
+    "bulk_contact_price_success": "Updated {{count}} products to Contact Price",
     "import": {
       "title": "Import products from Excel",
       "subtitle": "Upload an Excel (.xlsx) or CSV file exported from Excel to create or update products in bulk.",

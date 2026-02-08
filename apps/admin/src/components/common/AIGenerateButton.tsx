@@ -9,7 +9,7 @@ import { AIGenerationOptionsModal, AIGenerationOptions } from '@admin/components
 interface AIGenerateButtonProps {
     onGenerate: (content: string) => void;
     entityType: 'product' | 'post';
-    contentType: 'title' | 'description';
+    contentType: 'title' | 'description' | 'keywords' | 'image';
     context?: string;
     keywords?: string[];
     language?: string;
@@ -18,6 +18,10 @@ interface AIGenerateButtonProps {
     variant?: 'default' | 'icon';
     availableLanguages?: { code: string; name: string }[];
     contextLabel?: string;
+    allowImages?: boolean;
+    allowLengthOptions?: boolean;
+    allowProductLinks?: boolean;
+    allowStyleOptions?: boolean;
 }
 
 // AIGenerateButton.tsx modification
@@ -33,6 +37,10 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
     variant = 'default',
     availableLanguages,
     contextLabel,
+    allowImages = true,
+    allowLengthOptions = true,
+    allowProductLinks = true,
+    allowStyleOptions = true,
 }) => {
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
@@ -145,6 +153,10 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                     contextLabel={contextLabel}
                     entityType={entityType}
                     contentType={contentType}
+                    allowImages={allowImages}
+                    allowLengthOptions={allowLengthOptions}
+                    allowProductLinks={allowProductLinks}
+                    allowStyleOptions={allowStyleOptions}
                 />
             </>
         );
@@ -184,6 +196,10 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                 contextLabel={contextLabel}
                 entityType={entityType}
                 contentType={contentType}
+                allowImages={allowImages}
+                allowLengthOptions={allowLengthOptions}
+                allowProductLinks={allowProductLinks}
+                allowStyleOptions={allowStyleOptions}
             />
         </>
     );

@@ -34,6 +34,7 @@ const createPostSchema = z.object({
   status: z.enum(['draft', 'published', 'archived', 'scheduled']),
   type: z.enum(['post', 'page', 'news', 'event']),
   featuredImage: z.string().url().optional().or(z.literal('')),
+  bannerImage: z.string().url().optional().or(z.literal('')),
   imageGallery: z.array(z.object({
     id: z.string(),
     url: z.string().url(),
@@ -184,6 +185,18 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               validation: {
                 maxLength: 500,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="excerpt"
+                  sourceFieldName="content"
+                  targetLabel={t('posts.shortDescription')}
+                  sourceLabel={t('posts.content')}
+                  entityType="post"
+                  contentType="description"
+                  allowImages={false}
+                  stripHtmlOutput={true}
+                />
+              ),
             },
             {
               name: 'content',
@@ -262,6 +275,17 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               description: t('form.descriptions.featured_image_description'),
             },
             {
+              name: 'bannerImage',
+              label: t('posts.bannerImage', 'Banner Image'),
+              type: 'media-upload',
+              placeholder: t('posts.bannerImagePlaceholder', 'Upload or drag and drop your banner image'),
+              required: false,
+              accept: 'image/*',
+              maxSize: 5,
+              multiple: false,
+              description: t('form.descriptions.banner_image_description', 'This image will be used as a full-width header banner.'),
+            },
+            {
               name: 'imageGallery',
               label: t('posts.imageGallery'),
               type: 'image-gallery',
@@ -313,6 +337,19 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               validation: {
                 maxLength: 60,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaTitle"
+                  sourceFieldName="title"
+                  targetLabel={t('posts.metaTitle')}
+                  sourceLabel={t('posts.title')}
+                  entityType="post"
+                  contentType="title"
+                  tone="seo"
+                  allowImages={false}
+                />
+              ),
+              rightElementPosition: 'inside-input',
               description: t('form.descriptions.meta_title_description'),
             },
             {
@@ -325,6 +362,19 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               validation: {
                 maxLength: 160,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaDescription"
+                  sourceFieldName="content"
+                  targetLabel={t('posts.metaDescription')}
+                  sourceLabel={t('posts.content')}
+                  entityType="post"
+                  contentType="description"
+                  tone="seo"
+                  allowImages={false}
+                  stripHtmlOutput={true}
+                />
+              ),
               description: t('form.descriptions.meta_description_description'),
             },
             {
@@ -334,6 +384,22 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               placeholder: t('posts.metaKeywordsPlaceholder'),
               required: false,
               fullWidth: true,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaKeywords"
+                  sourceFieldName="content"
+                  targetLabel={t('posts.metaKeywords')}
+                  sourceLabel={t('posts.content')}
+                  entityType="post"
+                  contentType="keywords"
+                  tone="seo"
+                  allowImages={false}
+                  allowLengthOptions={false}
+                  allowProductLinks={false}
+                  allowStyleOptions={false}
+                  stripHtmlOutput={true}
+                />
+              ),
               description: t('form.descriptions.meta_keywords_description'),
             },
           ],

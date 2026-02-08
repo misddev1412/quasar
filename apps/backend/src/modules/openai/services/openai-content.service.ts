@@ -74,54 +74,67 @@ export class OpenAiContentService {
       ? `${baseUrl}/chat/completions`
       : `${baseUrl}/v1/chat/completions`;
 
-    const response = await axios.post(
-      apiUrl,
-      {
-        model: config.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${config.apiKey}`,
-          'Content-Type': 'application/json',
+    try {
+      const response = await axios.post(
+        apiUrl,
+        {
+          model: config.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.7,
         },
-        timeout: 30000,
-      },
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${config.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 45000,
+        },
+      );
 
-    const content = response.data?.choices?.[0]?.message?.content;
-    if (!content) {
-      throw new BadRequestException('OpenAI response is empty.');
-    }
-
-    const parsed = this.parseJson(content);
-
-    const requiredFields: (keyof GeneratedSeoArticle)[] = [
-      'title',
-      'slug',
-      'excerpt',
-      'content',
-      'metaTitle',
-      'metaDescription',
-      'metaKeywords',
-    ];
-
-    for (const field of requiredFields) {
-      if (!parsed[field] || typeof parsed[field] !== 'string') {
-        throw new BadRequestException(`OpenAI response missing field: ${field}`);
+      const content = response.data?.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new BadRequestException('OpenAI response is empty.');
       }
-    }
 
-    return parsed as unknown as GeneratedSeoArticle;
+      const parsed = this.parseJson(content);
+
+      const requiredFields: (keyof GeneratedSeoArticle)[] = [
+        'title',
+        'slug',
+        'excerpt',
+        'content',
+        'metaTitle',
+        'metaDescription',
+        'metaKeywords',
+      ];
+
+      for (const field of requiredFields) {
+        if (!parsed[field] || typeof parsed[field] !== 'string') {
+          throw new BadRequestException(`OpenAI response missing field: ${field}`);
+        }
+      }
+
+      return parsed as unknown as GeneratedSeoArticle;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data?.error;
+        const errorMessage = errorData?.message || error.message;
+        this.logger.error(`OpenAI SEO Generation API Error: ${errorMessage}`, {
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+        throw new BadRequestException(`Failed to generate SEO article: ${errorMessage}`);
+      }
+      throw error;
+    }
   }
 
   async generateContent(input: {
     entityType: 'product' | 'post';
-    contentType: 'title' | 'description';
+    contentType: 'title' | 'description' | 'keywords' | 'image';
     context?: string;
     keywords?: string[];
     language?: string;
@@ -168,13 +181,25 @@ export class OpenAiContentService {
       taskDescription = `Write a precise technical title for a ${input.entityType}`;
     }
 
-    if (input.contentType === 'title') {
+    if (input.contentType === 'image') {
+      const seed = context || (keywords.length ? keywords.join(', ') : `${input.entityType} og image`);
+      prompt = `[[IMAGE_PROMPT: ${seed}, ${tone}, modern, clean composition, high quality, product-focused, suitable for social sharing]]`;
+    } else if (input.contentType === 'title') {
       prompt = `Act as an ${role}. ${taskDescription} in ${languageName}.
       Context/Description: "${context}"
       Keywords: ${keywords.join(', ')}
       Tone: ${tone}
       Constraints: Keep it under 60 characters if possible. Short, concise, and catchy.
       Return ONLY the title text, no quotes, no explanations.`;
+    } else if (input.contentType === 'keywords') {
+      prompt = `Act as an expert SEO specialist. Generate a concise, SEO-focused keyword list for a ${input.entityType} in ${languageName}.
+      Context/Description: "${context}"
+      Seed keywords (include if relevant): ${keywords.join(', ') || 'none'}
+      Tone: ${tone}
+      Constraints:
+      - Return ONLY a comma-separated list of 8-15 keywords/phrases.
+      - No hashtags, no numbering, no extra text, no HTML.
+      - Prefer specific, intent-rich phrases over generic single words.`;
     } else {
       let requirements = '';
       if (style === 'blog-post') {
@@ -291,57 +316,97 @@ export class OpenAiContentService {
       : `${baseUrl}/v1/chat/completions`;
 
     try {
-      const response = await axios.post(
-        apiUrl,
-        {
-          model: config.model,
-          messages: [
-            { role: 'system', content: 'You are a helpful assistant.' },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${config.apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 30000,
-        },
-      );
+      let content = '';
+      let usage = undefined as undefined | { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 
-      let content = response.data?.choices?.[0]?.message?.content || '';
-      const usage = response.data?.usage;
+      if (input.contentType === 'image') {
+        content = prompt;
+      } else {
+        const response = await axios.post(
+          apiUrl,
+          {
+            model: config.model,
+            messages: [
+              { role: 'system', content: 'You are a helpful assistant.' },
+              { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${config.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            timeout: 30000,
+          },
+        );
+
+        content = response.data?.choices?.[0]?.message?.content || '';
+        usage = response.data?.usage;
+      }
 
       // Image generation step
-      if (input.includeImages && content.includes('[[IMAGE_PROMPT:')) {
+      const shouldGenerateImages = (input.includeImages || input.contentType === 'image');
+      if (shouldGenerateImages) {
         const imageRegex = /\[\[IMAGE_PROMPT:\s*(.+?)\s*\]\]/g;
         let match;
-        const imagePromises: Promise<{ placeholder: string; url: string; alt: string }>[] = [];
+        const imagePrompts: Array<{ placeholder: string; prompt: string }> = [];
 
         while ((match = imageRegex.exec(content)) !== null) {
-          const placeholder = match[0];
-          const prompt = match[1];
+          imagePrompts.push({ placeholder: match[0], prompt: match[1] });
+        }
 
-          imagePromises.push((async () => {
-            try {
-              const imgResponse = await axios.post(
-                `${baseUrl}/v1/images/generations`,
-                {
-                  model: "dall-e-3",
-                  prompt: `${prompt}, realistic, high resolution, 8k, highly detailed, professional cinematic photography, commercial product style, stunning lighting`,
-                  n: 1,
-                  size: "1024x1024",
-                  quality: "standard",
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${config.apiKey}`,
-                    'Content-Type': 'application/json',
-                  },
+        // If contentType=image and model didn't return IMAGE_PROMPT, use content/context as prompt.
+        if (input.contentType === 'image' && imagePrompts.length === 0) {
+          const fallbackPrompt = content.replace(/[\[\]]/g, '').trim()
+            || context
+            || (keywords.length ? keywords.join(', ') : '')
+            || `${input.entityType} og image`;
+          imagePrompts.push({ placeholder: '[[IMAGE_PROMPT: fallback]]', prompt: fallbackPrompt });
+        }
+
+        if (imagePrompts.length > 0) {
+          const postImageGeneration = async (promptText: string) => {
+            const payload = {
+              model: "dall-e-3",
+              prompt: `${promptText}, realistic, high resolution, 8k, highly detailed, professional cinematic photography, commercial product style, stunning lighting`,
+              n: 1,
+              size: "1024x1024",
+              quality: "standard",
+            };
+
+            const headers = {
+              Authorization: `Bearer ${config.apiKey}`,
+              'Content-Type': 'application/json',
+            };
+
+            const maxAttempts = 2;
+            let lastError: unknown;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+              try {
+                return await axios.post(
+                  `${baseUrl}/v1/images/generations`,
+                  payload,
+                  { headers, timeout: 60000 }
+                );
+              } catch (err) {
+                lastError = err;
+                if (attempt === maxAttempts) {
+                  throw err;
                 }
-              );
+              }
+            }
+            throw lastError;
+          };
+
+          const imagePromises: Promise<{ placeholder: string; url: string; alt: string }>[] = imagePrompts.map(({ placeholder, prompt }) => (async () => {
+            try {
+              const imgResponse = await postImageGeneration(prompt);
               const url = imgResponse.data?.data?.[0]?.url || '';
+              if (!url) {
+                throw new BadRequestException('OpenAI image generation returned empty URL.');
+              }
 
               if (url) {
                 try {
@@ -371,6 +436,9 @@ export class OpenAiContentService {
                   };
                 } catch (uploadError) {
                   this.logger.error('Failed to upload AI image to storage:', uploadError);
+                  if (input.contentType === 'image') {
+                    throw new BadRequestException('Failed to upload AI image to Media Manager.');
+                  }
                   return { placeholder, url, alt: prompt }; // Fallback to OpenAI URL
                 }
               }
@@ -381,19 +449,40 @@ export class OpenAiContentService {
                 alt: prompt
               };
             } catch (err) {
-              console.error('DALL-E Error:', err.response?.data || err.message);
+              const errMessage = axios.isAxiosError(err)
+                ? (err.response?.data?.error?.message || err.message)
+                : (err as Error).message;
+              this.logger.error('DALL-E Error:', errMessage);
+              if (input.contentType === 'image') {
+                throw new BadRequestException(`Failed to generate OG image: ${errMessage}`);
+              }
               return { placeholder, url: '', alt: '' };
             }
           })());
-        }
 
-        const generatedImages = await Promise.all(imagePromises);
-        for (const img of generatedImages) {
-          if (img.url) {
-            const imgHtml = `<img src="${img.url}" alt="${img.alt.replace(/"/g, '&quot;')}" class="rounded-lg my-6 shadow-md w-full" />`;
-            content = content.replace(img.placeholder, imgHtml);
-          } else {
-            content = content.replace(img.placeholder, ''); // Remove failed placeholders
+          const generatedImages = await Promise.all(imagePromises);
+          if (input.contentType === 'image') {
+            const firstUrl = generatedImages.find(img => img.url)?.url || '';
+            if (!firstUrl) {
+              throw new BadRequestException('Failed to generate OG image.');
+            }
+            return {
+              content: firstUrl,
+              usage: usage ? {
+                prompt_tokens: usage.prompt_tokens,
+                completion_tokens: usage.completion_tokens,
+                total_tokens: usage.total_tokens,
+              } : undefined
+            };
+          }
+
+          for (const img of generatedImages) {
+            if (img.url) {
+              const imgHtml = `<img src="${img.url}" alt="${img.alt.replace(/"/g, '&quot;')}" class="rounded-lg my-6 shadow-md w-full" />`;
+              content = content.replace(img.placeholder, imgHtml);
+            } else {
+              content = content.replace(img.placeholder, ''); // Remove failed placeholders
+            }
           }
         }
       }
@@ -407,9 +496,17 @@ export class OpenAiContentService {
         } : undefined
       };
     } catch (error) {
-      // Log the error for internal debugging but return a user-friendly message or rethrow
-      console.error('OpenAI API Error:', error.response?.data || error.message);
-      throw new BadRequestException('Failed to generate content from OpenAI.');
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data?.error;
+        const errorMessage = errorData?.message || error.message;
+        this.logger.error(`OpenAI Content Generation API Error: ${errorMessage}`, {
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+        throw new BadRequestException(`Failed to generate content from OpenAI: ${errorMessage}`);
+      }
+      this.logger.error('OpenAI Generation Unexpected Error:', error);
+      throw new BadRequestException(`Failed to generate content from OpenAI: ${error.message}`);
     }
   }
 

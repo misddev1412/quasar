@@ -310,4 +310,22 @@ export class AdminPostsRouter {
       );
     }
   }
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({}),
+    output: apiResponseSchema,
+  })
+  async migrateMedia(): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const affected = await this.adminPostsService.migrateMedia();
+      return this.responseHandler.createTrpcSuccess({ affected });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        3,  // OperationCode.UPDATE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to migrate media',
+      );
+    }
+  }
 }

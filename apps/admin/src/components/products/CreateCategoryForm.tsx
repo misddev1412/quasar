@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FolderPlus, Globe, Search, Image, Settings } from 'lucide-react';
 import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
 import { CategoryTranslationsSection, CategoryTranslationData } from '@admin/components/products/CategoryTranslationsSection';
 import { FormTabConfig } from '@admin/types/forms';
 import { CreateCategoryFormData } from '@admin/types/product';
@@ -318,6 +319,19 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               validation: {
                 maxLength: 60,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="seoTitle"
+                  sourceFieldName="name"
+                  targetLabel={t('categories.seo_title', 'SEO Title')}
+                  sourceLabel={t('categories.name', 'Category Name')}
+                  entityType="product"
+                  contentType="title"
+                  tone="seo"
+                  allowImages={false}
+                />
+              ),
+              rightElementPosition: 'inside-input',
               description: t('categories.seo_title_description', 'Recommended length: 50-60 characters'),
             },
             {
@@ -330,6 +344,19 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               validation: {
                 maxLength: 160,
               },
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="seoDescription"
+                  sourceFieldName="description"
+                  targetLabel={t('categories.seo_description', 'SEO Description')}
+                  sourceLabel={t('categories.description', 'Description')}
+                  entityType="product"
+                  contentType="description"
+                  tone="seo"
+                  allowImages={false}
+                  stripHtmlOutput={true}
+                />
+              ),
               description: t('categories.seo_description_desc', 'Recommended length: 150-160 characters'),
             },
             {
@@ -338,6 +365,23 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               type: 'text',
               placeholder: t('categories.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
               required: false,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="metaKeywords"
+                  sourceFieldName="description"
+                  targetLabel={t('categories.meta_keywords', 'Meta Keywords')}
+                  sourceLabel={t('categories.description', 'Description')}
+                  entityType="product"
+                  contentType="keywords"
+                  tone="seo"
+                  allowImages={false}
+                  allowLengthOptions={false}
+                  allowProductLinks={false}
+                  allowStyleOptions={false}
+                  stripHtmlOutput={true}
+                />
+              ),
+              rightElementPosition: 'inside-input',
               description: t('categories.meta_keywords_description', 'Separate keywords with commas'),
             },
           ],

@@ -14,12 +14,22 @@ export interface FormAIGeneratorProps {
     sourceLabel?: string;
 
     entityType: 'post' | 'product';
-    contentType: 'title' | 'description';
+    contentType: 'title' | 'description' | 'keywords' | 'image';
 
     /** Optional override for tone */
     tone?: string;
     /** Optional keywords/tags */
     keywords?: string[];
+    /** Optional flag to enable image generation option */
+    allowImages?: boolean;
+    /** Optional flag to show length options for long-form content */
+    allowLengthOptions?: boolean;
+    /** Optional flag to show product links option */
+    allowProductLinks?: boolean;
+    /** Optional flag to show style options */
+    allowStyleOptions?: boolean;
+    /** Optional flag to strip HTML tags from generated content */
+    stripHtmlOutput?: boolean;
 
     variant?: 'default' | 'icon';
 }
@@ -33,6 +43,11 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
     contentType,
     tone,
     keywords,
+    allowImages,
+    allowLengthOptions,
+    allowProductLinks,
+    allowStyleOptions,
+    stripHtmlOutput,
     variant = 'icon',
 }) => {
     const { setValue, watch } = useFormContext();
@@ -59,6 +74,11 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
         ? `Current ${targetLabel} (to improve/rewrite)`
         : (sourceLabel ? `${sourceLabel} (to ${contentType === 'title' ? 'summarize' : 'expand'})` : `Context for ${targetLabel}`);
 
+    const applyOutput = (text: string) => {
+        const nextValue = stripHtmlOutput ? cleanText(text) : text;
+        setValue(targetFieldName, nextValue, { shouldDirty: true, shouldValidate: true });
+    };
+
     return (
         <AIGenerateButton
             entityType={entityType}
@@ -66,7 +86,11 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
             context={context}
             tone={tone}
             keywords={keywords}
-            onGenerate={(text) => setValue(targetFieldName, text, { shouldDirty: true, shouldValidate: true })}
+            allowImages={allowImages}
+            allowLengthOptions={allowLengthOptions}
+            allowProductLinks={allowProductLinks}
+            allowStyleOptions={allowStyleOptions}
+            onGenerate={applyOutput}
             variant={variant}
             availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))}
             contextLabel={contextLabel}

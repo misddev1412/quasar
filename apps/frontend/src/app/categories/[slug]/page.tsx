@@ -10,6 +10,7 @@ import { serverTrpc } from '../../../utils/trpc-server';
 import type { Category } from '../../../types/product';
 import type { Product } from '../../../types/product';
 import { getPublicSiteName } from '../../../lib/site-name';
+import { getTranslations } from 'next-intl/server';
 
 const clampOpacity = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -81,6 +82,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 // Server component for category page
 async function CategoryPageContent({ params }: CategoryPageProps) {
   const { slug } = await params;
+  const tCommon = await getTranslations('common');
 
   // Fetch category data server-side
   const categoryResponse = await serverTrpc.clientCategories.getCategoryBySlug.query({ slug }) as any;
@@ -171,8 +173,8 @@ async function CategoryPageContent({ params }: CategoryPageProps) {
 
       <PageBreadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Categories', href: '/categories' },
+          { label: tCommon('home'), href: '/' },
+          { label: tCommon('categories'), href: '/categories' },
           { label: category.name, isCurrent: true },
         ]}
         fullWidth={true}

@@ -651,6 +651,10 @@
     "bulk_deactivate_coming_soon": "批量停用功能即将推出",
     "bulk_delete_coming_soon": "批量删除功能即将推出",
     "bulk_delete_confirm": "您确定要删除{count}个产品吗？此操作无法撤消。",
+    "bulk_contact_price": "切换为联系报价",
+    "bulk_contact_price_confirm_title": "将所选产品切换为联系报价？",
+    "bulk_contact_price_confirm_text": "这将隐藏 {{count}} 个产品及其变体的价格。",
+    "bulk_contact_price_success": "已将 {{count}} 个产品切换为联系报价",
     "import": {
       "title": "从Excel导入产品",
       "subtitle": "上传从Excel导出的Excel（.xlsx）或CSV文件以批量创建或更新产品。",

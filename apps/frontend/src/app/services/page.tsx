@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
 import Layout from '../../components/layout/Layout';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import ServicesContainer from '../../components/services/ServicesContainer';
 import { getPublicSiteName } from '../../lib/site-name';
+import { getTranslations } from 'next-intl/server';
 
 // Generate metadata for services page
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+    const tCommon = await getTranslations('common');
+
     return (
         <Layout>
             {/* Hero Section */}
@@ -39,6 +43,14 @@ export default function ServicesPage() {
                     </div>
                 </div>
             </section>
+
+            <PageBreadcrumbs
+                items={[
+                    { label: tCommon('home'), href: '/' },
+                    { label: tCommon('services'), isCurrent: true },
+                ]}
+                fullWidth
+            />
 
             {/* Services List */}
             <section className="py-12 lg:py-16">

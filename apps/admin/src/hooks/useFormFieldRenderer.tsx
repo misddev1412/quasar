@@ -376,6 +376,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 value={formField.value || ''}
                 onChange={formField.onChange}
                 rows={(field as any).rows || 4}
+                rightElement={field.rightElement}
               />
             )}
           />
@@ -547,10 +548,13 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             render={({ field: formField }) => (
               <div className="space-y-2">
                 {field.label && (
-                  <label className={BASE_LABEL_CLASS}>
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
+                  <div className="flex items-end justify-between gap-2">
+                    <label className={BASE_LABEL_CLASS}>
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {field.rightElement}
+                  </div>
                 )}
                 <TagInput
                   value={
@@ -610,6 +614,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 value={formField.value || (field.multiple ? [] : '')}
                 onChange={formField.onChange}
                 label={field.label}
+                rightElement={field.rightElement}
                 placeholder={field.placeholder}
                 required={field.required}
                 disabled={field.disabled}

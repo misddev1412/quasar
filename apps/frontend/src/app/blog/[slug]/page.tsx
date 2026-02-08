@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getServerSideSEOWithFallback } from '../../../lib/seo-server';
 import { SEOPageLayout } from '../../../components/layout/SEOPageLayout';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import type { SEOData } from '../../../types/trpc';
+import { getTranslations } from 'next-intl/server';
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -53,6 +55,7 @@ async function BlogPostPageContent({ params }: BlogPostPageProps) {
   // Fetch SEO data server-side
   const pathname = `/blog/${slug}`;
   const serverSEOData = await getServerSideSEOWithFallback(pathname, blogSEOFallback);
+  const tCommon = await getTranslations('common');
 
   // Simulate fetching blog post data (replace with actual blog fetching logic)
   const blogPost = {
@@ -108,6 +111,13 @@ async function BlogPostPageContent({ params }: BlogPostPageProps) {
       fallback={blogSEOFallback}
       serverSEOData={serverSEOData}
     >
+      <PageBreadcrumbs
+        items={[
+          { label: tCommon('home'), href: '/' },
+          { label: blogPost.title, isCurrent: true },
+        ]}
+        fullWidth
+      />
       <article className="container mx-auto py-8">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8">

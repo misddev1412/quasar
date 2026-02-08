@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Layout from '../../components/layout/Layout';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import ProductsContainer from '../../components/ecommerce/ProductsContainer';
 import { fetchSections } from '../../services/sections.service';
 import { renderSections } from '../../components/sections';
@@ -9,6 +10,7 @@ import { SectionType } from '@shared/enums/section.enums';
 
 import { getServerSideSEOWithFallback } from '../../lib/seo-server';
 import type { SEOData } from '../../types/trpc';
+import { getTranslations } from 'next-intl/server';
 
 // Fallback SEO data for products page
 const productsSEOFallback: SEOData = {
@@ -70,6 +72,7 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = await searchParams;
   const locale = await getPreferredLocale(resolvedSearchParams);
+  const tCommon = await getTranslations('common');
   const sections = await fetchSections('product', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
   const renderedSections = await renderSections(orderedSections);
@@ -80,7 +83,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       {renderedSections.length > 0 ? (
         <div className="space-y-12">{renderedSections}</div>
       ) : (
-        renderDefaultProductHero()
+        <>
+          {renderDefaultProductHero()}
+          <PageBreadcrumbs
+            items={[
+              { label: tCommon('home'), href: '/' },
+              { label: tCommon('products'), isCurrent: true },
+            ]}
+            fullWidth
+          />
+        </>
       )}
 
       {!hasProductListSection && (
