@@ -8,7 +8,7 @@ import { UserSession, SessionStatus } from '@backend/modules/user/entities/user-
 import { Role } from '@backend/modules/user/entities/role.entity';
 import { UserRole as UserRoleEntity } from '@backend/modules/user/entities/user-role.entity';
 import { UserRole } from '@shared';
-import * as bcrypt from 'bcryptjs';
+import { HashUtil } from '@backend/modules/shared/utils/hash.util';
 
 @Injectable()
 export class UserActivitySeeder {
@@ -27,7 +27,7 @@ export class UserActivitySeeder {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(UserRoleEntity)
     private readonly userRoleRepository: Repository<UserRoleEntity>,
-  ) {}
+  ) { }
 
   /**
    * Seed sample users and their activities
@@ -45,13 +45,13 @@ export class UserActivitySeeder {
     try {
       // Create sample users first
       const sampleUsers = await this.createSampleUsers();
-      
+
       // Create user sessions
       const sessions = await this.createUserSessions(sampleUsers);
-      
+
       // Create diverse user activities
       await this.createUserActivities(sampleUsers, sessions);
-      
+
       this.logger.log('✅ Successfully created sample users and user activities');
     } catch (error) {
       this.logger.error(`❌ Failed to seed user activities: ${error.message}`);
@@ -81,7 +81,7 @@ export class UserActivitySeeder {
       {
         email: 'john.doe@example.com',
         username: 'johndoe',
-        password: await bcrypt.hash('password123', 10),
+        password: await HashUtil.hash('password123'),
         isActive: true,
         profile: {
           firstName: 'John',
@@ -96,7 +96,7 @@ export class UserActivitySeeder {
       {
         email: 'jane.smith@example.com',
         username: 'janesmith',
-        password: await bcrypt.hash('password123', 10),
+        password: await HashUtil.hash('password123'),
         isActive: true,
         profile: {
           firstName: 'Jane',
@@ -111,7 +111,7 @@ export class UserActivitySeeder {
       {
         email: 'mike.wilson@example.com',
         username: 'mikewilson',
-        password: await bcrypt.hash('password123', 10),
+        password: await HashUtil.hash('password123'),
         isActive: true,
         profile: {
           firstName: 'Mike',
@@ -126,7 +126,7 @@ export class UserActivitySeeder {
       {
         email: 'admin.user@example.com',
         username: 'adminuser',
-        password: await bcrypt.hash('password123', 10),
+        password: await HashUtil.hash('password123'),
         isActive: true,
         profile: {
           firstName: 'Admin',
@@ -242,11 +242,11 @@ export class UserActivitySeeder {
 
     for (const user of users) {
       const userSessions = sessions.filter(s => s.userId === user.id);
-      
+
       for (const session of userSessions) {
         const sessionStart = session.createdAt;
         const sessionEnd = session.lastActivityAt;
-        
+
         // Generate activities for this session
         const sessionActivities = this.generateSessionActivities(user, session, sessionStart, sessionEnd);
         activities.push(...sessionActivities);
@@ -267,14 +267,14 @@ export class UserActivitySeeder {
    * Generate activities for a specific user session
    */
   private generateSessionActivities(
-    user: User, 
-    session: UserSession, 
-    sessionStart: Date, 
+    user: User,
+    session: UserSession,
+    sessionStart: Date,
     sessionEnd: Date
   ): Partial<UserActivity>[] {
     const activities: Partial<UserActivity>[] = [];
     const sessionDuration = sessionEnd.getTime() - sessionStart.getTime();
-    
+
     // Always start with login
     activities.push({
       userId: user.id,
@@ -299,7 +299,7 @@ export class UserActivitySeeder {
 
     // Generate random activities during the session
     const activityCount = Math.floor(sessionDuration / (5 * 60 * 1000)) + 1; // One activity every ~5 minutes
-    
+
     for (let i = 1; i < activityCount; i++) {
       const activityTime = new Date(sessionStart.getTime() + (sessionDuration * i / activityCount));
       const activity = this.generateRandomActivity(user, session, activityTime);

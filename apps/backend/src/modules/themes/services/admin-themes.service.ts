@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import slugify from 'slugify';
+import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
 import { ThemeRepository } from '@backend/modules/themes/repositories/theme.repository';
 import {
   CreateThemeDto,
@@ -13,7 +13,7 @@ import { buildDefaultColorModes } from '@backend/modules/themes/constants/theme-
 
 @Injectable()
 export class AdminThemesService {
-  constructor(private readonly themeRepository: ThemeRepository) {}
+  constructor(private readonly themeRepository: ThemeRepository) { }
 
   async getThemes(filters: ThemeFiltersDto) {
     return this.themeRepository.findWithFilters(filters);
@@ -114,12 +114,7 @@ export class AdminThemesService {
   }
 
   private async generateUniqueSlug(source: string, ignoreId?: string): Promise<string> {
-    const baseSlug =
-      slugify(source, {
-        lower: true,
-        strict: true,
-        trim: true,
-      }) || 'theme';
+    const baseSlug = SlugUtil.generate(source) || 'theme';
     let attempt = baseSlug;
     let suffix = 1;
 

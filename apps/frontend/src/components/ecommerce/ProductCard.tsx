@@ -11,6 +11,9 @@ import { useAddToCart } from '../../hooks/useAddToCart';
 import { useTranslation } from 'react-i18next';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 import { useProductCardConfig } from '../../hooks/useProductCardConfig';
+import { useAddToCartButtonConfig } from '../../hooks/useAddToCartButtonConfig';
+import { useTheme } from '../../contexts/ThemeContext';
+import { UnifiedIcon } from '../common/UnifiedIcon';
 import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
 import { trpc } from '../../utils/trpc';
 import toast from 'react-hot-toast';
@@ -114,6 +117,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     contactPriceLabel,
   } = product;
   const { config: productCardConfig } = useProductCardConfig();
+  const { config: addToCartButtonConfig } = useAddToCartButtonConfig();
+  const { theme } = useTheme();
   const cardSettings = productCardConfig.card;
   const titleSettings = productCardConfig.title;
   const priceSettings = productCardConfig.price;
@@ -193,6 +198,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
   const isContactOnlyProduct = Boolean(isContactPrice || allVariantsContactPrice);
   const showPriceSkeleton = !isContactOnlyProduct && priceLoadingMode === 'skeleton' && isPricePending;
+  const addToCartTextTransformClass =
+    addToCartButtonConfig.textTransform === 'uppercase'
+      ? 'uppercase'
+      : addToCartButtonConfig.textTransform === 'capitalize'
+        ? 'capitalize'
+        : 'normal-case';
+  const defaultButtonStyle: React.CSSProperties = {
+    backgroundColor: theme === 'dark' ? addToCartButtonConfig.backgroundColor.dark : addToCartButtonConfig.backgroundColor.light,
+    color: theme === 'dark' ? addToCartButtonConfig.textColor.dark : addToCartButtonConfig.textColor.light,
+  };
+  const outOfStockButtonStyle: React.CSSProperties = {
+    backgroundColor:
+      theme === 'dark'
+        ? addToCartButtonConfig.outOfStockBackgroundColor.dark
+        : addToCartButtonConfig.outOfStockBackgroundColor.light,
+    color: theme === 'dark' ? addToCartButtonConfig.outOfStockTextColor.dark : addToCartButtonConfig.outOfStockTextColor.light,
+  };
+  const unifiedCtaSizeClass =
+    addToCartButtonConfig.size === 'sm'
+      ? 'h-10 min-h-[40px] text-base'
+      : addToCartButtonConfig.size === 'lg'
+        ? 'h-16 min-h-[64px] text-xl'
+        : 'h-14 min-h-[56px] text-lg';
+  const unifiedCtaClassName = `${unifiedCtaSizeClass} rounded-xl px-6 font-semibold leading-none ${addToCartTextTransformClass}`;
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -646,21 +675,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {resolvedShowAddToCart && isContactOnlyProduct && (
               <Button
                 size="md"
-                className="w-full relative group bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25"
+                className={`w-full ${unifiedCtaClassName}`}
+                style={defaultButtonStyle}
                 onPress={onOpenContactModal}
               >
-                {contactPriceLabel || t('ecommerce.product.contactPrice')}
+                <span className="inline-flex items-center gap-2">
+                  {addToCartButtonConfig.icon && (
+                    <UnifiedIcon
+                      icon={addToCartButtonConfig.icon}
+                      variant="button"
+                      size={18}
+                      color={defaultButtonStyle.color as string}
+                    />
+                  )}
+                  <span>{contactPriceLabel || t('ecommerce.product.contactPrice')}</span>
+                </span>
               </Button>
             )}
-            {resolvedShowAddToCart && !isContactOnlyProduct && inStock && ((variants && variants.length > 0) || (currentPrice !== undefined && currentPrice > 0)) && (
+            {resolvedShowAddToCart && !isContactOnlyProduct && ((variants && variants.length > 0) || (currentPrice !== undefined && currentPrice > 0)) && (
               <AddToCartButton
                 product={product}
                 onAddToCart={handleAddToCartDirect}
                 quantity={1}
                 fullWidth
-                size="md"
+                size={addToCartButtonConfig.size}
                 useInternalVariantSelection={false}
-                className="relative group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 hover:before:translate-x-[100%] overflow-hidden"
+                className={unifiedCtaClassName}
               />
             )}
           </div>
@@ -795,15 +835,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                 {/* Add to Cart Button */}
                 <div className="flex gap-3">
-                  <button
-                    onClick={handleAddToCartWithVariant}
-                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isCartAdding || matchingVariant.price === 0}
-                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isCartAdding || matchingVariant.price === 0
-                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
-                      }`}
-                  >
-                    {!isCompleteSelection()
+                  {(() => {
+                    const isDisabled =
+                      !isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isCartAdding || matchingVariant.price === 0;
+                    const isOutOfStockState = Boolean(matchingVariant) && !canPurchaseVariant(matchingVariant);
+                    const actionButtonStyle: React.CSSProperties = isOutOfStockState
+                      ? outOfStockButtonStyle
+                      : defaultButtonStyle;
+                    const actionLabel = !isCompleteSelection()
                       ? t('ecommerce.cart.selectOptions', 'Select Options')
                       : !matchingVariant
                         ? t('ecommerce.productCard.combinationUnavailable', 'Combination Not Available')
@@ -817,9 +856,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 ? t('ecommerce.cart.addToQuote')
                                 : t('ecommerce.cart.addWithPrice', {
                                   price: formatCurrency((matchingVariant.price || 0) * quantity),
-                                })
-                    }
+                                });
+                    return (
+                  <button
+                    onClick={handleAddToCartWithVariant}
+                    disabled={isDisabled}
+                    className={`flex-1 ${unifiedCtaClassName} transition-all duration-300 ${
+                      isDisabled ? 'cursor-not-allowed opacity-70' : ''
+                    }`}
+                    style={actionButtonStyle}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      {addToCartButtonConfig.icon && (
+                        <UnifiedIcon
+                          icon={addToCartButtonConfig.icon}
+                          variant="button"
+                          size={18}
+                          color={actionButtonStyle.color as string}
+                        />
+                      )}
+                      <span>{actionLabel}</span>
+                    </span>
                   </button>
+                    );
+                  })()}
                   <button
                     onClick={() => {
                       setShowVariantModal(false);

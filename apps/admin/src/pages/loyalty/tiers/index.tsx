@@ -8,6 +8,7 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { LoyaltyTier } from '@admin/types/loyalty';
+import type { LoyaltyTierDisplay, LoyaltyTierListResponse, LoyaltyTierStatsResponse, TierStatisticsData } from '@admin/types/loyalty-tier';
 
 interface LoyaltyTierFiltersType {
   isActive?: boolean;
@@ -120,8 +121,9 @@ const LoyaltyTiersPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const tiers = (tiersData as any)?.data?.items || [];
-  const totalTiers = (tiersData as any)?.data?.total || 0;
+  const typedTiersData = tiersData as LoyaltyTierListResponse | undefined;
+  const tiers = typedTiersData?.data?.items || [];
+  const totalTiers = typedTiersData?.data?.total || 0;
   const totalPages = Math.ceil(totalTiers / limit);
 
   // Fetch tier statistics
@@ -132,7 +134,7 @@ const LoyaltyTiersPage: React.FC = () => {
 
   // Use API statistics data or calculate from existing data as fallback
   const statisticsData = useMemo(() => {
-    const apiStats = (statsData as any)?.data;
+    const apiStats = (statsData as LoyaltyTierStatsResponse | undefined)?.data;
     if (apiStats) {
       return {
         data: {
@@ -163,7 +165,7 @@ const LoyaltyTiersPage: React.FC = () => {
 
   const statisticsLoadingValue = isLoading || statsLoading;
 
-  const displayTiers = useMemo(() => {
+  const displayTiers = useMemo<LoyaltyTierDisplay[]>(() => {
     return tiers.map((tier: LoyaltyTier & { minPoints?: number; maxPoints?: number; icon?: string }) => {
       const rawMin = tier.minPointsRequired ?? tier.minPoints;
       const rawMax = tier.maxPointsRequired ?? tier.maxPoints;
@@ -175,7 +177,7 @@ const LoyaltyTiersPage: React.FC = () => {
         iconUrl: tier.iconUrl ?? tier.icon ?? tier.iconUrl,
         __rawMinPoints: rawMin,
         __rawMaxPoints: rawMax,
-      } as LoyaltyTier & { __rawMinPoints?: number; __rawMaxPoints?: number };
+      } as LoyaltyTierDisplay;
     });
   }, [tiers]);
 
@@ -195,8 +197,9 @@ const LoyaltyTiersPage: React.FC = () => {
       // TODO: Implement delete mutation when available
       addToast({ type: 'success', title: t('loyalty.tiers.deleteSuccess', 'Tier deleted') });
       refetch();
-    } catch (e: any) {
-      addToast({ type: 'error', title: t('loyalty.tiers.deleteError', 'Delete failed'), description: e?.message || t('loyalty.tiers.deleteError', 'Failed to delete tier') });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : undefined;
+      addToast({ type: 'error', title: t('loyalty.tiers.deleteError', 'Delete failed'), description: errorMessage || t('loyalty.tiers.deleteError', 'Failed to delete tier') });
     }
   }, [addToast, refetch, t]);
 
@@ -395,8 +398,9 @@ const LoyaltyTiersPage: React.FC = () => {
       header: t('loyalty.tiers.points_required', 'Points Required'),
       accessor: 'minPointsRequired',
       render: (_value, tier) => {
-        const rawMin = (tier as any).__rawMinPoints;
-        const rawMax = (tier as any).__rawMaxPoints;
+        const typedTier = tier as LoyaltyTierDisplay;
+        const rawMin = typedTier.__rawMinPoints;
+        const rawMax = typedTier.__rawMaxPoints;
         const normalizedMin = rawMin ?? undefined;
         const normalizedMax = rawMax ?? undefined;
 
@@ -565,7 +569,7 @@ const LoyaltyTiersPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => {
     if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
 
-    const stats = (statisticsData as any)?.data;
+    const stats = (statisticsData as TierStatisticsData | null)?.data;
     if (!stats) return [];
 
     return [
@@ -646,7 +650,7 @@ const LoyaltyTiersPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );
@@ -672,7 +676,7 @@ const LoyaltyTiersPage: React.FC = () => {
         <Table<LoyaltyTier>
           tableId="loyalty-tiers-table"
           columns={columns}
-          data={displayTiers as LoyaltyTier[]}
+          data={displayTiers}
           searchValue={searchValue}
           onSearchChange={setSearchValue}
           onFilterClick={handleFilterToggle}

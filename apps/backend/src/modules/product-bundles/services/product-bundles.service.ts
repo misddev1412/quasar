@@ -5,7 +5,7 @@ import { ProductBundleEntity } from '@backend/modules/product-bundles/entities/p
 import { ProductBundleItemEntity, BundleItemMode } from '@backend/modules/product-bundles/entities/product-bundle-item.entity';
 import { Category } from '@backend/modules/products/entities/category.entity';
 import { Product } from '@backend/modules/products/entities/product.entity';
-import slugify from 'slugify';
+import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
 
 @Injectable()
 export class ProductBundlesService {
@@ -25,7 +25,7 @@ export class ProductBundlesService {
 
         const bundle = new ProductBundleEntity();
         bundle.name = name;
-        bundle.slug = slug || slugify(name, { lower: true });
+        bundle.slug = slug || SlugUtil.generate(name);
         bundle.description = description;
         bundle.isActive = isActive ?? true;
 

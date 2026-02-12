@@ -313,6 +313,34 @@
         "transformLowercase": "Viết thường (lowercase)",
         "itemFontWeight": "Độ đậm mục",
         "itemFontSize": "Kích thước chữ mục",
-        "itemTextColor": "Màu chữ mục"
+        "itemTextColor": "Màu chữ mục",
+        "storefront": {
+            "addToCartButton": {
+                "lightBackground": "Nền chế độ sáng",
+                "darkBackground": "Nền chế độ tối",
+                "lightOutOfStockBackground": "Nền hết hàng chế độ sáng",
+                "darkOutOfStockBackground": "Nền hết hàng chế độ tối",
+                "lightOutOfStockText": "Màu chữ hết hàng chế độ sáng",
+                "darkOutOfStockText": "Màu chữ hết hàng chế độ tối",
+                "lightTextColor": "Màu chữ chế độ sáng",
+                "darkTextColor": "Màu chữ chế độ tối",
+                "size": "Kích thước nút",
+                "sizeSM": "Nhỏ",
+                "sizeMD": "Trung bình",
+                "sizeLG": "Lớn",
+                "textTransform": "Kiểu chữ",
+                "textTransformDescription": "Chọn cách hiển thị chữ: normal (Viết hoa), uppercase (VIẾT HOA), hoặc capitalize (Viết Hoa).",
+                "icon": "Biểu tượng",
+                "iconPlaceholder": "ví dụ: shopping-cart",
+                "iconDescription": "Chọn biểu tượng hiển thị trên nút. Để trống để ẩn biểu tượng.",
+                "previewLight": "Xem trước chế độ sáng",
+                "previewDark": "Xem trước chế độ tối",
+                "previewText": "Thêm vào giỏ",
+                "previewOutOfStock": "Hết hàng",
+                "previewContactPrice": "Liên hệ báo giá",
+                "previewSelectOptions": "Chọn tùy chọn",
+                "previewInCart": "Trong giỏ: 2"
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ import type { AdminSection } from '@admin/hooks/useSectionsManager';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { createMainMenuConfig, type MainMenuConfig } from '@shared/types/navigation.types';
 import MainMenuAppearanceEditor from '@admin/components/component-configs/MainMenuAppearanceEditor';
-import AddToCartButtonEditor, { type AddToCartButtonConfig, type AddToCartButtonTextTransform } from '@admin/components/component-configs/AddToCartButtonEditor';
+import AddToCartButtonEditor, { type AddToCartButtonConfig, type AddToCartButtonSize, type AddToCartButtonTextTransform } from '@admin/components/component-configs/AddToCartButtonEditor';
 
 type TranslationFn = ReturnType<typeof useTranslationWithBackend>['t'];
 
@@ -595,16 +595,27 @@ const normalizeViewMoreButtonConfig = (raw?: Record<string, unknown>): ViewMoreB
 
 const isAddToCartButtonTextTransform = (value: unknown): value is AddToCartButtonTextTransform =>
   typeof value === 'string' && ['normal', 'uppercase', 'capitalize'].includes(value);
+const isAddToCartButtonSize = (value: unknown): value is AddToCartButtonSize =>
+  typeof value === 'string' && ['sm', 'md', 'lg'].includes(value);
 
 const DEFAULT_ADD_TO_CART_BUTTON_CONFIG: AddToCartButtonConfig = {
   backgroundColor: {
     light: '#3b82f6',
     dark: '#2563eb',
   },
+  outOfStockBackgroundColor: {
+    light: '#94a3b8',
+    dark: '#64748b',
+  },
   textColor: {
     light: '#ffffff',
     dark: '#ffffff',
   },
+  outOfStockTextColor: {
+    light: '#ffffff',
+    dark: '#ffffff',
+  },
+  size: 'md',
   textTransform: 'normal',
   icon: 'shopping-cart',
 };
@@ -621,6 +632,12 @@ const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCar
     : {}) as ThemeColors;
   const textColorSource = (source.textColor && typeof source.textColor === 'object'
     ? source.textColor
+    : {}) as ThemeColors;
+  const outOfStockBackgroundColorSource = (source.outOfStockBackgroundColor && typeof source.outOfStockBackgroundColor === 'object'
+    ? source.outOfStockBackgroundColor
+    : {}) as ThemeColors;
+  const outOfStockTextColorSource = (source.outOfStockTextColor && typeof source.outOfStockTextColor === 'object'
+    ? source.outOfStockTextColor
     : {}) as ThemeColors;
 
   return {
@@ -640,6 +657,23 @@ const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCar
         ? textColorSource.dark
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.dark,
     },
+    outOfStockBackgroundColor: {
+      light: typeof outOfStockBackgroundColorSource.light === 'string'
+        ? outOfStockBackgroundColorSource.light
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockBackgroundColor.light,
+      dark: typeof outOfStockBackgroundColorSource.dark === 'string'
+        ? outOfStockBackgroundColorSource.dark
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockBackgroundColor.dark,
+    },
+    outOfStockTextColor: {
+      light: typeof outOfStockTextColorSource.light === 'string'
+        ? outOfStockTextColorSource.light
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockTextColor.light,
+      dark: typeof outOfStockTextColorSource.dark === 'string'
+        ? outOfStockTextColorSource.dark
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockTextColor.dark,
+    },
+    size: isAddToCartButtonSize(source.size) ? source.size : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.size,
     textTransform: isAddToCartButtonTextTransform(source.textTransform)
       ? source.textTransform
       : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textTransform,
@@ -651,6 +685,9 @@ const serializeAddToCartButtonConfig = (config: AddToCartButtonConfig): Record<s
   return {
     backgroundColor: config.backgroundColor,
     textColor: config.textColor,
+    outOfStockBackgroundColor: config.outOfStockBackgroundColor,
+    outOfStockTextColor: config.outOfStockTextColor,
+    size: config.size,
     textTransform: config.textTransform,
     icon: config.icon,
   };

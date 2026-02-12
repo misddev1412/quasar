@@ -27,7 +27,8 @@ import {
 } from '@backend/modules/export';
 import { PRODUCT_EXPORT_COLUMNS, PRODUCT_TEMPLATE_EXPORT_COLUMNS } from '@backend/modules/products/export/product-export.columns';
 import { ImportJobService } from '@backend/modules/import/services/import-job.service';
-import slugify from 'slugify';
+import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
+import { StringUtil } from '@backend/modules/shared/utils/string.util';
 
 export interface AdminProductFilters {
   page: number;
@@ -107,24 +108,8 @@ interface ReuploadedImageResult {
 @Injectable()
 export class AdminProductService {
   private static readonly UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
-  private readonly vietnameseCharMap: Record<string, string> = {
-    đ: 'd',
-    Đ: 'D',
-    ă: 'a',
-    Ă: 'A',
-    â: 'a',
-    Â: 'A',
-    ê: 'e',
-    Ê: 'E',
-    ô: 'o',
-    Ô: 'O',
-    ơ: 'o',
-    Ơ: 'O',
-    ư: 'u',
-    Ư: 'U',
-    ý: 'y',
-    Ý: 'Y',
-  };
+
+
 
   constructor(
     private readonly productRepository: ProductRepository,
@@ -147,10 +132,7 @@ export class AdminProductService {
   ) { }
 
   private isUuid(value: string): boolean {
-    if (typeof value !== 'string') {
-      return false;
-    }
-    return AdminProductService.UUID_REGEX.test(value.trim());
+    return StringUtil.isUuid(value);
   }
 
   private async findProductByIdentifier(identifier: string, relations: string[] = []): Promise<Product | null> {
@@ -434,24 +416,7 @@ export class AdminProductService {
 
   private generateProductSlug(text?: string, fallbackBase: string = 'product'): string {
     const source = (text || '').trim();
-    let slug = slugify(source || fallbackBase, {
-      lower: true,
-      strict: false,
-      trim: true,
-      replacement: '-',
-      remove: /[*+~()'"]/g,
-      locale: 'vi',
-    });
-
-    Object.keys(this.vietnameseCharMap).forEach(char => {
-      const regex = new RegExp(char, 'g');
-      slug = slug.replace(regex, this.vietnameseCharMap[char]);
-    });
-
-    slug = slug
-      .replace(/[,;.:!?@#$%^&<>{}[\]\\|`=]/g, '-')
-      .replace(/-{2,}/g, '-')
-      .replace(/^-+|-+$/g, '');
+    let slug = SlugUtil.generate(source || fallbackBase);
 
     if (!slug) {
       slug = `${fallbackBase}-${Date.now()}`;
@@ -556,19 +521,8 @@ export class AdminProductService {
       }
 
       // Helper function to handle empty strings and convert to null
-      const cleanUuid = (value: any) => {
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          return null;
-        }
-        return value;
-      };
-      const cleanText = (value: any): string | null => {
-        if (typeof value !== 'string') {
-          return null;
-        }
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : null;
-      };
+      const cleanUuid = StringUtil.cleanUuid;
+      const cleanText = StringUtil.cleanText;
 
       // Transform the data to match the entity structure
       const transformedData: Partial<Product> = {
@@ -658,19 +612,8 @@ export class AdminProductService {
 
     try {
       // Helper function to handle empty strings and convert to null
-      const cleanUuid = (value: any) => {
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          return null;
-        }
-        return value;
-      };
-      const cleanText = (value: any): string | null => {
-        if (typeof value !== 'string') {
-          return null;
-        }
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : null;
-      };
+      const cleanUuid = StringUtil.cleanUuid;
+      const cleanText = StringUtil.cleanText;
 
       // Transform the data to match the entity structure
       const transformedData: Partial<Product> = {

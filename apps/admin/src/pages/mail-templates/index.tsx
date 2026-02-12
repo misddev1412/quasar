@@ -37,9 +37,10 @@ import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import {
   MailTemplateListItem,
   MailTemplateFilters,
-  MailTemplateStatistics,
   MailTemplateBulkAction,
-  MAIL_TEMPLATE_TYPE_OPTIONS
+  MailTemplateBulkUpdateResponse,
+  MailTemplateListApiResponse,
+  MailTemplateStatsApiResponse
 } from '@admin/types/mail-template';
 
 interface MailTemplateIndexPageProps { }
@@ -73,7 +74,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     search: searchParams.get('search') || undefined,
     type: searchParams.get('type') || undefined,
     isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
-    sortBy: (searchParams.get('sortBy') as any) || 'updatedAt',
+    sortBy: (searchParams.get('sortBy') as MailTemplateFilters['sortBy']) || 'updatedAt',
     sortOrder: (searchParams.get('sortOrder') as 'ASC' | 'DESC') || 'DESC',
   }), [searchParams]);
 
@@ -112,7 +113,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
 
   const bulkUpdateStatusMutation = trpc.adminMailTemplate.bulkUpdateStatus.useMutation({
     onSuccess: (result) => {
-      const count = (result as any)?.data?.affectedCount || 0;
+      const count = (result as MailTemplateBulkUpdateResponse)?.data?.affectedCount || 0;
       addToast({
         title: t('mail_templates.bulk_update_success', `Updated ${count} templates`),
         type: 'success'
@@ -210,10 +211,10 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     setSearchParams(newParams);
   }, [searchParams, setSearchParams]);
 
-  const handleSortChange = useCallback((sortDescriptor: any) => {
+  const handleSortChange = useCallback((sortDescriptor: SortDescriptor<MailTemplateListItem>) => {
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('sortBy', sortDescriptor.column);
-    newParams.set('sortOrder', sortDescriptor.direction === 'ascending' ? 'ASC' : 'DESC');
+    newParams.set('sortBy', String(sortDescriptor.columnAccessor));
+    newParams.set('sortOrder', sortDescriptor.direction === 'asc' ? 'ASC' : 'DESC');
     setSearchParams(newParams);
   }, [searchParams, setSearchParams]);
 
@@ -356,9 +357,8 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
 
   // Statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
-    if (!(statisticsData as any)?.data) return [];
-
-    const stats = (statisticsData as any).data;
+    const stats = (statisticsData as MailTemplateStatsApiResponse | undefined)?.data;
+    if (!stats) return [];
     return [
       {
         id: 'total',
@@ -475,8 +475,8 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     );
   }
 
-  const templates = (data as any)?.data?.items || [];
-  const total = (data as any)?.data?.total || 0;
+  const templates = (data as MailTemplateListApiResponse | undefined)?.data?.items || [];
+  const total = (data as MailTemplateListApiResponse | undefined)?.data?.total || 0;
 
   return (
     <StandardListPage

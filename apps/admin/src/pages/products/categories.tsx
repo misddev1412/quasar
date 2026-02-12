@@ -8,6 +8,12 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { Category } from '@admin/types/product';
+import type {
+  CategoriesTreeResponse,
+  CategoryStatsResponse,
+  DownloadTemplatePayload,
+  DownloadTemplateResponse,
+} from '@admin/types/product-taxonomy';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -44,7 +50,7 @@ const CategoriesPage: React.FC = () => {
   const statsLoading = false;
   const statsData = null;
 
-  const categories = (categoriesData as any)?.data || [];
+  const categories = (categoriesData as CategoriesTreeResponse | undefined)?.data || [];
 
   // Mutations
   const deleteMutation = trpc.adminProductCategories.delete.useMutation({
@@ -160,7 +166,10 @@ const CategoriesPage: React.FC = () => {
     try {
       const { trpcClient } = await import('../../utils/trpc');
       const response = await trpcClient.adminProductCategories.downloadExcelTemplate.query({});
-      const payload = (response as any)?.data?.filename ? (response as any).data : response;
+      const typedResponse = response as DownloadTemplateResponse;
+      const payload: DownloadTemplatePayload | undefined = typedResponse?.data?.filename
+        ? typedResponse.data
+        : ((typedResponse as unknown) as DownloadTemplatePayload);
       if (!payload?.data || !payload?.filename) {
         throw new Error('Template data is missing.');
       }
@@ -181,11 +190,12 @@ const CategoriesPage: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('common.error', 'Error'),
-        description: error?.message || t('categories.import.template_error', 'Failed to download template.'),
+        description: errorMessage || t('categories.import.template_error', 'Failed to download template.'),
       });
     }
   }, [addToast, t]);
@@ -201,7 +211,7 @@ const CategoriesPage: React.FC = () => {
 
   // Statistics data - calculate from tree structure
   const statisticsData = useMemo(() => {
-    const apiStats = (statsData as any)?.data;
+    const apiStats = (statsData as CategoryStatsResponse | null)?.data;
     if (apiStats) {
       return {
         data: {
@@ -284,7 +294,7 @@ const CategoriesPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => {
     if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
 
-    const stats = (statisticsData as any)?.data;
+    const stats = statisticsData?.data;
     if (!stats) return [];
 
     return [
@@ -363,7 +373,7 @@ const CategoriesPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );

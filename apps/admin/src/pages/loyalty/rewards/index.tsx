@@ -8,9 +8,10 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { LoyaltyReward } from '@admin/types/loyalty';
+import type { LoyaltyRewardFilterType, LoyaltyRewardListResponse, LoyaltyRewardStatisticsData, LoyaltyRewardStatsResponse } from '@admin/types/loyalty-reward';
 
 interface LoyaltyRewardFiltersType {
-  type?: "discount" | "free_shipping" | "free_product" | "cashback" | "gift_card" | "exclusive_access";
+  type?: LoyaltyRewardFilterType;
   isActive?: boolean;
 }
 
@@ -32,7 +33,7 @@ const LoyaltyRewardsPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
   const [filters, setFilters] = useState<LoyaltyRewardFiltersType>({
-    type: searchParams.get('type') as any || undefined,
+    type: (searchParams.get('type') as LoyaltyRewardFilterType | null) || undefined,
     isActive: searchParams.get('isActive') === 'true' ? true : searchParams.get('isActive') === 'false' ? false : undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -116,8 +117,9 @@ const LoyaltyRewardsPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const rewards = (rewardsData as any)?.data?.items || [];
-  const totalRewards = (rewardsData as any)?.data?.total || 0;
+  const typedRewardsData = rewardsData as LoyaltyRewardListResponse | undefined;
+  const rewards = typedRewardsData?.data?.items || [];
+  const totalRewards = typedRewardsData?.data?.total || 0;
   const totalPages = Math.ceil(totalRewards / limit);
 
   // Fetch reward statistics
@@ -128,7 +130,7 @@ const LoyaltyRewardsPage: React.FC = () => {
 
   // Use API statistics data or calculate from existing data as fallback
   const statisticsData = useMemo(() => {
-    const apiStats = (statsData as any)?.data;
+    const apiStats = (statsData as LoyaltyRewardStatsResponse | undefined)?.data;
     if (apiStats) {
       return {
         data: {
@@ -179,8 +181,9 @@ const LoyaltyRewardsPage: React.FC = () => {
       // TODO: Implement delete mutation when available
       addToast({ type: 'success', title: t('loyalty.rewards.deleteSuccess', 'Reward deleted') });
       refetch();
-    } catch (e: any) {
-      addToast({ type: 'error', title: t('loyalty.rewards.deleteError', 'Delete failed'), description: e?.message || t('loyalty.rewards.deleteError', 'Failed to delete reward') });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : undefined;
+      addToast({ type: 'error', title: t('loyalty.rewards.deleteError', 'Delete failed'), description: errorMessage || t('loyalty.rewards.deleteError', 'Failed to delete reward') });
     }
   }, [addToast, refetch, t]);
 
@@ -504,7 +507,7 @@ const LoyaltyRewardsPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => {
     if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
 
-    const stats = (statisticsData as any)?.data;
+    const stats = (statisticsData as LoyaltyRewardStatisticsData | null)?.data;
     if (!stats) return [];
 
     return [
@@ -585,7 +588,7 @@ const LoyaltyRewardsPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );

@@ -6,18 +6,7 @@ import type { Column } from '@admin/components/common';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
-
-type ExportJobItem = {
-  id: string;
-  resource: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  format: 'csv' | 'json';
-  fileUrl?: string | null;
-  fileName?: string | null;
-  totalRecords?: number | null;
-  createdAt: string | Date;
-  completedAt?: string | Date | null;
-};
+import type { ExportEstimateResponse, ExportJobItem, ExportJobsListResponse } from '@admin/types/orders-export';
 
 type OrderExportFilters = {
   search?: string;
@@ -93,7 +82,7 @@ const OrdersExportsPage: React.FC = () => {
     isFetching: estimateLoading,
     error: estimateError,
   } = trpc.adminOrders.estimateExportOrders.useQuery(
-    { filters: hasActiveFilters ? sanitizedFilters : undefined } as any,
+    { filters: hasActiveFilters ? sanitizedFilters : undefined },
     {
       placeholderData: (previousData) => previousData,
       refetchOnWindowFocus: false,
@@ -105,11 +94,14 @@ const OrdersExportsPage: React.FC = () => {
     isLoading: exportJobsLoading,
     refetch: refetchExportJobs,
   } = trpc.adminOrders.listExportJobs.useQuery(
-    { limit, page } as any,
+    { limit, page },
     {
       placeholderData: (previousData) => previousData,
       refetchInterval: (response) => {
-        const jobs = (response as any)?.data?.items as ExportJobItem[] | undefined;
+        const jobsResponse = response as ExportJobsListResponse | undefined;
+        const jobs = Array.isArray(jobsResponse?.data)
+          ? jobsResponse.data
+          : jobsResponse?.data?.items;
         if (!Array.isArray(jobs)) {
           return false;
         }
@@ -119,12 +111,12 @@ const OrdersExportsPage: React.FC = () => {
   );
 
   const estimatedTotal = useMemo(() => {
-    const raw = (estimateResponse as any)?.data?.total;
+    const raw = (estimateResponse as ExportEstimateResponse | undefined)?.data?.total;
     return typeof raw === 'number' ? raw : null;
   }, [estimateResponse]);
   const estimateErrored = Boolean(estimateError);
 
-  const rawExportData = (exportJobsResponse as any)?.data;
+  const rawExportData = (exportJobsResponse as ExportJobsListResponse | undefined)?.data;
   const normalizedExportData = useMemo(() => {
     if (!rawExportData) {
       return {
@@ -172,7 +164,7 @@ const OrdersExportsPage: React.FC = () => {
       await exportOrdersMutation.mutateAsync({
         format,
         filters: hasActiveFilters ? sanitizedFilters : undefined,
-      } as any);
+      });
 
       addToast({
         type: 'success',
@@ -180,11 +172,12 @@ const OrdersExportsPage: React.FC = () => {
         description: t('orders.exports.toast.started_desc', 'We will notify you when the export is ready.'),
       });
       refetchExportJobs();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('orders.exports.toast.error_title', 'Export failed to start'),
-        description: error?.message || t('orders.exports.toast.error_desc', 'Please try again later.'),
+        description: errorMessage || t('orders.exports.toast.error_desc', 'Please try again later.'),
       });
     }
   }, [exportOrdersMutation, format, hasActiveFilters, sanitizedFilters, addToast, t, refetchExportJobs]);

@@ -7,6 +7,8 @@ import { BaseLayout } from '@admin/components/layout';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
+import type { LoyaltyStatsOverview, LoyaltyStatsResponse } from '@admin/types/loyalty-stats';
+import type { RecentActivity, TierDistribution } from '@admin/types/loyalty';
 
 interface TimeRange {
   label: string;
@@ -69,11 +71,11 @@ const LoyaltyStatsPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const stats = (statsData as any)?.data || {};
-  const dashboard = (dashboardData as any)?.data || {};
-  const engagement = (engagementData as any)?.data || {};
-  const tierDistribution = (tierData as any)?.data || {};
-  const rewardPerformance = (rewardData as any)?.data || {};
+  const stats = ((statsData as LoyaltyStatsResponse | undefined)?.data || {}) as LoyaltyStatsOverview;
+  const dashboard = (dashboardData as LoyaltyStatsResponse | undefined)?.data || {};
+  const engagement = (engagementData as LoyaltyStatsResponse | undefined)?.data || {};
+  const tierDistribution = (tierData as LoyaltyStatsResponse | undefined)?.data || {};
+  const rewardPerformance = (rewardData as LoyaltyStatsResponse | undefined)?.data || {};
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -245,7 +247,7 @@ const LoyaltyStatsPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </BaseLayout>
     );
@@ -346,7 +348,7 @@ const LoyaltyStatsPage: React.FC = () => {
               <FiAward className="w-5 h-5 text-gray-400" />
             </div>
             <div className="space-y-3">
-              {stats.tierDistribution?.map((tier: any, index: number) => (
+              {stats.tierDistribution?.map((tier: TierDistribution, index: number) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${
@@ -385,7 +387,7 @@ const LoyaltyStatsPage: React.FC = () => {
               <FiActivity className="w-5 h-5 text-gray-400" />
             </div>
             <div className="space-y-3">
-              {stats.recentActivity?.slice(0, 5).map((activity: any, index: number) => (
+              {stats.recentActivity?.slice(0, 5).map((activity: RecentActivity, index: number) => (
                 <div key={index} className="flex items-start space-x-3 text-sm">
                   <div className={`w-2 h-2 rounded-full mt-1.5 ${
                     activity.type === 'EARN' ? 'bg-green-500' :

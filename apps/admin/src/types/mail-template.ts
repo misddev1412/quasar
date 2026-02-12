@@ -102,6 +102,23 @@ export interface MailTemplateStatistics {
   byType: Record<string, number>;
 }
 
+export interface MailTemplateListApiResponse {
+  data?: {
+    items?: MailTemplateListItem[];
+    total?: number;
+  };
+}
+
+export interface MailTemplateStatsApiResponse {
+  data?: MailTemplateStatistics;
+}
+
+export interface MailTemplateBulkUpdateResponse {
+  data?: {
+    affectedCount?: number;
+  };
+}
+
 export interface BulkUpdateStatusData {
   ids: string[];
   isActive: boolean;

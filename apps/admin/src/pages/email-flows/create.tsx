@@ -8,16 +8,11 @@ import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
-
-type MailChannelPriorityFormData = {
-  name: string;
-  description?: string;
-  mailProviderId: string;
-  mailTemplateId?: string;
-  isActive?: boolean;
-  priority?: number;
-  config?: Record<string, any>;
-};
+import type {
+  ActiveMailProvidersResponse,
+  MailChannelPriorityFormData,
+  MailTemplatesOptionsResponse,
+} from '@admin/types/email-flow';
 
 const mailChannelPrioritySchema: z.ZodSchema<MailChannelPriorityFormData> = z.object({
   name: z.string().min(2).max(255),
@@ -25,7 +20,7 @@ const mailChannelPrioritySchema: z.ZodSchema<MailChannelPriorityFormData> = z.ob
   mailProviderId: z.string().uuid(),
   isActive: z.boolean().optional().default(true),
   priority: z.number().int().min(1).max(10).optional().default(5),
-  config: z.record(z.any()).optional(),
+  config: z.record(z.unknown()).optional(),
 }) as z.ZodSchema<MailChannelPriorityFormData>;
 
 const CreateMailChannelPriorityPage: React.FC = () => {
@@ -66,9 +61,9 @@ const CreateMailChannelPriorityPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const data = (providersData as any)?.data;
+    const data = (providersData as ActiveMailProvidersResponse | undefined)?.data;
     if (data && Array.isArray(data)) {
-      const options = data.map((p: any) => ({
+      const options = data.map((p) => ({
         value: p.id,
         label: `${p.name} (${p.providerType})`,
       }));
@@ -77,9 +72,9 @@ const CreateMailChannelPriorityPage: React.FC = () => {
   }, [providersData]);
 
   useEffect(() => {
-    const items = (templatesData as any)?.data?.items;
+    const items = (templatesData as MailTemplatesOptionsResponse | undefined)?.data?.items;
     if (Array.isArray(items)) {
-      const options = items.map((template: any) => ({
+      const options = items.map((template) => ({
         value: template.id,
         label: template.name,
       }));
@@ -199,7 +194,7 @@ const CreateMailChannelPriorityPage: React.FC = () => {
             ...data,
             mailTemplateId: data.mailTemplateId || undefined,
           };
-          await createMutation.mutateAsync(payload as any);
+          await createMutation.mutateAsync(payload);
         }}
         onCancel={() => navigate('/email-flows')}
         isSubmitting={createMutation.isPending}

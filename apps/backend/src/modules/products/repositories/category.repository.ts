@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '@backend/modules/products/entities/category.entity';
 import { CategoryTranslation } from '@backend/modules/products/entities/category-translation.entity';
-import slugify from 'slugify';
+import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
 
 export interface CategoryFilters {
   search?: string;
@@ -50,18 +50,18 @@ export class CategoryRepository {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(CategoryTranslation)
     private readonly categoryTranslationRepo: Repository<CategoryTranslation>,
-  ) {}
+  ) { }
 
   async findAll(options: CategoryQueryOptions = {}) {
     const { page = 1, limit = 20, filters = {}, relations = [] } = options;
-    
+
     const queryBuilder = this.categoryRepository.createQueryBuilder('category');
-    
+
     // Add relations
     relations.forEach(relation => {
       queryBuilder.leftJoinAndSelect(`category.${relation}`, relation);
     });
-    
+
     // Apply filters
     if (filters.search) {
       queryBuilder.andWhere(
@@ -69,7 +69,7 @@ export class CategoryRepository {
         { search: `%${filters.search.toLowerCase()}%` }
       );
     }
-    
+
     if (filters.isActive !== undefined) {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: filters.isActive });
     }
@@ -81,17 +81,17 @@ export class CategoryRepository {
         queryBuilder.andWhere('category.parent_id = :parentId', { parentId: filters.parentId });
       }
     }
-    
+
     // Apply ordering
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
-    
+      .addOrderBy('category.name', 'ASC');
+
     // Apply pagination
     const offset = (page - 1) * limit;
     queryBuilder.skip(offset).take(limit);
-    
+
     const [items, total] = await queryBuilder.getManyAndCount();
-    
+
     return {
       items,
       total,
@@ -102,16 +102,16 @@ export class CategoryRepository {
   }
 
   async findMany(options: CategoryFindManyOptions) {
-    const { 
-      page = 1, 
-      limit = 10, 
-      search, 
-      isActive, 
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      isActive,
       parentId,
-      sortBy = 'sortOrder', 
-      sortOrder = 'ASC' 
+      sortBy = 'sortOrder',
+      sortOrder = 'ASC'
     } = options;
-    
+
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
       .leftJoin('category.translations', 'translations');
 
@@ -144,13 +144,13 @@ export class CategoryRepository {
       level: 'category.level',
     };
     queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
-    
+
     // Apply pagination
     const offset = (page - 1) * limit;
     queryBuilder.skip(offset).take(limit);
-    
+
     const [categories, total] = await queryBuilder.getManyAndCount();
-    
+
     return {
       items: categories,
       total,
@@ -206,48 +206,7 @@ export class CategoryRepository {
   }
 
   private generateSlug(text: string, maxLength: number = 100): string {
-    if (!text || typeof text !== 'string') {
-      return '';
-    }
-
-    // Configure Vietnamese and other character replacements
-    const vietnameseMap = {
-      'đ': 'd', 'Đ': 'D',
-      'ă': 'a', 'Ă': 'A',
-      'â': 'a', 'Â': 'A',
-      'ê': 'e', 'Ê': 'E',
-      'ô': 'o', 'Ô': 'O',
-      'ơ': 'o', 'Ơ': 'O',
-      'ư': 'u', 'Ư': 'U',
-      'ý': 'y', 'Ý': 'Y',
-    };
-
-    // Use slugify with Unicode support and Vietnamese character handling
-    let slug = slugify(text, {
-      lower: true,
-      strict: false,
-      trim: true,
-      replacement: '-',
-      remove: /[*+~()'"]/g,
-      locale: 'vi',
-    });
-
-    // Apply manual Vietnamese character replacements for edge cases
-    Object.keys(vietnameseMap).forEach(char => {
-      const regex = new RegExp(char, 'g');
-      slug = slug.replace(regex, vietnameseMap[char]);
-    });
-
-    // Additional processing: convert remaining punctuation to hyphens
-    slug = slug
-      .replace(/[,;.:!?@#$%^&<>{}[\]\\|`=]/g, '-')
-      .replace(/-{2,}/g, '-')
-      .replace(/^-+|-+$/g, '');
-
-    // Limit length and clean up
-    return slug
-      .substring(0, maxLength)
-      .replace(/-+$/, '');
+    return SlugUtil.generate(text).substring(0, maxLength).replace(/-+$/, '');
   }
 
   private async generateUniqueSlug(baseSlug: string, excludeId?: string): Promise<string> {
@@ -267,7 +226,7 @@ export class CategoryRepository {
       }
 
       const existingCategory = await queryBuilder.getOne();
-      
+
       if (!existingCategory) {
         return slug;
       }
@@ -282,12 +241,12 @@ export class CategoryRepository {
     if (!parentId) {
       return 0; // Root level
     }
-    
+
     const parent = await this.findById(parentId);
     if (!parent) {
       return 0; // If parent not found, treat as root
     }
-    
+
     return parent.level + 1;
   }
 
@@ -344,7 +303,7 @@ export class CategoryRepository {
     }
 
     await this.categoryRepository.update(id, categoryData);
-    
+
     // If parent changed, update levels of all descendants
     if (parentChanged) {
       await this.updateDescendantLevels(id);
@@ -376,10 +335,10 @@ export class CategoryRepository {
     }
 
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
+      .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();
-    
+
     // Build the tree structure
     const categoryMap = new Map<string, CategoryTreeNode>();
     const rootCategories: CategoryTreeNode[] = [];
@@ -437,7 +396,7 @@ export class CategoryRepository {
         { search: `%${filters.search.toLowerCase()}%` }
       );
     }
-    
+
     if (filters.isActive !== undefined) {
       queryBuilder.andWhere('category.is_active = :filterActive', { filterActive: filters.isActive });
     }
@@ -451,15 +410,15 @@ export class CategoryRepository {
     }
 
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
+      .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();
-    
+
     // If search is applied, we need to include parent categories for context
     let allRelevantCategories = [...categories];
     if (filters.search) {
       const parentIds = new Set<string>();
-      
+
       // Collect all parent IDs from filtered categories
       const collectParentIds = (categoryId: string) => {
         categories.forEach(cat => {
@@ -469,13 +428,13 @@ export class CategoryRepository {
           }
         });
       };
-      
+
       categories.forEach(cat => {
         if (cat.parentId) {
           collectParentIds(cat.parentId);
         }
       });
-      
+
       // Fetch parent categories if needed
       if (parentIds.size > 0) {
         const parentCategories = await this.categoryRepository
@@ -484,7 +443,7 @@ export class CategoryRepository {
           .leftJoinAndSelect('productCategories.product', 'products')
           .whereInIds(Array.from(parentIds))
           .getMany();
-        
+
         // Add parents that aren't already included
         parentCategories.forEach(parent => {
           if (!allRelevantCategories.find(c => c.id === parent.id)) {
@@ -493,7 +452,7 @@ export class CategoryRepository {
         });
       }
     }
-    
+
     // Build the tree structure
     const categoryMap = new Map<string, CategoryTreeNode>();
     const rootCategories: CategoryTreeNode[] = [];
@@ -547,27 +506,27 @@ export class CategoryRepository {
     }
 
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
+      .addOrderBy('category.name', 'ASC');
 
     const rootCategories = await queryBuilder.getMany();
-    
+
     // Then, for each root category, check if it has children
     const categoriesWithChildrenInfo = await Promise.all(
       rootCategories.map(async (category) => {
         const childrenCount = await this.categoryRepository.count({
-          where: { 
+          where: {
             parentId: category.id,
             ...(includeInactive ? {} : { isActive: true })
           }
         });
-        
+
         return {
           ...category,
           hasChildren: childrenCount > 0,
         } as Category & { hasChildren: boolean };
       })
     );
-    
+
     return categoriesWithChildrenInfo;
   }
 
@@ -583,27 +542,27 @@ export class CategoryRepository {
     }
 
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
+      .addOrderBy('category.name', 'ASC');
 
     const childCategories = await queryBuilder.getMany();
-    
+
     // Then, for each child category, check if it has children
     const categoriesWithChildrenInfo = await Promise.all(
       childCategories.map(async (category) => {
         const childrenCount = await this.categoryRepository.count({
-          where: { 
+          where: {
             parentId: category.id,
             ...(includeInactive ? {} : { isActive: true })
           }
         });
-        
+
         return {
           ...category,
           hasChildren: childrenCount > 0,
         } as Category & { hasChildren: boolean };
       })
     );
-    
+
     return categoriesWithChildrenInfo;
   }
 
@@ -613,7 +572,7 @@ export class CategoryRepository {
       .leftJoinAndSelect('productCategories.product', 'products');
 
     const categories = await queryBuilder.getMany();
-    
+
     const totalCategories = categories.length;
     const activeCategories = categories.filter(c => c.isActive).length;
     const inactiveCategories = totalCategories - activeCategories;
@@ -653,16 +612,16 @@ export class CategoryRepository {
   }
 
   async updateCategoryTranslation(
-    categoryId: string, 
-    locale: string, 
+    categoryId: string,
+    locale: string,
     translationData: Partial<CategoryTranslation>
   ): Promise<CategoryTranslation | null> {
     const existingTranslation = await this.findCategoryTranslation(categoryId, locale);
-    
+
     if (!existingTranslation) {
       return null;
     }
-    
+
     Object.assign(existingTranslation, translationData);
     return this.categoryTranslationRepo.save(existingTranslation);
   }
@@ -703,11 +662,11 @@ export class CategoryRepository {
       .leftJoinAndSelect('category.translations', 'translations')
       .leftJoinAndSelect('category.productCategories', 'productCategories')
       .leftJoinAndSelect('productCategories.product', 'products');
-    
+
     if (locale) {
       queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });
     }
-    
+
     // Apply filters - now also search in translations
     if (search) {
       queryBuilder.andWhere(
@@ -737,13 +696,13 @@ export class CategoryRepository {
       level: 'category.level',
     };
     queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
-    
+
     // Apply pagination
     const offset = (page - 1) * limit;
     queryBuilder.skip(offset).take(limit);
-    
+
     const [categories, total] = await queryBuilder.getManyAndCount();
-    
+
     return {
       items: categories.map(category => ({
         id: category.id || '',
@@ -784,10 +743,10 @@ export class CategoryRepository {
     }
 
     queryBuilder.orderBy('category.sortOrder', 'ASC')
-                 .addOrderBy('category.name', 'ASC');
+      .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();
-    
+
     // Build the tree structure
     const categoryMap = new Map<string, CategoryTreeNode>();
     const rootCategories: CategoryTreeNode[] = [];

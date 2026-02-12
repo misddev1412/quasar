@@ -970,10 +970,19 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
         light: '#3b82f6',
         dark: '#2563eb',
       },
+      outOfStockBackgroundColor: {
+        light: '#94a3b8',
+        dark: '#64748b',
+      },
       textColor: {
         light: '#ffffff',
         dark: '#ffffff',
       },
+      outOfStockTextColor: {
+        light: '#ffffff',
+        dark: '#ffffff',
+      },
+      size: 'md',
       textTransform: 'normal',
       icon: 'shopping-cart',
     },
@@ -992,6 +1001,20 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
         },
         description: 'Background colors for light and dark themes',
       },
+      outOfStockBackgroundColor: {
+        type: 'object',
+        properties: {
+          light: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for out-of-stock background in light mode',
+          },
+          dark: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for out-of-stock background in dark mode',
+          },
+        },
+        description: 'Out-of-stock background colors for light and dark themes',
+      },
       textColor: {
         type: 'object',
         properties: {
@@ -1005,6 +1028,25 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
           },
         },
         description: 'Text colors for light and dark themes',
+      },
+      outOfStockTextColor: {
+        type: 'object',
+        properties: {
+          light: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for out-of-stock text in light mode',
+          },
+          dark: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for out-of-stock text in dark mode',
+          },
+        },
+        description: 'Out-of-stock text colors for light and dark themes',
+      },
+      size: {
+        type: 'enum',
+        options: ['sm', 'md', 'lg'],
+        description: 'Button size preset',
       },
       textTransform: {
         type: 'enum',

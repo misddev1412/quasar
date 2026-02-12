@@ -33,7 +33,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   onAddToCart,
   onVariantAddToCart,
   quantity = 1,
-  size = 'md',
+  size,
   variant = 'solid',
   color = 'primary',
   fullWidth = false,
@@ -223,13 +223,26 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   };
 
   // Apply config styles
-  const backgroundColor = theme === 'dark' ? buttonConfig.backgroundColor.dark : buttonConfig.backgroundColor.light;
-  const textColor = theme === 'dark' ? buttonConfig.textColor.dark : buttonConfig.textColor.light;
+  const backgroundColor = isOutOfStock
+    ? theme === 'dark'
+      ? buttonConfig.outOfStockBackgroundColor.dark
+      : buttonConfig.outOfStockBackgroundColor.light
+    : theme === 'dark'
+      ? buttonConfig.backgroundColor.dark
+      : buttonConfig.backgroundColor.light;
+  const textColor = isOutOfStock
+    ? theme === 'dark'
+      ? buttonConfig.outOfStockTextColor.dark
+      : buttonConfig.outOfStockTextColor.light
+    : theme === 'dark'
+      ? buttonConfig.textColor.dark
+      : buttonConfig.textColor.light;
   const textTransformClass = buttonConfig.textTransform === 'uppercase' 
     ? 'uppercase' 
     : buttonConfig.textTransform === 'capitalize' 
     ? 'capitalize' 
     : 'normal-case';
+  const resolvedSize = size ?? buttonConfig.size;
   
   const buttonStyle: React.CSSProperties = {
     backgroundColor: backgroundColor || undefined,
@@ -245,7 +258,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     return (
       <Button
         isIconOnly
-        size={size}
+        size={resolvedSize}
         variant={variant}
         color={color}
         className={className}
@@ -275,7 +288,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           value={selectedQuantity}
           onChange={handleQuantityChange}
           className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-            size === 'sm' ? 'h-8' : size === 'lg' ? 'h-10' : 'h-9'
+            resolvedSize === 'sm' ? 'h-8' : resolvedSize === 'lg' ? 'h-10' : 'h-9'
           }`}
           disabled={isDisabled}
         >
@@ -288,7 +301,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       )}
 
       <Button
-        size={size}
+        size={resolvedSize}
         variant={variant}
         color={color}
         className={`${className} ${fullWidth ? 'flex-1' : ''} ${textTransformClass}`}

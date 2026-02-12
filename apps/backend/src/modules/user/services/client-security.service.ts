@@ -6,6 +6,7 @@ import { UserSecurity, TwoFactorMethod } from '@backend/modules/user/entities/us
 import { UserSession } from '@backend/modules/user/entities/user-session.entity';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
+import { HashUtil } from '@backend/modules/shared/utils/hash.util';
 
 @Injectable()
 export class ClientSecurityService {
@@ -16,7 +17,7 @@ export class ClientSecurityService {
     private readonly userSecurityRepository: Repository<UserSecurity>,
     @InjectRepository(UserSession)
     private readonly userSessionRepository: Repository<UserSession>,
-  ) {}
+  ) { }
 
   async getSecurityStatus(userId: string) {
     const user = await this.userRepository.findOne({
@@ -254,14 +255,11 @@ export class ClientSecurityService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    const bcrypt = require('bcrypt');
-    const saltRounds = 12;
-    return bcrypt.hash(password, saltRounds);
+    return HashUtil.hash(password);
   }
 
   private async validatePassword(hashedPassword: string, plainPassword: string): Promise<boolean> {
-    const bcrypt = require('bcrypt');
-    return bcrypt.compare(plainPassword, hashedPassword);
+    return HashUtil.compare(plainPassword, hashedPassword);
   }
 
   private generateBackupCodes(): string[] {

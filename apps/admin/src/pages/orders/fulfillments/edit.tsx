@@ -8,6 +8,8 @@ import { StandardFormPage, Loading, FormSection, Badge, Input } from '@admin/com
 import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { trpc } from '@admin/utils/trpc';
+import type { OrderFulfillment, OrderFulfillmentResponse, ShippingProvidersListResponse } from '@admin/types/order-fulfillment';
+import type { ShippingProvider } from '@admin/types/shipping-provider';
 
 const FULFILLMENT_STATUS_OPTIONS = [
   'PENDING',
@@ -23,6 +25,9 @@ const FULFILLMENT_STATUS_OPTIONS = [
 
 const PRIORITY_LEVELS = ['LOW', 'NORMAL', 'HIGH', 'URGENT'] as const;
 const PACKAGING_TYPES = ['ENVELOPE', 'BOX', 'CRATE', 'PALLET', 'CUSTOM'] as const;
+
+const isOneOf = <T extends readonly string[]>(value: string | undefined, options: T): value is T[number] =>
+  typeof value === 'string' && options.includes(value);
 
 const addressSchema = z.object({
   firstName: z.string().optional(),
@@ -85,7 +90,9 @@ const selectClass =
 const textareaClass =
   'mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-0 resize-none min-h-[120px]';
 
-const getStatusBadgeVariant = (status: string) => {
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info';
+
+const getStatusBadgeVariant = (status: string): BadgeVariant => {
   switch (status) {
     case 'PENDING':
       return 'warning';
@@ -106,7 +113,7 @@ const getStatusBadgeVariant = (status: string) => {
   }
 };
 
-const getPriorityBadgeVariant = (priority: string) => {
+const getPriorityBadgeVariant = (priority: string): BadgeVariant => {
   switch (priority) {
     case 'LOW':
       return 'secondary';
@@ -129,8 +136,30 @@ const OrderFulfillmentEditPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
 
-  const adminOrderFulfillments = (trpc as any)['adminOrderFulfillments'];
-  const adminShippingProviders = (trpc as any)['adminShippingProviders'];
+  const dynamicTrpc = trpc as unknown as Record<string, unknown>;
+  const adminOrderFulfillments = dynamicTrpc['adminOrderFulfillments'] as
+    | {
+        update?: {
+          useMutation?: (opts: {
+            onSuccess: () => void;
+            onError: (error: { message?: string }) => void;
+          }) => {
+            mutateAsync: (input: { id: string; data: Record<string, unknown> }) => Promise<unknown>;
+            isPending: boolean;
+          };
+        };
+      }
+    | undefined;
+  const adminShippingProviders = dynamicTrpc['adminShippingProviders'] as
+    | {
+        list?: {
+          useQuery?: (input: { page: number; limit: number }) => {
+            data: ShippingProvidersListResponse | null;
+            isLoading: boolean;
+          };
+        };
+      }
+    | undefined;
 
   const fulfillmentQuery = trpc.orderFulfillments.getById.useQuery(
     { id: id as string },
@@ -154,7 +183,7 @@ const OrderFulfillmentEditPage: React.FC = () => {
         fulfillmentQuery.refetch();
         if (id) navigate(`/orders/fulfillments/${id}`);
       },
-      onError: (error: any) => {
+      onError: (error: { message?: string }) => {
         addToast({
           type: 'error',
           title: t('fulfillments.update_failed', 'Unable to update fulfillment'),
@@ -168,10 +197,11 @@ const OrderFulfillmentEditPage: React.FC = () => {
       isPending: false,
     };
 
-  const fulfillment = (fulfillmentQuery.data as any)?.data ?? fulfillmentQuery.data;
+  const fulfillmentData = fulfillmentQuery.data as OrderFulfillmentResponse | OrderFulfillment | undefined;
+  const fulfillment = (fulfillmentData as OrderFulfillmentResponse)?.data ?? (fulfillmentData as OrderFulfillment | undefined);
 
   const shippingProviders = useMemo(() => {
-    const raw = shippingProvidersQuery.data as any;
+    const raw = shippingProvidersQuery.data as ShippingProvidersListResponse | null;
     if (!raw) return [];
     if (Array.isArray(raw?.items)) return raw.items;
     if (Array.isArray(raw?.data?.items)) return raw.data.items;
@@ -214,9 +244,17 @@ const OrderFulfillmentEditPage: React.FC = () => {
   useEffect(() => {
     if (!fulfillment) return;
 
+    const status = isOneOf(fulfillment.status, FULFILLMENT_STATUS_OPTIONS) ? fulfillment.status : 'PENDING';
+    const priorityLevel = isOneOf(fulfillment.priorityLevel, PRIORITY_LEVELS)
+      ? fulfillment.priorityLevel
+      : 'NORMAL';
+    const packagingType = isOneOf(fulfillment.packagingType, PACKAGING_TYPES)
+      ? fulfillment.packagingType
+      : undefined;
+
     reset({
-      status: fulfillment.status ?? 'PENDING',
-      priorityLevel: fulfillment.priorityLevel ?? 'NORMAL',
+      status,
+      priorityLevel,
       shippingProviderId: fulfillment.shippingProvider?.id ?? fulfillment.shippingProviderId ?? '',
       trackingNumber: fulfillment.trackingNumber ?? '',
       estimatedDeliveryDate: fulfillment.estimatedDeliveryDate
@@ -224,7 +262,7 @@ const OrderFulfillmentEditPage: React.FC = () => {
         : '',
       shippingCost: fulfillment.shippingCost != null ? String(fulfillment.shippingCost) : '',
       insuranceCost: fulfillment.insuranceCost != null ? String(fulfillment.insuranceCost) : '',
-      packagingType: fulfillment.packagingType ?? undefined,
+      packagingType,
       packageWeight: fulfillment.packageWeight != null ? String(fulfillment.packageWeight) : '',
       packageDimensions: fulfillment.packageDimensions ?? '',
       deliveryInstructions: fulfillment.deliveryInstructions ?? '',
@@ -383,13 +421,13 @@ const OrderFulfillmentEditPage: React.FC = () => {
         <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <p className="text-xs uppercase tracking-wide text-gray-500">{t('fulfillments.status')}</p>
           <div className="mt-2">
-            <Badge variant={getStatusBadgeVariant(fulfillment.status) as any}>
+            <Badge variant={getStatusBadgeVariant(fulfillment.status)}>
               {t(`fulfillments.status_types.${fulfillment.status}`)}
             </Badge>
           </div>
           <p className="mt-3 text-xs uppercase tracking-wide text-gray-500">{t('fulfillments.priority')}</p>
           <div className="mt-2">
-            <Badge variant={getPriorityBadgeVariant(fulfillment.priorityLevel) as any}>
+            <Badge variant={getPriorityBadgeVariant(fulfillment.priorityLevel)}>
               {t(`fulfillments.priority_types.${fulfillment.priorityLevel}`)}
             </Badge>
           </div>
@@ -462,7 +500,7 @@ const OrderFulfillmentEditPage: React.FC = () => {
               <div className="relative">
                 <select {...register('shippingProviderId')} className={selectClass}>
                   <option value="">{t('fulfillments.select_shipping_provider', 'Select shipping provider')}</option>
-                  {shippingProviders.map((provider: any) => (
+                  {shippingProviders.map((provider: ShippingProvider) => (
                     <option key={provider.id} value={provider.id}>
                       {provider.name}
                     </option>

@@ -28,7 +28,7 @@ export const ServiceListSection: React.FC<ServiceListSectionProps> = ({ config, 
     // So if config.serviceIds is empty/undefined, it shows ALL services, which is desired default behavior.
 
     return (
-        <section className="py-12 lg:py-16">
+        <section className="py-12 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
             <SectionContainer>
                 {showHeader && (
                     <div className="mb-10 text-center max-w-3xl mx-auto">

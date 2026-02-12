@@ -49,6 +49,51 @@ interface OrderFiltersType {
   maxAmount?: number;
 }
 
+const ORDER_STATUSES: readonly Order['status'][] = [
+  'PENDING',
+  'CONFIRMED',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+  'RETURNED',
+  'REFUNDED',
+];
+
+const PAYMENT_STATUSES: readonly Order['paymentStatus'][] = [
+  'PENDING',
+  'PAID',
+  'PARTIALLY_PAID',
+  'FAILED',
+  'REFUNDED',
+  'CANCELLED',
+];
+
+const ORDER_SOURCES: readonly Order['source'][] = [
+  'WEBSITE',
+  'MOBILE_APP',
+  'PHONE',
+  'EMAIL',
+  'IN_STORE',
+  'SOCIAL_MEDIA',
+  'MARKETPLACE',
+];
+
+const toOrderStatus = (value: string | null | undefined): Order['status'] | undefined => {
+  if (!value) return undefined;
+  return ORDER_STATUSES.includes(value as Order['status']) ? (value as Order['status']) : undefined;
+};
+
+const toPaymentStatus = (value: string | null | undefined): Order['paymentStatus'] | undefined => {
+  if (!value) return undefined;
+  return PAYMENT_STATUSES.includes(value as Order['paymentStatus']) ? (value as Order['paymentStatus']) : undefined;
+};
+
+const toOrderSource = (value: string | null | undefined): Order['source'] | undefined => {
+  if (!value) return undefined;
+  return ORDER_SOURCES.includes(value as Order['source']) ? (value as Order['source']) : undefined;
+};
+
 type ApiEnvelope<T> = { data?: T };
 
 type OrdersListPayload = {
@@ -97,9 +142,9 @@ const OrdersPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
   const [filters, setFilters] = useState<OrderFiltersType>({
-    status: (searchParams.get('status') as Order['status']) || undefined,
-    paymentStatus: (searchParams.get('paymentStatus') as Order['paymentStatus']) || undefined,
-    source: (searchParams.get('source') as Order['source']) || undefined,
+    status: toOrderStatus(searchParams.get('status')),
+    paymentStatus: toPaymentStatus(searchParams.get('paymentStatus')),
+    source: toOrderSource(searchParams.get('source')),
   });
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'orderDate');
@@ -602,7 +647,7 @@ const OrdersPage: React.FC = () => {
                 </label>
                 <select
                   value={filters.status || ''}
-                  onChange={(e) => handleFiltersChange({ ...filters, status: e.target.value || undefined })}
+                  onChange={(e) => handleFiltersChange({ ...filters, status: toOrderStatus(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">{t('orders.all_statuses')}</option>
@@ -622,7 +667,9 @@ const OrdersPage: React.FC = () => {
                 </label>
                 <select
                   value={filters.paymentStatus || ''}
-                  onChange={(e) => handleFiltersChange({ ...filters, paymentStatus: e.target.value || undefined })}
+                  onChange={(e) =>
+                    handleFiltersChange({ ...filters, paymentStatus: toPaymentStatus(e.target.value) })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">{t('orders.all_payment_statuses')}</option>
@@ -640,7 +687,7 @@ const OrdersPage: React.FC = () => {
                 </label>
                 <select
                   value={filters.source || ''}
-                  onChange={(e) => handleFiltersChange({ ...filters, source: e.target.value || undefined })}
+                  onChange={(e) => handleFiltersChange({ ...filters, source: toOrderSource(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">{t('orders.all_sources')}</option>

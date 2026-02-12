@@ -40,6 +40,25 @@ const validateString = (value: string | null): string | undefined => {
   return value && value.trim() ? value.trim() : undefined;
 };
 
+type AdminUserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'USER' | 'GUEST';
+
+const toAdminUserRole = (role: UserRole | undefined): AdminUserRole | undefined => {
+  switch (role) {
+    case UserRole.SUPER_ADMIN:
+      return 'SUPER_ADMIN';
+    case UserRole.ADMIN:
+      return 'ADMIN';
+    case UserRole.MANAGER:
+      return 'MANAGER';
+    case UserRole.USER:
+      return 'USER';
+    case UserRole.GUEST:
+      return 'GUEST';
+    default:
+      return undefined;
+  }
+};
+
 type StartImpersonationResponse = {
   data?: {
     accessToken?: string;
@@ -152,22 +171,8 @@ const UserListPage = () => {
     page,
     limit,
     search: debouncedSearchValue || undefined,
-    role: filters.role || undefined,
+    role: toAdminUserRole(filters.role),
     isActive: filters.isActive !== undefined ? filters.isActive : undefined,
-    sortBy,
-    sortOrder,
-    // Additional filter parameters (for future backend support)
-    isVerified: filters.isVerified !== undefined ? filters.isVerified : undefined,
-    email: filters.email || undefined,
-    username: filters.username || undefined,
-    hasProfile: filters.hasProfile !== undefined ? filters.hasProfile : undefined,
-    country: filters.country || undefined,
-    city: filters.city || undefined,
-    lastLoginFrom: filters.lastLoginFrom || undefined,
-    lastLoginTo: filters.lastLoginTo || undefined,
-    // Use dateFrom/dateTo as primary, with createdFrom/createdTo as fallback
-    dateFrom: filters.dateFrom || filters.createdFrom || undefined,
-    dateTo: filters.dateTo || filters.createdTo || undefined,
   };
 
   const { data, isLoading, error, refetch, isFetching } = trpc.adminUser.getAllUsers.useQuery(queryParams);

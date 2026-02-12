@@ -9,6 +9,7 @@ import { trpc } from '@admin/utils/trpc';
 import { useTableState } from '@admin/hooks/useTableState';
 import { Brand } from '@admin/types/product';
 import { CreateBrandModal, EditBrandModal, BrandImportModal } from '@admin/components/products';
+import type { BrandStatsResponse, BrandsListResponse } from '@admin/types/product-taxonomy';
 
 interface BrandFiltersType {
   search?: string;
@@ -80,8 +81,9 @@ const BrandsPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const brands = (brandsData as any)?.data?.brands || (brandsData as any)?.data?.items || [];
-  const totalBrands = (brandsData as any)?.data?.total || 0;
+  const typedBrandsData = brandsData as BrandsListResponse | undefined;
+  const brands = typedBrandsData?.data?.brands || typedBrandsData?.data?.items || [];
+  const totalBrands = typedBrandsData?.data?.total || 0;
   const totalPages = Math.ceil(totalBrands / limit);
 
   useEffect(() => {
@@ -113,7 +115,7 @@ const BrandsPage: React.FC = () => {
 
   // Use API statistics data or calculate from existing data as fallback
   const statisticsData = useMemo(() => {
-    const apiStats = (statsData as any)?.data;
+    const apiStats = (statsData as BrandStatsResponse | undefined)?.data;
     if (apiStats) {
       return {
         data: {
@@ -188,8 +190,9 @@ const BrandsPage: React.FC = () => {
       const ok = window.confirm(t('brands.deleteConfirm', 'Are you sure you want to delete this brand? This action cannot be undone.'));
       if (!ok) return;
       deleteMutation.mutate({ id: brandId });
-    } catch (e: any) {
-      addToast({ type: 'error', title: 'Delete failed', description: e?.message || 'Failed to delete brand' });
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : undefined;
+      addToast({ type: 'error', title: 'Delete failed', description: errorMessage || 'Failed to delete brand' });
     }
   }, [deleteMutation, addToast, t]);
 
@@ -445,7 +448,7 @@ const BrandsPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => {
     if (!statisticsData || typeof statisticsData !== 'object' || !('data' in statisticsData)) return [];
 
-    const stats = (statisticsData as any)?.data;
+    const stats = statisticsData?.data;
     if (!stats) return [];
 
     return [
@@ -454,7 +457,7 @@ const BrandsPage: React.FC = () => {
         title: t('brands.total_brands', 'Total Brands'),
         value: stats.total?.toString() || '0',
         icon: <FiTag className="w-5 h-5" />,
-        trend: stats.totalTrend || { value: 0, isPositive: true, label: '+0%' },
+        trend: { value: 0, isPositive: true, label: '+0%' },
         enableChart: true,
       },
       {
@@ -462,7 +465,7 @@ const BrandsPage: React.FC = () => {
         title: t('brands.active_brands', 'Active Brands'),
         value: stats.active?.toString() || '0',
         icon: <FiActivity className="w-5 h-5" />,
-        trend: stats.activeTrend || { value: 0, isPositive: true, label: '+0%' },
+        trend: { value: 0, isPositive: true, label: '+0%' },
         enableChart: true,
       },
       {
@@ -533,7 +536,7 @@ const BrandsPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );

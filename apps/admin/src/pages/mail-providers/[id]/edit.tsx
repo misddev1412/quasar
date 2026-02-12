@@ -8,29 +8,7 @@ import { trpc } from '@admin/utils/trpc';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { z } from 'zod';
-
-type MailProviderFormData = {
-  name: string;
-  providerType: string;
-  description?: string;
-  smtpHost?: string;
-  smtpPort?: number;
-  smtpSecure?: boolean;
-  smtpUsername?: string;
-  smtpPassword?: string;
-  apiKey?: string;
-  apiSecret?: string;
-  apiHost?: string;
-  defaultFromEmail?: string;
-  defaultFromName?: string;
-  replyToEmail?: string;
-  isActive?: boolean;
-  rateLimit?: number;
-  maxDailyLimit?: number;
-  priority?: number;
-  config?: Record<string, any>;
-  webhookUrl?: string;
-};
+import type { MailProviderByIdResponse, MailProviderConnectionTestResponse, MailProviderFormData } from '@admin/types/mail-provider';
 
 const mailProviderSchema: z.ZodSchema<MailProviderFormData> = z.object({
   name: z.string().min(2).max(255),
@@ -51,7 +29,7 @@ const mailProviderSchema: z.ZodSchema<MailProviderFormData> = z.object({
   rateLimit: z.number().int().min(1).optional(),
   maxDailyLimit: z.number().int().min(1).optional(),
   priority: z.number().int().min(1).max(10).optional().default(5),
-  config: z.record(z.any()).optional(),
+  config: z.record(z.unknown()).optional(),
   webhookUrl: z.string().max(500).optional(),
 }) as z.ZodSchema<MailProviderFormData>;
 
@@ -91,7 +69,7 @@ const EditMailProviderPage: React.FC = () => {
 
   const testConnectionMutation = trpc.adminMailProvider.testConnectionWithData.useMutation({
     onSuccess: (result) => {
-      const testResult = (result as any)?.data;
+      const testResult = (result as MailProviderConnectionTestResponse)?.data;
       if (testResult?.success) {
         addToast({
           type: 'success',
@@ -133,7 +111,7 @@ const EditMailProviderPage: React.FC = () => {
     }
 
     // Clean form values: remove null values and only include relevant fields based on providerType
-    const cleanFormValues: any = {
+    const cleanFormValues: Partial<MailProviderFormData> = {
       name: formValues.name,
       providerType: formValues.providerType,
       isActive: formValues.isActive ?? true,
@@ -393,7 +371,7 @@ const EditMailProviderPage: React.FC = () => {
     );
   }
 
-  const provider = (data as any)?.data;
+  const provider = (data as MailProviderByIdResponse | undefined)?.data;
 
   const handleCancel = () => {
     navigate('/mail-providers');
@@ -429,9 +407,9 @@ const EditMailProviderPage: React.FC = () => {
         formRef={formRef}
         formId={formId}
         tabs={tabs}
-        initialValues={provider as any}
+        initialValues={provider}
         onSubmit={async (formData) => {
-          await updateMutation.mutateAsync({ id: id!, ...formData } as any);
+          await updateMutation.mutateAsync({ id: id!, ...formData });
         }}
         onCancel={handleCancel}
         isSubmitting={updateMutation.isPending}

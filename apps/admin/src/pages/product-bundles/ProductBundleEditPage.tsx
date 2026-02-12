@@ -6,28 +6,48 @@ import { trpc } from '@admin/services/api';
 import { StandardFormPage } from '@admin/components/common';
 import ProductBundleForm from '@admin/pages/product-bundles/ProductBundleForm';
 import toast from 'react-hot-toast';
+import type { ProductBundle, ProductBundleFormInput } from '@admin/types/product-bundle';
 
 const ProductBundleEditPage: React.FC = () => {
     const { t } = useTranslationWithBackend();
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
-    const { data: bundle, isLoading: isFetching, error } = (trpc as any).productBundles.get.useQuery(
+    const productBundlesApi = (trpc as unknown as Record<string, unknown>).productBundles as {
+        get: {
+            useQuery: (input: { id?: string }, options: { enabled: boolean }) => {
+                data?: ProductBundle;
+                isLoading: boolean;
+                error?: { message?: string };
+            };
+        };
+        update: {
+            useMutation: (options: {
+                onSuccess: () => void;
+                onError: (error: { message?: string }) => void;
+            }) => {
+                mutateAsync: (input: { id: string; data: ProductBundleFormInput }) => Promise<void>;
+                isLoading: boolean;
+            };
+        };
+    };
+
+    const { data: bundle, isLoading: isFetching, error } = productBundlesApi.get.useQuery(
         { id },
         { enabled: !!id }
     );
 
-    const updateMutation = (trpc as any).productBundles.update.useMutation({
+    const updateMutation = productBundlesApi.update.useMutation({
         onSuccess: () => {
             toast.success(t('common.updateSuccess', 'Updated successfully'));
             navigate('/product-bundles');
         },
-        onError: (error: any) => {
+        onError: (error: { message?: string }) => {
             toast.error(error.message);
         }
     });
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: ProductBundleFormInput) => {
         if (id) {
             await updateMutation.mutateAsync({ id, data });
         }
@@ -40,10 +60,10 @@ const ProductBundleEditPage: React.FC = () => {
     // Transform data to match form structure
     const initialValues = bundle ? {
         ...bundle,
-        items: bundle.items.map((item: any) => ({
+        items: bundle.items.map((item) => ({
             ...item,
-            categoryIds: item.categories?.map((c: any) => c.id) || [],
-            productIds: item.products?.map((p: any) => p.id) || []
+            categoryIds: item.categories?.map((c) => c.id) || [],
+            productIds: item.products?.map((p) => p.id) || []
         }))
     } : undefined;
 

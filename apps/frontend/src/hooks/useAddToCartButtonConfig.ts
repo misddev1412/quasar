@@ -9,10 +9,19 @@ export interface AddToCartButtonConfig {
     light: string;
     dark: string;
   };
+  outOfStockBackgroundColor: {
+    light: string;
+    dark: string;
+  };
   textColor: {
     light: string;
     dark: string;
   };
+  outOfStockTextColor: {
+    light: string;
+    dark: string;
+  };
+  size: 'sm' | 'md' | 'lg';
   textTransform: 'normal' | 'uppercase' | 'capitalize';
   icon: string;
 }
@@ -22,10 +31,19 @@ const DEFAULT_ADD_TO_CART_BUTTON_CONFIG: AddToCartButtonConfig = {
     light: '#3b82f6',
     dark: '#2563eb',
   },
+  outOfStockBackgroundColor: {
+    light: '#94a3b8',
+    dark: '#64748b',
+  },
   textColor: {
     light: '#ffffff',
     dark: '#ffffff',
   },
+  outOfStockTextColor: {
+    light: '#ffffff',
+    dark: '#ffffff',
+  },
+  size: 'md',
   textTransform: 'normal',
   icon: 'shopping-cart',
 };
@@ -37,6 +55,12 @@ const normalizeAddToCartButtonConfig = (raw: Partial<AddToCartButtonConfig> | un
 
   const backgroundColorSource = raw.backgroundColor && typeof raw.backgroundColor === 'object' ? raw.backgroundColor : {};
   const textColorSource = raw.textColor && typeof raw.textColor === 'object' ? raw.textColor : {};
+  const outOfStockBackgroundColorSource =
+    raw.outOfStockBackgroundColor && typeof raw.outOfStockBackgroundColor === 'object'
+      ? raw.outOfStockBackgroundColor
+      : {};
+  const outOfStockTextColorSource =
+    raw.outOfStockTextColor && typeof raw.outOfStockTextColor === 'object' ? raw.outOfStockTextColor : {};
 
   return {
     backgroundColor: {
@@ -55,6 +79,23 @@ const normalizeAddToCartButtonConfig = (raw: Partial<AddToCartButtonConfig> | un
         ? textColorSource.dark.trim()
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.dark,
     },
+    outOfStockBackgroundColor: {
+      light: typeof outOfStockBackgroundColorSource.light === 'string' && outOfStockBackgroundColorSource.light.trim()
+        ? outOfStockBackgroundColorSource.light.trim()
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockBackgroundColor.light,
+      dark: typeof outOfStockBackgroundColorSource.dark === 'string' && outOfStockBackgroundColorSource.dark.trim()
+        ? outOfStockBackgroundColorSource.dark.trim()
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockBackgroundColor.dark,
+    },
+    outOfStockTextColor: {
+      light: typeof outOfStockTextColorSource.light === 'string' && outOfStockTextColorSource.light.trim()
+        ? outOfStockTextColorSource.light.trim()
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockTextColor.light,
+      dark: typeof outOfStockTextColorSource.dark === 'string' && outOfStockTextColorSource.dark.trim()
+        ? outOfStockTextColorSource.dark.trim()
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.outOfStockTextColor.dark,
+    },
+    size: raw.size === 'sm' || raw.size === 'md' || raw.size === 'lg' ? raw.size : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.size,
     textTransform:
       raw.textTransform === 'normal' || raw.textTransform === 'uppercase' || raw.textTransform === 'capitalize'
         ? raw.textTransform

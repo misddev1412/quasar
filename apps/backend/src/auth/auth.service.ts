@@ -5,7 +5,7 @@ import { User } from '@backend/modules/user/entities/user.entity';
 import { UserRole } from '@shared';
 import { UserActivityTrackingService } from '@backend/modules/user/services/user-activity-tracking.service';
 import { FirebaseAuthService, FirebaseTokenPayload } from '@backend/modules/firebase/services/firebase-auth.service';
-import * as bcrypt from 'bcryptjs';
+import { HashUtil } from '@backend/modules/shared/utils/hash.util';
 
 export interface JwtPayload {
   email: string;
@@ -19,14 +19,14 @@ export interface JwtPayload {
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private userRepository: UserRepository,
+    private UserRepository: UserRepository,
     private activityTrackingService: UserActivityTrackingService,
     private firebaseAuthService: FirebaseAuthService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<User | null> {
-    const user = await this.userRepository.findByEmail(email);
-    if (user && await bcrypt.compare(pass, user.password)) {
+    const user = await this.UserRepository.findByEmail(email);
+    if (user && await HashUtil.compare(pass, user.password)) {
       return user;
     }
     return null;
@@ -34,7 +34,7 @@ export class AuthService {
 
   async login(user: User, sessionData?: { ipAddress?: string; userAgent?: string; isRememberMe?: boolean }) {
     // Get user with roles
-    const userWithRoles = await this.userRepository.findWithRoles(user.id);
+    const userWithRoles = await this.UserRepository.findWithRoles(user.id);
 
     // Get primary role (first active role or default to USER)
     const primaryRoleCode = userWithRoles?.userRoles?.find(ur => ur.isActive)?.role?.code;
@@ -51,7 +51,7 @@ export class AuthService {
     // Set token expiration based on remember me option
     const accessTokenExpiry = sessionData?.isRememberMe ? '7d' : '1d';
     const refreshTokenExpiry = sessionData?.isRememberMe ? '30d' : '7d';
-    
+
     const accessToken = this.jwtService.sign(payload, { expiresIn: accessTokenExpiry });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: refreshTokenExpiry });
 
@@ -83,7 +83,7 @@ export class AuthService {
   }
 
   async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 12);
+    return HashUtil.hash(password);
   }
 
   async verifyToken(token: string): Promise<JwtPayload> {
@@ -135,17 +135,17 @@ export class AuthService {
     try {
       // Verify Firebase ID token
       const firebaseUser = await this.firebaseAuthService.verifyIdToken(firebaseIdToken);
-      
+
       if (!firebaseUser.email) {
         throw new UnauthorizedException('Email not found in Firebase token');
       }
 
       // Find or create user in local database
-      let user = await this.userRepository.findByEmail(firebaseUser.email);
-      
+      let user = await this.UserRepository.findByEmail(firebaseUser.email);
+
       if (!user) {
         // Create new user from Firebase data
-        user = await this.userRepository.createUser({
+        user = await this.UserRepository.createUser({
           email: firebaseUser.email,
           username: firebaseUser.email.split('@')[0],
           password: '', // No password for Firebase users
@@ -160,7 +160,7 @@ export class AuthService {
 
       // Generate JWT tokens using existing login method
       return this.login(user, sessionData);
-      
+
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -179,4 +179,5 @@ export class AuthService {
   async getFirebaseWebConfig() {
     return this.firebaseAuthService.getFirebaseWebConfig();
   }
-} 
+}
+

@@ -8,18 +8,7 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { UserFilters } from '@admin/components/features';
 import { UserFiltersType } from '@admin/types/user';
-
-type ExportJobItem = {
-  id: string;
-  resource: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  format: 'csv' | 'json';
-  fileUrl?: string | null;
-  fileName?: string | null;
-  totalRecords?: number | null;
-  createdAt: string | Date;
-  completedAt?: string | Date | null;
-};
+import type { ExportEstimateResponse, ExportJobItem, ExportJobsListResponse } from '@admin/types/orders-export';
 
 type LocationState = {
   filters?: Record<string, unknown>;
@@ -101,11 +90,12 @@ const UserExportsPage: React.FC = () => {
     isLoading: exportJobsLoading,
     refetch: refetchExportJobs,
   } = trpc.adminUser.listExportJobs.useQuery(
-    { limit, page } as any,
+    { limit, page },
     {
       placeholderData: (previousData) => previousData,
       refetchInterval: (response) => {
-        const jobs = (response as any)?.data?.items as ExportJobItem[] | undefined;
+        const jobsResponse = response as ExportJobsListResponse | undefined;
+        const jobs = Array.isArray(jobsResponse?.data) ? jobsResponse.data : jobsResponse?.data?.items;
         if (!Array.isArray(jobs)) {
           return false;
         }
@@ -114,7 +104,7 @@ const UserExportsPage: React.FC = () => {
     }
   );
 
-  const rawExportData = (exportJobsResponse as any)?.data;
+  const rawExportData = (exportJobsResponse as ExportJobsListResponse | undefined)?.data;
 
   const normalizedExportData = useMemo(() => {
     if (!rawExportData) {
@@ -215,13 +205,24 @@ const UserExportsPage: React.FC = () => {
     [filterEntries],
   );
 
-  const estimateExportUsersQuery = (trpc.adminUser as Record<string, any>).estimateExportUsers;
+  const estimateExportUsersQuery = (trpc.adminUser as unknown as Record<string, unknown>).estimateExportUsers as
+    | {
+        useQuery: (
+          input: { filters?: Record<string, unknown> },
+          options: { keepPreviousData: boolean; refetchOnWindowFocus: boolean }
+        ) => {
+          data?: ExportEstimateResponse;
+          isFetching: boolean;
+          error?: unknown;
+        };
+      }
+    | undefined;
 
   const {
     data: estimateResponse,
     isFetching: estimateLoading,
     error: estimateError,
-  } = estimateExportUsersQuery.useQuery(
+  } = estimateExportUsersQuery?.useQuery?.(
     {
       filters: filterEntries.length ? filterPayload : undefined,
     },
@@ -232,7 +233,7 @@ const UserExportsPage: React.FC = () => {
   );
 
   const estimatedTotal = useMemo(() => {
-    const raw = (estimateResponse as any)?.data?.total;
+    const raw = (estimateResponse as ExportEstimateResponse | undefined)?.data?.total;
     return typeof raw === 'number' ? raw : null;
   }, [estimateResponse]);
 
@@ -254,11 +255,12 @@ const UserExportsPage: React.FC = () => {
         description: t('users.exports.notifications.queue_success_description', 'We will notify you once your file is ready to download.'),
       });
       refetchExportJobs();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : undefined;
       addToast({
         type: 'error',
         title: t('users.exports.notifications.queue_failed_title', 'Failed to queue export'),
-        description: error?.message || t('users.exports.notifications.queue_failed_description', 'Please try again in a few seconds.'),
+        description: errorMessage || t('users.exports.notifications.queue_failed_description', 'Please try again in a few seconds.'),
       });
     }
   }, [exportUsersMutation, format, filterPayload, hasActiveFilters, addToast, refetchExportJobs, t]);

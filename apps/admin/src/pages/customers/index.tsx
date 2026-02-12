@@ -8,21 +8,7 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { CustomerFilters, CustomerFiltersType } from '@admin/components/features';
-
-interface Customer {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  type: 'INDIVIDUAL' | 'BUSINESS';
-  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'PENDING';
-  companyName?: string;
-  totalOrders: number;
-  totalSpent: number;
-  lastOrderDate?: string;
-  createdAt: string;
-}
+import type { Customer, CustomersListResponse, CustomersStatsResponse } from '@admin/types/customer';
 
 
 const CustomersPage: React.FC = () => {
@@ -136,8 +122,9 @@ const CustomersPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const customers = (customersData as any)?.data?.items || [];
-  const totalCustomers = (customersData as any)?.data?.total || 0;
+  const typedCustomersData = customersData as CustomersListResponse | undefined;
+  const customers = typedCustomersData?.data?.items || [];
+  const totalCustomers = typedCustomersData?.data?.total || 0;
   const totalPages = Math.ceil(totalCustomers / limit);
 
   const handleCreateCustomer = () => {
@@ -147,11 +134,11 @@ const CustomersPage: React.FC = () => {
   const goToCustomer = (id: string) => navigate(`/customers/${id}`);
 
   const deleteCustomerMutation = trpc.adminCustomers.delete.useMutation({
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       addToast({ type: 'success', title: t('customers.deleteSuccess', 'Customer deleted') });
       refetch();
     },
-    onError: (error: any) => {
+    onError: (error: { message?: string }) => {
       addToast({ type: 'error', title: t('customers.deleteError', 'Delete failed'), description: error?.message });
     },
   });
@@ -550,7 +537,8 @@ const CustomersPage: React.FC = () => {
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
-    if (!(statsData as any)?.data) {
+    const stats = (statsData as CustomersStatsResponse | undefined)?.data;
+    if (!stats) {
       // Fallback to calculate from current page data if stats API fails
       const totalCustomers = customers.length;
       const activeCustomers = customers.filter(c => c.status === 'ACTIVE').length;
@@ -599,7 +587,6 @@ const CustomersPage: React.FC = () => {
     }
 
     // Use real stats from API
-    const stats = (statsData as any).data;
     return [
       {
         id: 'total-customers',
@@ -673,7 +660,7 @@ const CustomersPage: React.FC = () => {
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{(error as any).message}</AlertDescription>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </StandardListPage>
     );

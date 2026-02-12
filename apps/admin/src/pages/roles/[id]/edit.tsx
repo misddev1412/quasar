@@ -8,6 +8,11 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { UpdateRoleForm } from '@admin/components/role';
 import { UpdateRoleFormData } from '@admin/utils/validation';
+import type { Role } from '@admin/types/role';
+
+interface RoleByIdResponse {
+  data?: Role;
+}
 
 const RoleUpdatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -107,7 +112,8 @@ const RoleUpdatePage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (!id || !(roleResponse as any)?.data) return;
+    const role = (roleResponse as RoleByIdResponse | undefined)?.data;
+    if (!id || !role) return;
     
     // TODO: Add confirmation dialog
     const confirmed = window.confirm(
@@ -126,16 +132,16 @@ const RoleUpdatePage: React.FC = () => {
 
   // Prepare initial values from the role data
   const initialValues: Partial<UpdateRoleFormData> = useMemo(() => {
-    if (!(roleResponse as any)?.data) return {};
+    const role = (roleResponse as RoleByIdResponse | undefined)?.data;
+    if (!role) return {};
 
-    const role = (roleResponse as any).data;
     return {
       name: role.name,
       code: role.code,
       description: role.description || '',
       isActive: role.isActive,
       isDefault: role.isDefault,
-      permissionIds: role.permissions?.map((p: any) => p.id).join(',') || '',
+      permissionIds: role.permissions?.map((p) => p.id).join(',') || '',
     };
   }, [roleResponse]);
 
@@ -160,7 +166,8 @@ const RoleUpdatePage: React.FC = () => {
     const actions = [];
 
     // Add delete action if role is not default
-    if ((roleResponse as any)?.data && !(roleResponse as any).data.isDefault) {
+    const role = (roleResponse as RoleByIdResponse | undefined)?.data;
+    if (role && !role.isDefault) {
       actions.push({
         label: t('common.delete', 'Delete'),
         onClick: handleDelete,
@@ -187,7 +194,7 @@ const RoleUpdatePage: React.FC = () => {
       mode="update"
       isLoading={isLoading}
       error={error}
-      entityData={(roleResponse as any)?.data}
+      entityData={(roleResponse as RoleByIdResponse | undefined)?.data}
       customActions={customActions}
       formId={formId}
       breadcrumbs={breadcrumbs}
@@ -198,7 +205,7 @@ const RoleUpdatePage: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={updateRoleMutation.isPending}
-          isDefaultRole={(roleResponse as any)?.data?.isDefault}
+          isDefaultRole={(roleResponse as RoleByIdResponse | undefined)?.data?.isDefault}
           activeTab={activeTab}
           onTabChange={handleTabChange}
           showActions={false}

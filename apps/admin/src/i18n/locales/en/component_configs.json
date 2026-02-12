@@ -312,6 +312,34 @@
         "transformLowercase": "Lowercase",
         "itemFontWeight": "Item Font Weight",
         "itemFontSize": "Item Font Size",
-        "itemTextColor": "Item Text Color"
+        "itemTextColor": "Item Text Color",
+        "storefront": {
+            "addToCartButton": {
+                "lightBackground": "Light mode background",
+                "darkBackground": "Dark mode background",
+                "lightOutOfStockBackground": "Light mode out-of-stock background",
+                "darkOutOfStockBackground": "Dark mode out-of-stock background",
+                "lightOutOfStockText": "Light mode out-of-stock text color",
+                "darkOutOfStockText": "Dark mode out-of-stock text color",
+                "lightTextColor": "Light mode text color",
+                "darkTextColor": "Dark mode text color",
+                "size": "Button size",
+                "sizeSM": "Small",
+                "sizeMD": "Medium",
+                "sizeLG": "Large",
+                "textTransform": "Text transform",
+                "textTransformDescription": "Choose how text is displayed: normal (Viết hoa), uppercase (VIẾT HOA), or capitalize (Viết Hoa).",
+                "icon": "Icon",
+                "iconPlaceholder": "e.g., shopping-cart",
+                "iconDescription": "Select an icon to display on the button. Leave empty to hide icon.",
+                "previewLight": "Light mode preview",
+                "previewDark": "Dark mode preview",
+                "previewText": "Add to Cart",
+                "previewOutOfStock": "Out of Stock",
+                "previewContactPrice": "Contact Price",
+                "previewSelectOptions": "Select Options",
+                "previewInCart": "In Cart: 2"
+            }
+        }
     }
 }

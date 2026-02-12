@@ -19,32 +19,32 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { CreatePaymentMethodModal, EditPaymentMethodModal } from '@admin/components/payment-methods';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  type: 'CREDIT_CARD' | 'DEBIT_CARD' | 'BANK_TRANSFER' | 'DIGITAL_WALLET' | 'CASH' | 'CHECK' | 'CRYPTOCURRENCY' | 'BUY_NOW_PAY_LATER' | 'OTHER';
-  description?: string;
-  isActive: boolean;
-  sortOrder: number;
-  processingFee: number;
-  processingFeeType: 'FIXED' | 'PERCENTAGE';
-  minAmount?: number;
-  maxAmount?: number;
-  supportedCurrencies?: string[];
-  iconUrl?: string;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { PaymentMethod, PaymentMethodListResponse, PaymentMethodStatsResponse, PaymentMethodType } from '@admin/types/payment-method';
 
 interface PaymentMethodFiltersType {
   search?: string;
-  type?: string;
+  type?: PaymentMethodType;
   isActive?: boolean;
   page?: number;
   limit?: number;
 }
+
+const PAYMENT_METHOD_TYPES: readonly PaymentMethodType[] = [
+  'CREDIT_CARD',
+  'DEBIT_CARD',
+  'BANK_TRANSFER',
+  'DIGITAL_WALLET',
+  'CASH',
+  'CHECK',
+  'CRYPTOCURRENCY',
+  'BUY_NOW_PAY_LATER',
+  'OTHER',
+];
+
+const toPaymentMethodType = (value: string | null | undefined): PaymentMethodType | undefined => {
+  if (!value) return undefined;
+  return PAYMENT_METHOD_TYPES.includes(value as PaymentMethodType) ? (value as PaymentMethodType) : undefined;
+};
 
 const PaymentMethodsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ const PaymentMethodsPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
   const [filters, setFilters] = useState<PaymentMethodFiltersType>({
-    type: searchParams.get('type') || undefined,
+    type: toPaymentMethodType(searchParams.get('type')),
     isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -133,7 +133,7 @@ const PaymentMethodsPage: React.FC = () => {
   } = trpc.adminPaymentMethods.list.useQuery({
     page,
     limit,
-    type: filters.type as any,
+    type: filters.type,
     isActive: filters.isActive,
   });
 
@@ -244,35 +244,38 @@ const PaymentMethodsPage: React.FC = () => {
 
   // Table data
   const tableData = useMemo(() => {
-    return (paymentMethodsData as any)?.data?.items || [];
+    const typedData = paymentMethodsData as PaymentMethodListResponse | undefined;
+    return typedData?.data?.items || [];
   }, [paymentMethodsData]);
 
-  const totalItems = (paymentMethodsData as any)?.data?.total || 0;
-  const totalPages = (paymentMethodsData as any)?.data?.totalPages || 1;
+  const typedListData = paymentMethodsData as PaymentMethodListResponse | undefined;
+  const totalItems = typedListData?.data?.total || 0;
+  const totalPages = typedListData?.data?.totalPages || 1;
 
   // Statistics data
   const statisticsData: StatisticData[] = useMemo(() => {
-    if (!(statsData as any)?.data) return [];
+    const typedStats = statsData as PaymentMethodStatsResponse | undefined;
+    if (!typedStats?.data) return [];
 
     return [
       {
         id: 'total-payment-methods',
         title: t('admin.total_payment_methods'),
-        value: (statsData as any).data.total.toString(),
+        value: typedStats.data.total.toString(),
         icon: <FiCreditCard className="h-5 w-5" />,
         trend: undefined,
       },
       {
         id: 'active-payment-methods',
         title: t('admin.active_payment_methods'),
-        value: (statsData as any).data.active.toString(),
+        value: typedStats.data.active.toString(),
         icon: <FiActivity className="h-5 w-5 text-green-500" />,
         trend: undefined,
       },
       {
         id: 'inactive-payment-methods',
         title: t('admin.inactive_payment_methods'),
-        value: (statsData as any).data.inactive.toString(),
+        value: typedStats.data.inactive.toString(),
         icon: <FiToggleLeft className="h-5 w-5 text-gray-500" />,
         trend: undefined,
       },
@@ -471,7 +474,9 @@ const PaymentMethodsPage: React.FC = () => {
                   </label>
                   <select
                     value={filters.type || ''}
-                    onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value || undefined }))}
+                    onChange={(e) =>
+                      setFilters((prev) => ({ ...prev, type: toPaymentMethodType(e.target.value) }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   >
                     <option value="">{t('admin.all_types')}</option>
