@@ -192,6 +192,65 @@
         "label": "Số cột mỗi hàng",
         "helper": "Chọn từ 1 đến 4 cột."
       },
+      "menu_columns": {
+        "heading": "Các cột menu footer",
+        "description": "Cấu hình các liên kết xuất hiện trong từng cột footer.",
+        "add_column": "Thêm cột",
+        "column_label": "Cột {{index}}",
+        "column_hint": "Thêm tiêu đề và danh sách liên kết.",
+        "title": "Tiêu đề cột",
+        "title_placeholder": "Dịch vụ khách hàng",
+        "visible": "Hiển thị",
+        "visible_hint": "Ẩn cột mà không cần xóa.",
+        "section_order": {
+          "heading": "Thứ tự các phần",
+          "description": "Sắp xếp lại các liên kết, mã HTML tùy chỉnh và các khối nhúng bên trong cột này.",
+          "links": "Liên kết",
+          "custom_html": "Mã HTML tùy chỉnh",
+          "widget": "Nhúng"
+        },
+        "custom_html": "Mã HTML tùy chỉnh (tùy chọn)",
+        "custom_html_description": "Thêm một khối HTML nhỏ bên dưới các liên kết cột.",
+        "custom_html_hint": "Chỉ định dạng cơ bản. Để kiểm soát hoàn toàn, hãy sử dụng chế độ Code.",
+        "widget": {
+          "heading": "Nội dung nhúng",
+          "description": "Hiển thị Google Maps hoặc fanpage Facebook trong cột này.",
+          "label": "Loại nhúng",
+          "none": "Không nhúng",
+          "google": "Google Maps",
+          "facebook": "Fanpage Facebook",
+          "height": "Chiều cao nhúng (px)",
+          "map_url": "URL nhúng Google Maps",
+          "map_hint": "Sử dụng URL từ Google Maps -> Chia sẻ -> Nhúng bản đồ.",
+          "facebook_url": "URL fanpage Facebook",
+          "facebook_tabs": "Tab (tùy chọn)",
+          "facebook_tabs_hint": "Danh sách phân cách bằng dấu phẩy. Mặc định là \"timeline\"."
+        }
+      },
+      "menu_links": {
+        "heading": "Liên kết",
+        "add": "Thêm liên kết",
+        "empty": "Thêm ít nhất một liên kết để hiển thị cột này.",
+        "new_label": "Liên kết mới",
+        "item_label": "Liên kết {{index}}",
+        "type": "Loại liên kết",
+        "label": "Nhãn",
+        "url": "URL",
+        "target": "Mục tiêu",
+        "visible": "Hiển thị",
+        "visible_hint": "Ẩn mà không cần xóa bằng cách tắt phần này.",
+        "type": {
+          "external": "URL bên ngoài",
+          "product": "Sản phẩm",
+          "category": "Danh mục",
+          "post": "Bài viết",
+          "site_content": "Nội dung trang"
+        },
+        "target": {
+          "self": "Cùng tab",
+          "blank": "Tab mới"
+        }
+      },
       "visitor_analytics": {
         "heading": "Thanh thống kê truy cập",
         "description": "Tuỳ chỉnh dải thống kê hiển thị phía trên footer.",
@@ -206,6 +265,10 @@
         },
         "background": "Màu nền",
         "background_hint": "Để trống để dùng màu nền của footer.",
+        "card_bg": "Màu nền thẻ",
+        "card_bg_hint": "Để trống để dùng hiệu ứng kính mờ mặc định.",
+        "card_text": "Màu chữ thẻ",
+        "card_text_hint": "Để trống để dùng màu chữ liên kết footer.",
         "card_label": "Cột {{index}}",
         "metric_label": "Loại hiển thị",
         "metrics": {
@@ -247,7 +310,18 @@
         "description_color": "Màu đoạn mô tả",
         "description_color_hint": "Để trống để lấy màu đoạn văn mặc định của giao diện.",
         "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)",
-        "custom_html_description": "Sử dụng định dạng đơn giản, liên kết, hoặc chuyển sang chế độ Code để nhập HTML thuần."
+        "custom_html_description": "Sử dụng định dạng đơn giản, liên kết, hoặc chuyển sang chế độ Code để nhập HTML thuần.",
+        "title_color": "Màu tên thương hiệu",
+        "title_color_hint": "Đặt màu cụ thể cho tên cửa hàng. Để trống để sử dụng màu văn bản của chân trang."
+      },
+      "branding": {
+        "copyright_heading": "Thông báo bản quyền",
+        "copyright_description": "Tùy chỉnh văn bản ghi nhận ở dưới cùng.",
+        "copyright_text_label": "Văn bản bản quyền tùy chỉnh",
+        "copyright_text_hint": "Hỗ trợ văn bản thuần túy. Để trống để tự động tạo dựa trên tên trang web của bạn.",
+        "copyright_color_label": "Màu văn bản bản quyền",
+        "copyright_color_hint": "Hỗ trợ HEX hoặc RGB. Để trống để khớp với màu văn bản bị mờ của chân trang.",
+        "copyright_text_placeholder": "© 2026 Cửa hàng của bạn. Bảo lưu mọi quyền."
       },
       "newsletter": {
         "enable": "Hiện form đăng ký email",

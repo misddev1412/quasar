@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { z } from 'zod';
-import { FileText, Globe, DollarSign, List, Image } from 'lucide-react';
+import { FileText, Globe, DollarSign, List } from 'lucide-react';
 import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
 import { FormTabConfig, FormSubmitAction } from '@admin/types/forms';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '@admin/hooks/useLanguages';
@@ -15,7 +16,7 @@ const serviceSchema = z.object({
     content: z.string().optional(),
 
     // Settings
-    unitPrice: z.number().min(0),
+    unitPrice: z.coerce.number().min(0),
     isContactPrice: z.boolean(),
     isActive: z.boolean(),
     thumbnail: z.string().optional(),
@@ -98,18 +99,55 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                             type: 'text',
                             required: true,
                             placeholder: t('services.name_placeholder', 'e.g. Premium Cleaning'),
+                            rightElement: (
+                                <FormAIGenerator
+                                    targetFieldName="name"
+                                    sourceFieldName="content"
+                                    targetLabel={t('services.name', 'Service Name')}
+                                    sourceLabel={t('services.content', 'Full Content')}
+                                    entityType="product"
+                                    contentType="title"
+                                />
+                            ),
+                            rightElementPosition: 'inside-input',
                         },
                         {
                             name: 'description',
                             label: t('services.description', 'Short Description'),
                             type: 'textarea',
                             rows: 3,
+                            rightElement: (
+                                <FormAIGenerator
+                                    targetFieldName="description"
+                                    sourceFieldName="name"
+                                    targetLabel={t('services.description', 'Short Description')}
+                                    sourceLabel={t('services.name', 'Service Name')}
+                                    entityType="product"
+                                    contentType="description"
+                                    allowImages={false}
+                                    allowProductLinks={false}
+                                    allowLengthOptions={false}
+                                    allowStyleOptions={false}
+                                    plainTextOutput={true}
+                                    stripHtmlOutput={true}
+                                />
+                            ),
                         },
                         {
                             name: 'content',
                             label: t('services.content', 'Full Content'),
                             type: 'richtext',
                             minHeight: '500px',
+                            rightElement: (
+                                <FormAIGenerator
+                                    targetFieldName="content"
+                                    sourceFieldName="name"
+                                    targetLabel={t('services.content', 'Full Content')}
+                                    sourceLabel={t('services.name', 'Service Name')}
+                                    entityType="product"
+                                    contentType="description"
+                                />
+                            ),
                         },
                         {
                             name: 'isActive',
@@ -198,10 +236,29 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     ];
 
     const handleFormSubmit = async (data: any) => {
+        const normalizedItems = (items || []).map((item: any, index: number) => ({
+            ...item,
+            price: item?.price !== undefined && item?.price !== null && item?.price !== ''
+                ? Number(item.price)
+                : undefined,
+            sortOrder: item?.sortOrder !== undefined && item?.sortOrder !== null && item?.sortOrder !== ''
+                ? Number(item.sortOrder)
+                : index,
+            translations: Array.isArray(item?.translations)
+                ? item.translations.map((tr: any) => ({
+                    locale: tr?.locale || '',
+                    name: tr?.name || '',
+                    description: tr?.description || '',
+                })).filter((tr: any) => tr.locale && tr.locale.length >= 2)
+                : [],
+        }));
+
         // Merge state
         const submissionData = {
             ...data,
-            items,
+            unitPrice: Number(data.unitPrice ?? 0),
+            currencyId: data.currencyId || undefined,
+            items: normalizedItems,
             additionalTranslations,
             // Prepare translations for backend
             translations: [
@@ -212,7 +269,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                     content: data.content
                 },
                 ...additionalTranslations
-            ]
+            ].filter((tr: any) => tr?.locale && String(tr.locale).length >= 2)
         };
 
         // Pass the current submit action from the ref (which EntityForm updates)

@@ -409,9 +409,13 @@ const Footer: React.FC<FooterProps> = ({
   const brandTitle = footerConfig.brandTitle?.trim() || siteName;
   const brandDescription = footerConfig.brandDescription || propDescription;
   const brandDescriptionColor = footerConfig.brandDescriptionColor?.trim();
+  const brandTitleColor = footerConfig.brandTitleColor?.trim();
+  const copyrightTextValue = footerConfig.copyrightText?.trim();
+  const copyrightColorValue = footerConfig.copyrightColor?.trim();
   const getTextStyle = (opacity = 1): React.CSSProperties | undefined =>
     customTextColor ? { color: customTextColor, opacity } : undefined;
   const brandDescriptionStyle = brandDescriptionColor ? { color: brandDescriptionColor } : getTextStyle(0.8);
+  const brandTitleStyle = brandTitleColor ? { color: brandTitleColor } : getTextStyle();
   const variant = footerConfig.variant ?? 'columns';
   const theme = footerConfig.theme ?? 'dark';
   const shouldShowLogo = footerConfig.showBrandLogo !== false;
@@ -420,7 +424,8 @@ const Footer: React.FC<FooterProps> = ({
   const logoSize = clampLogoSize(footerConfig.logoSize);
   const isFullWidthLogo = footerConfig.logoFullWidth === true;
   const copyrightText =
-    propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
+    copyrightTextValue || propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
+  const copyrightStyle = copyrightColorValue ? { color: copyrightColorValue } : getTextStyle(0.75);
   const linkStyle = customTextColor ? { color: customTextColor } : undefined;
   const rootStyle =
     customBackgroundColor || customTextColor
@@ -801,20 +806,23 @@ const Footer: React.FC<FooterProps> = ({
               </div>
             )}
             {shouldShowBrandTitle && (
-              <p className="text-lg font-semibold" style={getTextStyle()}>
+              <p className="text-lg font-semibold" style={brandTitleStyle}>
                 {brandTitle}
               </p>
             )}
           </div>
         )}
         {footerConfig.showBrandDescription && brandDescription && (
-          <p className={clsx('text-sm max-w-md', themeClasses.subtle)} style={brandDescriptionStyle}>
+          <p
+            className={clsx('text-sm max-w-md', !(brandDescriptionColor || customTextColor) && themeClasses.subtle)}
+            style={brandDescriptionStyle}
+          >
             {brandDescription}
           </p>
         )}
         {footerConfig.customHtml && (
           <div
-            className={clsx('text-sm leading-relaxed', themeClasses.subtle)}
+            className={clsx('text-sm leading-relaxed', !(brandDescriptionColor || customTextColor) && themeClasses.subtle)}
             style={brandDescriptionStyle}
             dangerouslySetInnerHTML={{ __html: footerConfig.customHtml }}
           />
@@ -833,7 +841,10 @@ const Footer: React.FC<FooterProps> = ({
         themeClasses.divider
       )}
     >
-      <p className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
+      <p
+        className={clsx('text-sm', !(copyrightColorValue || customTextColor) && themeClasses.subtle)}
+        style={copyrightStyle}
+      >
         {copyrightText}
       </p>
       <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -855,14 +866,21 @@ const Footer: React.FC<FooterProps> = ({
     const analyticsBackgroundColor =
       visitorAnalyticsConfig.backgroundColor?.trim() || customBackgroundColor || '';
     const sectionBorderClass = isDark ? 'border-gray-800/70' : 'border-gray-200';
-    const cardBgClass = isDark
-      ? 'bg-gray-900/70 text-gray-100 border-white/10'
-      : 'bg-white text-gray-900 border-gray-200';
-    const labelClass = isDark ? 'text-gray-400' : 'text-gray-600';
-    const helperClass = 'text-gray-500';
-    const iconBaseClass = isDark
-      ? 'bg-white/10 text-white border border-white/15'
-      : 'bg-blue-50 text-blue-600 border border-blue-100';
+    const customCardBg = visitorAnalyticsConfig.cardBackgroundColor?.trim();
+    const customCardText = visitorAnalyticsConfig.cardTextColor?.trim();
+
+    const cardBgClass = customCardBg || customCardText
+      ? isDark ? 'border-white/10' : 'border-gray-200'
+      : isDark
+        ? 'bg-gray-900/70 text-gray-100 border-white/10'
+        : 'bg-white text-gray-900 border-gray-200';
+    const labelClass = customCardText ? 'opacity-80' : isDark ? 'text-gray-400' : 'text-gray-600';
+    const helperClass = customCardText ? 'opacity-70' : 'text-gray-500';
+    const iconBaseClass = customCardBg || customCardText
+      ? 'border border-current opacity-90'
+      : isDark
+        ? 'bg-white/10 text-white border border-white/15'
+        : 'bg-blue-50 text-blue-600 border border-blue-100';
     const sectionBackgroundClass = analyticsBackgroundColor
       ? ''
       : isDark
@@ -988,6 +1006,10 @@ const Footer: React.FC<FooterProps> = ({
                       'flex h-full flex-col gap-2 rounded-2xl border px-4 py-3 shadow-sm',
                       cardBgClass
                     )}
+                    style={{
+                      ...(customCardBg ? { backgroundColor: customCardBg } : {}),
+                      ...(customCardText ? { color: customCardText } : {}),
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <div className={clsx('flex h-10 w-10 items-center justify-center rounded-full', iconBaseClass)}>
@@ -1039,7 +1061,10 @@ const Footer: React.FC<FooterProps> = ({
                 </div>
               ))
             ) : (
-              <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
+              <div
+                className={clsx('text-sm', !customTextColor && themeClasses.subtle)}
+                style={getTextStyle(0.75)}
+              >
                 No footer links yet. Add them in the storefront footer settings.
               </div>
             )}
@@ -1069,11 +1094,11 @@ const Footer: React.FC<FooterProps> = ({
                 {renderColumnSections(column)}
               </div>
             ))
-            ) : (
-              <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
-                No footer links yet. Add them in the storefront footer settings.
-              </div>
-            )}
+          ) : (
+            <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
+              No footer links yet. Add them in the storefront footer settings.
+            </div>
+          )}
         </div>
         {renderFooterBottom()}
       </div>
@@ -1090,7 +1115,10 @@ const Footer: React.FC<FooterProps> = ({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             {footerLogoNode && <div className="w-10 h-10 shrink-0">{footerLogoNode}</div>}
-            <p className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
+            <p
+              className={clsx('text-sm', !(copyrightColorValue || customTextColor) && themeClasses.subtle)}
+              style={copyrightStyle}
+            >
               {copyrightText}
             </p>
           </div>

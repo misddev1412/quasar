@@ -170,6 +170,8 @@ const normalizeVisitorAnalyticsState = (config?: VisitorAnalyticsConfig): Visito
     enabled: base.enabled ?? DEFAULT_VISITOR_ANALYTICS_CONFIG.enabled,
     columns,
     backgroundColor: base.backgroundColor?.trim() || '',
+    cardBackgroundColor: base.cardBackgroundColor?.trim() || '',
+    cardTextColor: base.cardTextColor?.trim() || '',
     cards: ensureVisitorAnalyticsCards(base.cards, columns),
   };
 };
@@ -359,6 +361,12 @@ const FooterSettingsForm: React.FC = () => {
     () => draft.brandTitle?.trim() || t('storefront.footer.brand.preview_title', 'Your store name'),
     [draft.brandTitle, t]
   );
+  const brandTitleColorValue = draft.brandTitleColor?.trim() || '';
+  const previewBrandTitleColor = useMemo(
+    () => brandTitleColorValue || previewTextColor,
+    [brandTitleColorValue, previewTextColor]
+  );
+  const hasCustomBrandTitleColor = Boolean(brandTitleColorValue);
   const previewBrandDescription = useMemo(
     () =>
       draft.brandDescription?.trim() ||
@@ -374,6 +382,12 @@ const FooterSettingsForm: React.FC = () => {
     [brandDescriptionColorValue, previewTextColor]
   );
   const hasCustomBrandDescriptionColor = Boolean(brandDescriptionColorValue);
+  const copyrightColorValue = draft.copyrightColor?.trim() || '';
+  const previewCopyrightColor = useMemo(
+    () => copyrightColorValue || previewTextColor,
+    [copyrightColorValue, previewTextColor]
+  );
+  const hasCustomCopyrightColor = Boolean(copyrightColorValue);
   const previewLogoSizeLabel = isLogoFullWidth
     ? t('storefront.footer.brand.logo_full_width_badge', 'Full width (100%)')
     : `${previewLogoSize}px`;
@@ -719,6 +733,20 @@ const FooterSettingsForm: React.FC = () => {
     }));
   };
 
+  const handleVisitorAnalyticsCardBackgroundChange = (value: string) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      cardBackgroundColor: value,
+    }));
+  };
+
+  const handleVisitorAnalyticsCardTextChange = (value: string) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      cardTextColor: value,
+    }));
+  };
+
   const handleVisitorAnalyticsColumnsChange = (value: number) => {
     updateVisitorAnalytics((current) => ({
       ...current,
@@ -808,20 +836,20 @@ const FooterSettingsForm: React.FC = () => {
       menuColumns: prev.menuColumns.map((column) =>
         column.id === columnId
           ? {
-              ...column,
-              links: [
-                ...(column.links || []),
-                {
-                  id: generateId(),
-                  label: t('storefront.footer.menu_links.new_label', 'New link'),
-                  url: '',
-                  linkType: 'external',
-                  referenceId: '',
-                  target: '_self',
-                  isActive: true,
-                },
-              ],
-            }
+            ...column,
+            links: [
+              ...(column.links || []),
+              {
+                id: generateId(),
+                label: t('storefront.footer.menu_links.new_label', 'New link'),
+                url: '',
+                linkType: 'external',
+                referenceId: '',
+                target: '_self',
+                isActive: true,
+              },
+            ],
+          }
           : column
       ),
     }));
@@ -962,6 +990,8 @@ const FooterSettingsForm: React.FC = () => {
       ),
       widget: sanitizeWidgetConfig(draft.widget),
       visitorAnalytics: visitorAnalyticsDraft,
+      copyrightText: draft.copyrightText?.trim() || '',
+      copyrightColor: draft.copyrightColor?.trim() || '',
     };
     const normalizedPayload = createFooterConfig(payload);
 
@@ -1151,7 +1181,13 @@ const FooterSettingsForm: React.FC = () => {
                         {t('storefront.footer.brand.preview_badge', 'Live footer preview')}
                       </span>
                       {draft.showBrandTitle !== false && (
-                        <p className="text-lg font-semibold break-words" style={{ color: previewTextColor }}>
+                        <p
+                          className="text-lg font-semibold break-words"
+                          style={{
+                            color: previewBrandTitleColor,
+                            opacity: hasCustomBrandTitleColor ? 1 : 1,
+                          }}
+                        >
                           {previewBrandTitle}
                         </p>
                       )}
@@ -1314,6 +1350,20 @@ const FooterSettingsForm: React.FC = () => {
               {t('storefront.footer.brand.title_override_hint', 'Leave blank to reuse the primary site name.')}
             </span>
           </label>
+          <div className="space-y-1">
+            <ColorSelector
+              label={t('storefront.footer.brand.title_color', 'Brand title color')}
+              value={draft.brandTitleColor || ''}
+              onChange={(color) => handleUpdate('brandTitleColor', color || '')}
+              placeholder="#FFFFFF"
+            />
+            <p className="text-xs text-gray-500">
+              {t(
+                'storefront.footer.brand.title_color_hint',
+                'Set a specific color for the store name. Leave blank to inherit the footer text color.'
+              )}
+            </p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Toggle
               checked={draft.showBrandLogo !== false}
@@ -1456,265 +1506,86 @@ const FooterSettingsForm: React.FC = () => {
               widget: t('storefront.footer.menu_columns.section_order.widget', 'Embed'),
             };
             return (
-            <div key={column.id} className="rounded-xl border border-gray-100 p-4 shadow-sm space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {t('storefront.footer.menu_columns.column_label', 'Column {{index}}', {
-                      index: columnIndex + 1,
-                    })}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {t('storefront.footer.menu_columns.column_hint', 'Add a heading and a list of links.')}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => moveMenuColumn(columnIndex, -1)}
-                    disabled={columnIndex === 0}
-                    aria-label={t('common.move_up', 'Move up')}
-                  >
-                    <FiArrowUp />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => moveMenuColumn(columnIndex, 1)}
-                    disabled={columnIndex === draft.menuColumns.length - 1}
-                    aria-label={t('common.move_down', 'Move down')}
-                  >
-                    <FiArrowDown />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeMenuColumn(column.id)}
-                    aria-label={t('common.remove', 'Remove')}
-                  >
-                    <FiTrash2 />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                  {t('storefront.footer.menu_columns.title', 'Column title')}
-                  <Input
-                    value={column.title || ''}
-                    onChange={(event) => handleMenuColumnUpdate(column.id, { title: event.target.value })}
-                    className="text-sm"
-                    placeholder={t('storefront.footer.menu_columns.title_placeholder', 'Customer service')}
-                  />
-                </label>
-                <Toggle
-                  checked={column.isActive !== false}
-                  onChange={(checked) => handleMenuColumnUpdate(column.id, { isActive: checked })}
-                  label={t('storefront.footer.menu_columns.visible', 'Visible')}
-                  description={t('storefront.footer.menu_columns.visible_hint', 'Hide the column without deleting it.')}
-                />
-              </div>
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-3">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {t('storefront.footer.menu_columns.section_order.heading', 'Section order')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {t(
-                      'storefront.footer.menu_columns.section_order.description',
-                      'Reorder the links, custom HTML, and embed blocks inside this column.'
-                    )}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  {sectionOrder.map((section, index) => (
-                    <div key={section} className="flex items-center justify-between gap-2">
-                      <span className="text-sm text-gray-700">{sectionLabels[section]}</span>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveMenuColumnSection(column.id, section, -1)}
-                          disabled={index === 0}
-                          aria-label={t('common.move_up', 'Move up')}
-                        >
-                          <FiArrowUp />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveMenuColumnSection(column.id, section, 1)}
-                          disabled={index === sectionOrder.length - 1}
-                          aria-label={t('common.move_down', 'Move down')}
-                        >
-                          <FiArrowDown />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex flex-col gap-1 text-sm text-gray-600">
-                  <span className="font-medium">
-                    {t('storefront.footer.menu_columns.custom_html', 'Custom HTML (optional)')}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {t(
-                      'storefront.footer.menu_columns.custom_html_description',
-                      'Add a small HTML block below the column links.'
-                    )}
-                  </span>
-                </div>
-                <SimpleRichTextEditor
-                  value={column.customHtml || ''}
-                  onChange={(value) => handleMenuColumnUpdate(column.id, { customHtml: value })}
-                  placeholder="<p>Custom HTML block...</p>"
-                  minHeight={140}
-                />
-                <p className="text-xs text-gray-400">
-                  {t(
-                    'storefront.footer.menu_columns.custom_html_hint',
-                    'Basic formatting only. For full control, use the Code view.'
-                  )}
-                </p>
-              </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {t('storefront.footer.menu_links.heading', 'Links')}
-                  </p>
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  startIcon={<FiPlus />}
-                  onClick={() => addMenuLink(column.id)}
-                >
-                  {t('storefront.footer.menu_links.add', 'Add link')}
-                </Button>
-              </div>
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {t('storefront.footer.menu_columns.widget.heading', 'Embedded content')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {t(
-                      'storefront.footer.menu_columns.widget.description',
-                      'Show a Google Map or Facebook fanpage inside this column.'
-                    )}
-                  </p>
-                </div>
-                <Select
-                  label={t('storefront.footer.menu_columns.widget.label', 'Embed type')}
-                  value={widgetMode}
-                  onChange={(value) => {
-                    if (value === 'none') {
-                      handleMenuColumnWidgetUpdate(column.id, { enabled: false });
-                    } else {
-                      handleMenuColumnWidgetUpdate(column.id, {
-                        enabled: true,
-                        type: value as FooterWidgetConfig['type'],
-                      });
-                    }
-                  }}
-                  options={columnWidgetOptions}
-                />
-                {columnWidget.enabled && (
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                      {t('storefront.footer.menu_columns.widget.height', 'Embed height (px)')}
-                      <Input
-                        type="number"
-                        min={160}
-                        max={640}
-                        inputSize="md"
-                        value={columnWidget.height ?? 280}
-                        onChange={(event) =>
-                          handleMenuColumnWidgetUpdate(column.id, {
-                            height: Number(event.target.value) || columnWidget.height,
-                          })
-                        }
-                        className="text-sm"
-                      />
-                    </label>
-                    {columnWidget.type === 'google_map' && (
-                      <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
-                        {t('storefront.footer.menu_columns.widget.map_url', 'Google Maps embed URL')}
-                        <Input
-                          value={columnWidget.googleMapEmbedUrl || ''}
-                          onChange={(event) =>
-                            handleMenuColumnWidgetUpdate(column.id, {
-                              googleMapEmbedUrl: event.target.value,
-                            })
-                          }
-                          placeholder="https://www.google.com/maps/embed?pb=..."
-                          className="text-sm"
-                        />
-                        <span className="text-xs text-gray-400">
-                          {t(
-                            'storefront.footer.menu_columns.widget.map_hint',
-                            'Use the URL from Google Maps → Share → Embed a map.'
-                          )}
-                        </span>
-                      </label>
-                    )}
-                    {columnWidget.type === 'facebook_page' && (
-                      <>
-                        <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
-                          {t('storefront.footer.menu_columns.widget.facebook_url', 'Facebook fanpage URL')}
-                          <Input
-                            value={columnWidget.facebookPageUrl || ''}
-                            onChange={(event) =>
-                              handleMenuColumnWidgetUpdate(column.id, {
-                                facebookPageUrl: event.target.value,
-                              })
-                            }
-                            placeholder="https://facebook.com/your-page"
-                            className="text-sm"
-                          />
-                        </label>
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                          {t('storefront.footer.menu_columns.widget.facebook_tabs', 'Tabs (optional)')}
-                          <Input
-                            value={columnWidget.facebookTabs || ''}
-                            onChange={(event) =>
-                              handleMenuColumnWidgetUpdate(column.id, {
-                                facebookTabs: event.target.value,
-                              })
-                            }
-                            placeholder="timeline, messages"
-                            className="text-sm"
-                          />
-                          <span className="text-xs text-gray-400">
-                            {t(
-                              'storefront.footer.menu_columns.widget.facebook_tabs_hint',
-                              'Comma-separated list. Default is "timeline".'
-                            )}
-                          </span>
-                        </label>
-                      </>
-                    )}
+              <div key={column.id} className="rounded-xl border border-gray-100 p-4 shadow-sm space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {t('storefront.footer.menu_columns.column_label', 'Column {{index}}', {
+                        index: columnIndex + 1,
+                      })}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {t('storefront.footer.menu_columns.column_hint', 'Add a heading and a list of links.')}
+                    </p>
                   </div>
-                )}
-              </div>
-              <div className="space-y-3">
-                {column.links && column.links.length > 0 ? (
-                  column.links.map((link, linkIndex) => {
-                    const linkType = link.linkType || 'external';
-                    return (
-                    <div key={link.id} className="rounded-lg border border-gray-100 p-4 shadow-sm">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-medium text-gray-900">
-                          {t('storefront.footer.menu_links.item_label', 'Link {{index}}', {
-                            index: linkIndex + 1,
-                          })}
-                        </p>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveMenuColumn(columnIndex, -1)}
+                      disabled={columnIndex === 0}
+                      aria-label={t('common.move_up', 'Move up')}
+                    >
+                      <FiArrowUp />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveMenuColumn(columnIndex, 1)}
+                      disabled={columnIndex === draft.menuColumns.length - 1}
+                      aria-label={t('common.move_down', 'Move down')}
+                    >
+                      <FiArrowDown />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeMenuColumn(column.id)}
+                      aria-label={t('common.remove', 'Remove')}
+                    >
+                      <FiTrash2 />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('storefront.footer.menu_columns.title', 'Column title')}
+                    <Input
+                      value={column.title || ''}
+                      onChange={(event) => handleMenuColumnUpdate(column.id, { title: event.target.value })}
+                      className="text-sm"
+                      placeholder={t('storefront.footer.menu_columns.title_placeholder', 'Customer service')}
+                    />
+                  </label>
+                  <Toggle
+                    checked={column.isActive !== false}
+                    onChange={(checked) => handleMenuColumnUpdate(column.id, { isActive: checked })}
+                    label={t('storefront.footer.menu_columns.visible', 'Visible')}
+                    description={t('storefront.footer.menu_columns.visible_hint', 'Hide the column without deleting it.')}
+                  />
+                </div>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {t('storefront.footer.menu_columns.section_order.heading', 'Section order')}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'storefront.footer.menu_columns.section_order.description',
+                        'Reorder the links, custom HTML, and embed blocks inside this column.'
+                      )}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {sectionOrder.map((section, index) => (
+                      <div key={section} className="flex items-center justify-between gap-2">
+                        <span className="text-sm text-gray-700">{sectionLabels[section]}</span>
                         <div className="flex gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => moveMenuLink(column.id, linkIndex, -1)}
-                            disabled={linkIndex === 0}
+                            onClick={() => moveMenuColumnSection(column.id, section, -1)}
+                            disabled={index === 0}
                             aria-label={t('common.move_up', 'Move up')}
                           >
                             <FiArrowUp />
@@ -1722,151 +1593,330 @@ const FooterSettingsForm: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => moveMenuLink(column.id, linkIndex, 1)}
-                            disabled={linkIndex === (column.links?.length || 0) - 1}
+                            onClick={() => moveMenuColumnSection(column.id, section, 1)}
+                            disabled={index === sectionOrder.length - 1}
                             aria-label={t('common.move_down', 'Move down')}
                           >
                             <FiArrowDown />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeMenuLink(column.id, link.id)}
-                            aria-label={t('common.remove', 'Remove')}
-                          >
-                            <FiTrash2 />
-                          </Button>
                         </div>
                       </div>
-                      <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        <Select
-                          label={t('storefront.footer.menu_links.type', 'Link type')}
-                          value={linkType}
-                          onChange={(value) =>
-                            handleMenuLinkUpdate(column.id, link.id, { linkType: value as FooterMenuLinkType })
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex flex-col gap-1 text-sm text-gray-600">
+                    <span className="font-medium">
+                      {t('storefront.footer.menu_columns.custom_html', 'Custom HTML (optional)')}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {t(
+                        'storefront.footer.menu_columns.custom_html_description',
+                        'Add a small HTML block below the column links.'
+                      )}
+                    </span>
+                  </div>
+                  <SimpleRichTextEditor
+                    value={column.customHtml || ''}
+                    onChange={(value) => handleMenuColumnUpdate(column.id, { customHtml: value })}
+                    placeholder="<p>Custom HTML block...</p>"
+                    minHeight={140}
+                  />
+                  <p className="text-xs text-gray-400">
+                    {t(
+                      'storefront.footer.menu_columns.custom_html_hint',
+                      'Basic formatting only. For full control, use the Code view.'
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {t('storefront.footer.menu_links.heading', 'Links')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    startIcon={<FiPlus />}
+                    onClick={() => addMenuLink(column.id)}
+                  >
+                    {t('storefront.footer.menu_links.add', 'Add link')}
+                  </Button>
+                </div>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {t('storefront.footer.menu_columns.widget.heading', 'Embedded content')}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'storefront.footer.menu_columns.widget.description',
+                        'Show a Google Map or Facebook fanpage inside this column.'
+                      )}
+                    </p>
+                  </div>
+                  <Select
+                    label={t('storefront.footer.menu_columns.widget.label', 'Embed type')}
+                    value={widgetMode}
+                    onChange={(value) => {
+                      if (value === 'none') {
+                        handleMenuColumnWidgetUpdate(column.id, { enabled: false });
+                      } else {
+                        handleMenuColumnWidgetUpdate(column.id, {
+                          enabled: true,
+                          type: value as FooterWidgetConfig['type'],
+                        });
+                      }
+                    }}
+                    options={columnWidgetOptions}
+                  />
+                  {columnWidget.enabled && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('storefront.footer.menu_columns.widget.height', 'Embed height (px)')}
+                        <Input
+                          type="number"
+                          min={160}
+                          max={640}
+                          inputSize="md"
+                          value={columnWidget.height ?? 280}
+                          onChange={(event) =>
+                            handleMenuColumnWidgetUpdate(column.id, {
+                              height: Number(event.target.value) || columnWidget.height,
+                            })
                           }
-                          options={menuLinkTypeOptions}
+                          className="text-sm"
                         />
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                          {t('storefront.footer.menu_links.label', 'Label')}
+                      </label>
+                      {columnWidget.type === 'google_map' && (
+                        <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
+                          {t('storefront.footer.menu_columns.widget.map_url', 'Google Maps embed URL')}
                           <Input
-                            value={link.label}
+                            value={columnWidget.googleMapEmbedUrl || ''}
                             onChange={(event) =>
-                              handleMenuLinkUpdate(column.id, link.id, { label: event.target.value })
+                              handleMenuColumnWidgetUpdate(column.id, {
+                                googleMapEmbedUrl: event.target.value,
+                              })
                             }
+                            placeholder="https://www.google.com/maps/embed?pb=..."
                             className="text-sm"
                           />
+                          <span className="text-xs text-gray-400">
+                            {t(
+                              'storefront.footer.menu_columns.widget.map_hint',
+                              'Use the URL from Google Maps → Share → Embed a map.'
+                            )}
+                          </span>
                         </label>
-                        {linkType === 'external' && (
-                          <label className="flex flex-col gap-1 text-sm text-gray-600">
-                            {t('storefront.footer.menu_links.url', 'URL')}
+                      )}
+                      {columnWidget.type === 'facebook_page' && (
+                        <>
+                          <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
+                            {t('storefront.footer.menu_columns.widget.facebook_url', 'Facebook fanpage URL')}
                             <Input
-                              value={link.url}
+                              value={columnWidget.facebookPageUrl || ''}
                               onChange={(event) =>
-                                handleMenuLinkUpdate(column.id, link.id, { url: event.target.value })
+                                handleMenuColumnWidgetUpdate(column.id, {
+                                  facebookPageUrl: event.target.value,
+                                })
                               }
+                              placeholder="https://facebook.com/your-page"
                               className="text-sm"
                             />
                           </label>
-                        )}
-                        {linkType === 'product' && (
-                          <div className="md:col-span-2">
-                            <ProductSelector
-                              value={link.referenceId || undefined}
-                              onChange={(value, option) =>
-                                handleMenuLinkReferenceUpdate(
-                                  column.id,
-                                  link.id,
-                                  link.label,
-                                  value,
-                                  option?.label
-                                )
+                          <label className="flex flex-col gap-1 text-sm text-gray-600">
+                            {t('storefront.footer.menu_columns.widget.facebook_tabs', 'Tabs (optional)')}
+                            <Input
+                              value={columnWidget.facebookTabs || ''}
+                              onChange={(event) =>
+                                handleMenuColumnWidgetUpdate(column.id, {
+                                  facebookTabs: event.target.value,
+                                })
                               }
+                              placeholder="timeline, messages"
+                              className="text-sm"
                             />
-                          </div>
-                        )}
-                        {linkType === 'category' && (
-                          <div className="md:col-span-2">
-                            <CategorySelector
-                              value={link.referenceId || undefined}
-                              onChange={(value, option) =>
-                                handleMenuLinkReferenceUpdate(
-                                  column.id,
-                                  link.id,
-                                  link.label,
-                                  value,
-                                  option?.label
-                                )
-                              }
-                            />
-                          </div>
-                        )}
-                        {linkType === 'post' && (
-                          <div className="md:col-span-2">
-                            <PostSelector
-                              value={link.referenceId || undefined}
-                              onChange={(value, option) =>
-                                handleMenuLinkReferenceUpdate(
-                                  column.id,
-                                  link.id,
-                                  link.label,
-                                  value,
-                                  option?.label
-                                )
-                              }
-                            />
-                          </div>
-                        )}
-                        {linkType === 'site_content' && (
-                          <div className="md:col-span-2">
-                            <SiteContentSelector
-                              value={link.referenceId || undefined}
-                              onChange={(value, option) =>
-                                handleMenuLinkReferenceUpdate(
-                                  column.id,
-                                  link.id,
-                                  link.label,
-                                  value,
-                                  option?.label
-                                )
-                              }
-                              valueType="slug"
-                            />
-                          </div>
-                        )}
-                        <Select
-                          label={t('storefront.footer.menu_links.target', 'Target')}
-                          value={link.target || '_self'}
-                          onChange={(value) =>
-                            handleMenuLinkUpdate(column.id, link.id, { target: value as FooterMenuLinkTarget })
-                          }
-                          options={menuLinkTargetOptions}
-                        />
-                        <Toggle
-                          checked={link.isActive !== false}
-                          onChange={(checked) =>
-                            handleMenuLinkUpdate(column.id, link.id, { isActive: checked })
-                          }
-                          label={t('storefront.footer.menu_links.visible', 'Visible')}
-                          description={t(
-                            'storefront.footer.menu_links.visible_hint',
-                            'Hide without deleting by turning this off.'
-                          )}
-                        />
-                      </div>
+                            <span className="text-xs text-gray-400">
+                              {t(
+                                'storefront.footer.menu_columns.widget.facebook_tabs_hint',
+                                'Comma-separated list. Default is "timeline".'
+                              )}
+                            </span>
+                          </label>
+                        </>
+                      )}
                     </div>
-                    );
-                  })
-                ) : (
-                  <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
-                    {t(
-                      'storefront.footer.menu_links.empty',
-                      'Add at least one link to display this column.'
-                    )}
-                  </p>
-                )}
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {column.links && column.links.length > 0 ? (
+                    column.links.map((link, linkIndex) => {
+                      const linkType = link.linkType || 'external';
+                      return (
+                        <div key={link.id} className="rounded-lg border border-gray-100 p-4 shadow-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-medium text-gray-900">
+                              {t('storefront.footer.menu_links.item_label', 'Link {{index}}', {
+                                index: linkIndex + 1,
+                              })}
+                            </p>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => moveMenuLink(column.id, linkIndex, -1)}
+                                disabled={linkIndex === 0}
+                                aria-label={t('common.move_up', 'Move up')}
+                              >
+                                <FiArrowUp />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => moveMenuLink(column.id, linkIndex, 1)}
+                                disabled={linkIndex === (column.links?.length || 0) - 1}
+                                aria-label={t('common.move_down', 'Move down')}
+                              >
+                                <FiArrowDown />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeMenuLink(column.id, link.id)}
+                                aria-label={t('common.remove', 'Remove')}
+                              >
+                                <FiTrash2 />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="mt-4 grid gap-4 md:grid-cols-2">
+                            <Select
+                              label={t('storefront.footer.menu_links.type', 'Link type')}
+                              value={linkType}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { linkType: value as FooterMenuLinkType })
+                              }
+                              options={menuLinkTypeOptions}
+                            />
+                            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                              {t('storefront.footer.menu_links.label', 'Label')}
+                              <Input
+                                value={link.label}
+                                onChange={(event) =>
+                                  handleMenuLinkUpdate(column.id, link.id, { label: event.target.value })
+                                }
+                                className="text-sm"
+                              />
+                            </label>
+                            {linkType === 'external' && (
+                              <label className="flex flex-col gap-1 text-sm text-gray-600">
+                                {t('storefront.footer.menu_links.url', 'URL')}
+                                <Input
+                                  value={link.url}
+                                  onChange={(event) =>
+                                    handleMenuLinkUpdate(column.id, link.id, { url: event.target.value })
+                                  }
+                                  className="text-sm"
+                                />
+                              </label>
+                            )}
+                            {linkType === 'product' && (
+                              <div className="md:col-span-2">
+                                <ProductSelector
+                                  value={link.referenceId || undefined}
+                                  onChange={(value, option) =>
+                                    handleMenuLinkReferenceUpdate(
+                                      column.id,
+                                      link.id,
+                                      link.label,
+                                      value,
+                                      option?.label
+                                    )
+                                  }
+                                />
+                              </div>
+                            )}
+                            {linkType === 'category' && (
+                              <div className="md:col-span-2">
+                                <CategorySelector
+                                  value={link.referenceId || undefined}
+                                  onChange={(value, option) =>
+                                    handleMenuLinkReferenceUpdate(
+                                      column.id,
+                                      link.id,
+                                      link.label,
+                                      value,
+                                      option?.label
+                                    )
+                                  }
+                                />
+                              </div>
+                            )}
+                            {linkType === 'post' && (
+                              <div className="md:col-span-2">
+                                <PostSelector
+                                  value={link.referenceId || undefined}
+                                  onChange={(value, option) =>
+                                    handleMenuLinkReferenceUpdate(
+                                      column.id,
+                                      link.id,
+                                      link.label,
+                                      value,
+                                      option?.label
+                                    )
+                                  }
+                                />
+                              </div>
+                            )}
+                            {linkType === 'site_content' && (
+                              <div className="md:col-span-2">
+                                <SiteContentSelector
+                                  value={link.referenceId || undefined}
+                                  onChange={(value, option) =>
+                                    handleMenuLinkReferenceUpdate(
+                                      column.id,
+                                      link.id,
+                                      link.label,
+                                      value,
+                                      option?.label
+                                    )
+                                  }
+                                  valueType="slug"
+                                />
+                              </div>
+                            )}
+                            <Select
+                              label={t('storefront.footer.menu_links.target', 'Target')}
+                              value={link.target || '_self'}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { target: value as FooterMenuLinkTarget })
+                              }
+                              options={menuLinkTargetOptions}
+                            />
+                            <Toggle
+                              checked={link.isActive !== false}
+                              onChange={(checked) =>
+                                handleMenuLinkUpdate(column.id, link.id, { isActive: checked })
+                              }
+                              label={t('storefront.footer.menu_links.visible', 'Visible')}
+                              description={t(
+                                'storefront.footer.menu_links.visible_hint',
+                                'Hide without deleting by turning this off.'
+                              )}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
+                      {t(
+                        'storefront.footer.menu_links.empty',
+                        'Add at least one link to display this column.'
+                      )}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
             );
           })}
           {draft.menuColumns.length === 0 && (
@@ -1904,18 +1954,41 @@ const FooterSettingsForm: React.FC = () => {
                 onChange={(value) => handleVisitorAnalyticsColumnsChange(Number(value))}
                 options={visitorAnalyticsColumnOptions}
               />
-              <label className="flex flex-col gap-1 text-sm text-gray-600">
-                {t('storefront.footer.visitor_analytics.background', 'Background color')}
-                <Input
+              <div className="space-y-1">
+                <ColorSelector
+                  label={t('storefront.footer.visitor_analytics.background', 'Background color')}
                   value={visitorAnalyticsDraft.backgroundColor || ''}
-                  onChange={(event) => handleVisitorAnalyticsBackgroundChange(event.target.value)}
+                  onChange={handleVisitorAnalyticsBackgroundChange}
                   placeholder="#0F172A or rgba(15,23,42,0.95)"
-                  className="text-sm"
                 />
-                <span className="text-xs text-gray-400">
+                <p className="text-xs text-gray-500">
                   {t('storefront.footer.visitor_analytics.background_hint', 'Leave blank to reuse the footer colors.')}
-                </span>
-              </label>
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <ColorSelector
+                  label={t('storefront.footer.visitor_analytics.card_bg', 'Card background color')}
+                  value={visitorAnalyticsDraft.cardBackgroundColor || ''}
+                  onChange={handleVisitorAnalyticsCardBackgroundChange}
+                  placeholder="#1E293B or rgba(30,41,59,0.5)"
+                />
+                <p className="text-xs text-gray-500">
+                  {t('storefront.footer.visitor_analytics.card_bg_hint', 'Leave blank for default glassmorphism style.')}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <ColorSelector
+                  label={t('storefront.footer.visitor_analytics.card_text', 'Card text color')}
+                  value={visitorAnalyticsDraft.cardTextColor || ''}
+                  onChange={handleVisitorAnalyticsCardTextChange}
+                  placeholder="#FFFFFF"
+                />
+                <p className="text-xs text-gray-500">
+                  {t('storefront.footer.visitor_analytics.card_text_hint', 'Leave blank to match the general footer text.')}
+                </p>
+              </div>
             </div>
             <div className="space-y-3">
               {visitorAnalyticsDraft.cards.map((card, index) => (
@@ -2235,6 +2308,45 @@ const FooterSettingsForm: React.FC = () => {
               {t('storefront.footer.links.empty', 'Add at least one link for privacy, terms, or support pages.')}
             </p>
           )}
+        </div>
+        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-4">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">
+              {t('storefront.footer.branding.copyright_heading', 'Copyright notice')}
+            </p>
+            <p className="text-xs text-gray-500">
+              {t(
+                'storefront.footer.branding.copyright_description',
+                'Customize the attribution text shown at the very bottom.'
+              )}
+            </p>
+          </div>
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('storefront.footer.branding.copyright_text_label', 'Custom copyright text')}
+            <Input
+              value={draft.copyrightText || ''}
+              onChange={(event) => handleUpdate('copyrightText', event.target.value)}
+              placeholder={t('storefront.footer.branding.copyright_text_placeholder', '© 2026 Your Store. All rights reserved.')}
+              className="text-sm"
+            />
+            <span className="text-xs text-gray-400">
+              {t('storefront.footer.branding.copyright_text_hint', 'Supports plain text. Leave blank to auto-generate based on your site name.')}
+            </span>
+          </label>
+          <div className="space-y-1">
+            <ColorSelector
+              label={t('storefront.footer.branding.copyright_color_label', 'Copyright text color')}
+              value={draft.copyrightColor || ''}
+              onChange={(color) => handleUpdate('copyrightColor', color || '')}
+              placeholder="#94A3B8"
+            />
+            <p className="text-xs text-gray-500">
+              {t(
+                'storefront.footer.branding.copyright_color_hint',
+                'Supports HEX or RGB. Leave blank to match the general muted footer text.'
+              )}
+            </p>
+          </div>
         </div>
       </div>
 

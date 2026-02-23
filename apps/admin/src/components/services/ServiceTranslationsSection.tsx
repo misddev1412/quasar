@@ -101,6 +101,11 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
                         placeholder: t('services.name_placeholder', 'e.g. Premium Cleaning'),
                         required: true,
                         disabled: readonly,
+                        aiGenerator: {
+                            entityType: 'product',
+                            contentType: 'title',
+                            sourceFieldName: 'content',
+                        },
                     },
                     {
                         name: 'description',
@@ -112,6 +117,16 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
                         required: false,
                         rows: 3,
                         disabled: readonly,
+                        aiGenerator: {
+                            entityType: 'product',
+                            contentType: 'description',
+                            sourceFieldName: 'name',
+                            allowImages: false,
+                            allowProductLinks: false,
+                            allowLengthOptions: false,
+                            allowStyleOptions: false,
+                            plainTextOutput: true,
+                        },
                     },
                     {
                         name: 'content',
@@ -123,6 +138,11 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
                         required: false,
                         minHeight: '500px',
                         disabled: readonly,
+                        aiGenerator: {
+                            entityType: 'product',
+                            contentType: 'description',
+                            sourceFieldName: 'name',
+                        },
                     },
                 ]}
             />
