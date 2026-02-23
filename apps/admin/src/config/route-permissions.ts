@@ -49,6 +49,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Analytics
   '/analytics': { resource: 'analytics', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/visitor-analytics': { resource: 'analytics', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/pagespeed': { resource: 'pagespeed', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Storage
   '/storage': { resource: 'storage', action: PermissionAction.READ, scope: PermissionScope.ANY },

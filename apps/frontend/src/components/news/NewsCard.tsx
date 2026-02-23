@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useLocalePath } from '../../lib/routing';
 
 export interface NewsCardItem {
   id: string;
@@ -66,6 +67,7 @@ export interface NewsCardProps {
 
 export const NewsCard: React.FC<NewsCardProps> = ({ item, config, className }) => {
   const merged = { ...DEFAULT_CONFIG, ...config };
+  const { createNewsUrl } = useLocalePath();
   const metadata = [
     merged.showCategory ? item.category : undefined,
     merged.showPublishDate && item.publishDate ? new Date(item.publishDate).toLocaleDateString() : undefined,
@@ -87,7 +89,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ item, config, className }) =
         className,
       )}
     >
-      <Link href={`/news/${item.slug}`} className="flex h-full flex-col">
+      <Link href={createNewsUrl(item.slug)} className="flex h-full flex-col">
         {merged.imageHeight && (
           <div
             className={clsx(

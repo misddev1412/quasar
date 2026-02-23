@@ -30,6 +30,8 @@ export interface FormAIGeneratorProps {
     allowStyleOptions?: boolean;
     /** Optional flag to strip HTML tags from generated content */
     stripHtmlOutput?: boolean;
+    /** Optional flag to sanitize generated content as strict plain text */
+    plainTextOutput?: boolean;
 
     variant?: 'default' | 'icon';
 }
@@ -48,6 +50,7 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
     allowProductLinks,
     allowStyleOptions,
     stripHtmlOutput,
+    plainTextOutput,
     variant = 'icon',
 }) => {
     const { setValue, watch } = useFormContext();
@@ -60,6 +63,15 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
     const cleanText = (text: any): string => {
         if (typeof text !== 'string') return '';
         return text.replace(/<[^>]*>?/gm, '').trim();
+    };
+
+    const sanitizePlainText = (text: string): string => {
+        return cleanText(text)
+            .replace(/https?:\/\/\S+/gi, '')
+            .replace(/www\.\S+/gi, '')
+            .replace(/\[[^\]]+\]\([^\)]+\)/g, '$1')
+            .replace(/\s+/g, ' ')
+            .trim();
     };
 
     const targetText = cleanText(targetValue);
@@ -75,7 +87,9 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
         : (sourceLabel ? `${sourceLabel} (to ${contentType === 'title' ? 'summarize' : 'expand'})` : `Context for ${targetLabel}`);
 
     const applyOutput = (text: string) => {
-        const nextValue = stripHtmlOutput ? cleanText(text) : text;
+        const nextValue = plainTextOutput
+            ? sanitizePlainText(text)
+            : (stripHtmlOutput ? cleanText(text) : text);
         setValue(targetFieldName, nextValue, { shouldDirty: true, shouldValidate: true });
     };
 
@@ -90,6 +104,7 @@ export const FormAIGenerator: React.FC<FormAIGeneratorProps> = ({
             allowLengthOptions={allowLengthOptions}
             allowProductLinks={allowProductLinks}
             allowStyleOptions={allowStyleOptions}
+            plainTextOutput={plainTextOutput}
             onGenerate={applyOutput}
             variant={variant}
             availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))}

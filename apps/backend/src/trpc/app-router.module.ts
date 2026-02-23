@@ -3,6 +3,7 @@ import { ProductsModule } from '@backend/modules/products/products.module';
 import { ProductBundlesModule } from '@backend/modules/product-bundles/product-bundles.module';
 import { FirebaseModule } from '@backend/modules/firebase/firebase.module';
 import { OpenAiModule } from '@backend/modules/openai/openai.module';
+import { PageSpeedModule } from '@backend/modules/pagespeed/pagespeed.module';
 import { AuthModule } from '@backend/auth/auth.module';
 import { UserModule } from '@backend/modules/user/user.module';
 import { PostsModule } from '@backend/modules/posts/posts.module';
@@ -61,6 +62,7 @@ import { AdminThemesRouter } from '@backend/modules/themes/routers/admin-themes.
 import { PublicThemesRouter } from '@backend/modules/themes/routers/public-themes.router';
 import { AdminProductBundlesRouter } from '@backend/modules/product-bundles/routers/admin-product-bundles.router';
 import { AdminOpenAiConfigRouter } from '@backend/modules/openai/routers/admin-openai-config.router';
+import { AdminPageSpeedRouter } from '@backend/modules/pagespeed/routers/admin-page-speed.router';
 import { ImportModule } from '@backend/modules/import/import.module';
 import { AdminImportRouter } from '@backend/modules/import/routers/admin-import.router';
 import { NewsletterModule } from '@backend/modules/newsletter/newsletter.module';
@@ -72,6 +74,7 @@ import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.
     ProductsModule,
     FirebaseModule,
     OpenAiModule,
+    PageSpeedModule,
     AuthModule,
     UserModule,
     PostsModule,
@@ -138,9 +141,9 @@ import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.
     AdminProductBundlesRouter,
     AdminProductBundlesRouter,
     AdminOpenAiConfigRouter,
+    AdminPageSpeedRouter,
     AdminImportRouter,
     ClientNewsletterRouter,
   ],
 })
 export class AppRouterModule { }
-

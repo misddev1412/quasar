@@ -55,6 +55,7 @@ const EditPostPage: React.FC = () => {
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
   const [showMediaManager, setShowMediaManager] = useState(false);
+  const trpcContext = trpc.useContext();
   const lastSubmitActionRef = useRef<FormSubmitAction>('save');
   const { user } = useAuth();
   const location = useLocation();
@@ -84,7 +85,13 @@ const EditPostPage: React.FC = () => {
 
   // tRPC mutation for updating post
   const updatePostMutation = trpc.adminPosts.updatePost.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Invalidate both list and detail queries
+      await Promise.all([
+        trpcContext.adminPosts.getPosts.invalidate(),
+        id ? trpcContext.adminPosts.getPostById.invalidate({ id: id as string }) : Promise.resolve(),
+      ]);
+
       addToast({
         type: 'success',
         title: t('posts.updateSuccess'),

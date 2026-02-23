@@ -46,11 +46,15 @@ const CreatePostPage: React.FC = () => {
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
   const [showMediaManager, setShowMediaManager] = useState(false);
+  const trpcContext = trpc.useContext();
   const lastSubmitActionRef = useRef<FormSubmitAction>('save');
 
   // tRPC mutation for creating post
   const createPostMutation = trpc.adminPosts.createPost.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Invalidate posts list query
+      await trpcContext.adminPosts.getPosts.invalidate();
+
       addToast({
         type: 'success',
         title: t('posts.createSuccess'),

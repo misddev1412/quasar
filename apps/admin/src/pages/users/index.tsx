@@ -223,12 +223,9 @@ const UserListPage = () => {
       if (!sessionData?.accessToken) {
         throw new Error(t('users.errors.missing_impersonation_token', 'Unable to start impersonation session. Please try again later.'));
       }
-
-      const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || 'http://localhost:4200';
-      const redirectUrl = `${storeUrl}/api/auth/impersonate?token=${encodeURIComponent(sessionData.accessToken)}`;
-
-      // Open in new tab
-      window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+      // Redirect to storefront - tokens are now passed via cookies
+      const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || 'http://localhost:3001';
+      window.open(storeUrl, '_blank');
 
       addToast({ type: 'success', title: t('users.confirmations.login_success', 'Login successful') });
     } catch (e: unknown) {

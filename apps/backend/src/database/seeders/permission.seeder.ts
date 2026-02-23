@@ -320,6 +320,21 @@ export class PermissionSeeder {
         scope: PermissionScope.ANY,
         attributes: ['*'],
       },
+      // PageSpeed
+      {
+        role: UserRole.ADMIN,
+        resource: 'pagespeed',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.ADMIN,
+        resource: 'pagespeed',
+        action: PermissionAction.UPDATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
       // Storage
       {
         role: UserRole.ADMIN,
@@ -1577,6 +1592,21 @@ export class PermissionSeeder {
         scope: PermissionScope.ANY,
         attributes: ['*'],
       },
+      // PageSpeed
+      {
+        role: UserRole.SUPER_ADMIN,
+        resource: 'pagespeed',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.SUPER_ADMIN,
+        resource: 'pagespeed',
+        action: PermissionAction.UPDATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
       // Storage
       {
         role: UserRole.SUPER_ADMIN,
@@ -2646,6 +2676,13 @@ export class PermissionSeeder {
       {
         role: UserRole.MANAGER,
         resource: 'analytics',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'pagespeed',
         action: PermissionAction.READ,
         scope: PermissionScope.ANY,
         attributes: ['*'],

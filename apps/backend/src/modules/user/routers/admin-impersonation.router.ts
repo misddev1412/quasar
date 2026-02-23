@@ -50,7 +50,7 @@ export class AdminImpersonationRouter {
     private readonly impersonationService: UserImpersonationService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   @UseMiddlewares(
     AuthMiddleware,
@@ -77,6 +77,27 @@ export class AdminImpersonationRouter {
         input.userId,
         sessionData
       );
+
+      // Extract original admin token from request headers
+      const authHeader = ctx.req.headers.authorization;
+      const adminAccessToken = authHeader?.replace('Bearer ', '') || '';
+
+      // Set cookies for the storefront to pick up
+      // We set these on the root domain if possible, or just as is for localhost
+      const cookieOptions = {
+        httpOnly: false, // Storefront needs to read these to sync to localStorage
+        path: '/',
+        maxAge: 3600000, // 1 hour
+        sameSite: 'lax' as const,
+      };
+
+      ctx.res.cookie('impersonation_token', result.accessToken, cookieOptions);
+      ctx.res.cookie('impersonation_refresh_token', result.refreshToken, cookieOptions);
+      ctx.res.cookie('admin_token_backup', adminAccessToken, cookieOptions);
+
+      // We don't easily have the admin refresh token here, but we can try to get it from request or just rely on access token
+      // For now, let's at least clear any old ones
+      ctx.res.cookie('admin_refresh_token_backup', '', { ...cookieOptions, maxAge: 0 });
 
       return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {

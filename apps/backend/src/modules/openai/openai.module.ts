@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedModule } from '@backend/modules/shared/shared.module';
 import { ProductsModule } from '@backend/modules/products/products.module';
 import { StorageModule } from '@backend/modules/storage/storage.module';
+import { SettingsModule } from '@backend/modules/settings/settings.module';
 import { OpenAiConfigEntity } from '@backend/modules/openai/entities/openai-config.entity';
 import { OpenAiConfigRepository } from '@backend/modules/openai/repositories/openai-config.repository';
 import { OpenAiConfigService } from '@backend/modules/openai/services/openai-config.service';
@@ -15,6 +16,7 @@ import { AdminOpenAiConfigRouter } from '@backend/modules/openai/routers/admin-o
     SharedModule,
     ProductsModule,
     StorageModule,
+    SettingsModule,
   ],
   providers: [
     OpenAiConfigRepository,

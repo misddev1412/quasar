@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
+import { useLocalePath } from '../../lib/routing';
 import { useLanguages } from '../../hooks/useLanguages';
 import type { Language } from '../../types/trpc';
 
@@ -40,6 +41,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '', var
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const { createLocalUrl } = useLocalePath();
+
   const handleLocaleChange = (locale: Locale) => {
     // Set locale cookie for NextIntlProvider
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
@@ -47,8 +50,16 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '', var
     // Set localStorage for i18next
     localStorage.setItem('i18nextLng', locale);
 
-    // Reload the current page to apply the new locale
-    window.location.reload();
+    // Get the localized version of the current path
+    // We need to use createLocalUrl with the new locale
+    const newPath = createLocalUrl(pathname, locale);
+
+    if (newPath !== pathname) {
+      window.location.href = newPath;
+    } else {
+      // If it's the same (e.g. home page), just reload
+      window.location.reload();
+    }
     setIsOpen(false);
   };
 

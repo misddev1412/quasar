@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AdminProductService } from '@backend/modules/products/services/admin-product.service';
 import { OpenAiConfigService } from '@backend/modules/openai/services/openai-config.service';
 import { MediaService } from '@backend/modules/storage/services/media.service';
+import { SettingService } from '@backend/modules/settings/services/setting.service';
 
 export interface GenerateSeoArticleInput {
   topic: string;
@@ -32,6 +33,7 @@ export class OpenAiContentService {
     private readonly openAiConfigService: OpenAiConfigService,
     private readonly adminProductService: AdminProductService,
     private readonly mediaService: MediaService,
+    private readonly settingService: SettingService,
   ) { }
 
   async generateSeoArticle(input: GenerateSeoArticleInput): Promise<GeneratedSeoArticle> {
@@ -43,6 +45,8 @@ export class OpenAiContentService {
       throw new BadRequestException('OpenAI configuration not found. Please configure an active OpenAI config.');
     }
 
+    const siteName = await this.settingService.getValueByKey('site.name') || 'Our Website';
+
     const keywords = (input.keywords || []).filter((keyword) => keyword.trim() !== '');
     const language = (input.language || 'vi').trim();
     const tone = input.tone?.trim() || 'professional';
@@ -52,6 +56,7 @@ export class OpenAiContentService {
 
     const systemPrompt = [
       'You are an expert SEO content writer.',
+      `You are writing content for the website: "${siteName}".`,
       'Return JSON only, no markdown and no code fences.',
       'Content must be valid HTML with headings, paragraphs, and lists as needed.',
       'The slug must be lowercase, use hyphens, and contain only letters, numbers, and hyphens.',
@@ -143,12 +148,15 @@ export class OpenAiContentService {
     includeProductLinks?: boolean;
     includeImages?: boolean;
     length?: 'short' | 'medium' | 'long' | 'very_long';
+    plainTextOutput?: boolean;
   }): Promise<{ content: string; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }> {
     const config = await this.openAiConfigService.getActiveConfig();
 
     if (!config) {
       throw new BadRequestException('OpenAI configuration not found. Please configure an active OpenAI config.');
     }
+
+    const siteName = await this.settingService.getValueByKey('site.name') || 'Our Website';
 
     const languageMap: Record<string, string> = {
       vi: 'Vietnamese',
@@ -185,14 +193,14 @@ export class OpenAiContentService {
       const seed = context || (keywords.length ? keywords.join(', ') : `${input.entityType} og image`);
       prompt = `[[IMAGE_PROMPT: ${seed}, ${tone}, modern, clean composition, high quality, product-focused, suitable for social sharing]]`;
     } else if (input.contentType === 'title') {
-      prompt = `Act as an ${role}. ${taskDescription} in ${languageName}.
+      prompt = `Act as an ${role}. ${taskDescription} in ${languageName} for the website "${siteName}".
       Context/Description: "${context}"
       Keywords: ${keywords.join(', ')}
       Tone: ${tone}
       Constraints: Keep it under 60 characters if possible. Short, concise, and catchy.
       Return ONLY the title text, no quotes, no explanations.`;
     } else if (input.contentType === 'keywords') {
-      prompt = `Act as an expert SEO specialist. Generate a concise, SEO-focused keyword list for a ${input.entityType} in ${languageName}.
+      prompt = `Act as an expert SEO specialist. Generate a concise, SEO-focused keyword list for a ${input.entityType} on "${siteName}" in ${languageName}.
       Context/Description: "${context}"
       Seed keywords (include if relevant): ${keywords.join(', ') || 'none'}
       Tone: ${tone}
@@ -202,7 +210,18 @@ export class OpenAiContentService {
       - Prefer specific, intent-rich phrases over generic single words.`;
     } else {
       let requirements = '';
-      if (style === 'blog-post') {
+      if (input.plainTextOutput) {
+        role = 'concise content editor';
+        taskDescription = `Write a concise plain-text summary for this ${input.entityType}`;
+        requirements = `
+          - Return plain text only (no HTML, no Markdown).
+          - Do not include URLs, links, or anchor text.
+          - Keep it concise and readable in 1-2 sentences.
+          - Focus on core value/summary information.
+          - CRITICAL: Jump straight to the content. Do NOT use introductory or explanatory phrases such as "This post is about...", "Here is a summary...", "Bài viết này...", "Đây là...", "Giới thiệu về...".
+          - Tone: Catchy and engaging for a snippet/excerpt.
+        `;
+      } else if (style === 'blog-post') {
         role = 'professional blog writer';
         taskDescription = `Write a compelling blog post section about this ${input.entityType}`;
         requirements = `
@@ -249,15 +268,19 @@ export class OpenAiContentService {
           long: 'around 600-800 words, comprehensive with multiple sections.',
           very_long: 'at least 1000 words, very in-depth and thorough exploration of the topic.',
         };
-        requirements += `\n- Length: ${lengthMap[input.length]}`;
+        requirements += `\n- Length: ${input.plainTextOutput ? '1-3 concise sentences.' : lengthMap[input.length]}`;
+      } else if (input.plainTextOutput) {
+        requirements += `\n- Length: 1-3 concise sentences.`;
       } else {
         requirements += `\n- Length: Comprehensive and detailed (2-3 paragraphs).`;
       }
 
-      requirements += `\n- Hashtags: Include 5-10 relevant hashtags at the very end of the content (e.g., #product #seo #marketing).`;
+      if (!input.plainTextOutput) {
+        requirements += `\n- Hashtags: Include 5-10 relevant hashtags at the very end of the content (e.g., #product #seo #marketing).`;
+      }
 
       let productContext = '';
-      if (input.includeProductLinks && input.entityType === 'post' && input.contentType === 'description') {
+      if (!input.plainTextOutput && input.includeProductLinks && input.entityType === 'post' && input.contentType === 'description') {
         // Search for relevant products based on context
         // If context is too long, it might break search, so we try to get some products anyway
         let productsResult = await this.adminProductService.getAllProducts({
@@ -288,7 +311,7 @@ export class OpenAiContentService {
       }
 
       let imageRequirements = '';
-      if (input.includeImages) {
+      if (!input.plainTextOutput && input.includeImages) {
         let imageCount = '1';
         if (input.length === 'medium') imageCount = '1-2';
         else if (input.length === 'long') imageCount = '2-3';
@@ -299,7 +322,7 @@ export class OpenAiContentService {
       - Format exactly like this: [[IMAGE_PROMPT: a detailed description of the image to be generated (this will also be used as the image alt text for SEO)]]`;
       }
 
-      prompt = `Act as an ${role}. ${taskDescription} in ${languageName}.
+      prompt = `Act as an ${role}. ${taskDescription} in ${languageName} for "${siteName}".
       Product/Post Title: "${context}"
       Keywords: ${keywords.join(', ')}
       Tone: ${tone}
@@ -307,7 +330,8 @@ export class OpenAiContentService {
       Requirements:${requirements}
       ${productContext}
       ${imageRequirements}
-      - valid HTML only, no markdown code blocks.`;
+      - CRITICAL: Ensure the content is specifically relevant to "${siteName}" and does NOT promote other companies or competitors.
+      ${input.plainTextOutput ? '- Return plain text only.' : '- valid HTML only, no markdown code blocks.'}`;
     }
 
     const baseUrl = (config.baseUrl || 'https://api.openai.com').replace(/\/+$/, '');
@@ -345,8 +369,18 @@ export class OpenAiContentService {
         usage = response.data?.usage;
       }
 
+      if (input.plainTextOutput && content) {
+        content = content
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/https?:\/\/\S+/gi, '')
+          .replace(/www\.\S+/gi, '')
+          .replace(/\[[^\]]+\]\([^\)]+\)/g, '$1')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
       // Image generation step
-      const shouldGenerateImages = (input.includeImages || input.contentType === 'image');
+      const shouldGenerateImages = !input.plainTextOutput && (input.includeImages || input.contentType === 'image');
       if (shouldGenerateImages) {
         const imageRegex = /\[\[IMAGE_PROMPT:\s*(.+?)\s*\]\]/g;
         let match;
@@ -485,6 +519,10 @@ export class OpenAiContentService {
             }
           }
         }
+      }
+
+      if (input.contentType === 'title' && content) {
+        content = content.replace(/^["']|["']$/g, '').trim();
       }
 
       return {

@@ -100,6 +100,7 @@ async function BlogPostPageContent({ params }: BlogPostPageProps) {
     `,
     author: 'John Doe',
     publishDate: new Date().toISOString().split('T')[0],
+    thumbnailUrl: null as string | null,
   };
 
   if (!blogPost) {
@@ -121,13 +122,30 @@ async function BlogPostPageContent({ params }: BlogPostPageProps) {
       <article className="container mx-auto py-8">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">{blogPost.title}</h1>
-            <p className="text-lg text-gray-600 mb-4">{blogPost.excerpt}</p>
-            <div className="flex items-center text-sm text-gray-500">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                {blogPost.thumbnailUrl ? (
+                  <img
+                    src={blogPost.thumbnailUrl}
+                    alt={blogPost.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-gray-500">
+                    {blogPost.title.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight">{blogPost.title}</h1>
+            </div>
+
+            <div className="flex items-center text-sm text-gray-500 mb-4">
               <span>By {blogPost.author}</span>
               <span className="mx-2">•</span>
               <span>{blogPost.publishDate}</span>
             </div>
+
+            <p className="text-lg text-gray-600">{blogPost.excerpt}</p>
           </header>
 
           <div

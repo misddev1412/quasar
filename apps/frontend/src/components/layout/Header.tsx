@@ -209,6 +209,7 @@ const getLocalizedContent = (item: MenuItem | null | undefined, key: keyof MenuT
 const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLocale, logoItem }) => {
   const t = useTranslations();
   const { getSiteLogo, getSetting, settings } = useSettings();
+  const { createLocalUrl } = useLocalePath();
 
   // Logic for logo image
   // Priority: 
@@ -258,7 +259,7 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLoca
 
 
   return (
-    <Link href="/" className="flex items-center gap-3 group">
+    <Link href={createLocalUrl("/")} className="flex items-center gap-3 group">
       {/* Logo Image - Only render if showLogoImage is enabled and siteLogo exists */}
       {showLogoImage && siteLogo && (
         <img
@@ -430,6 +431,8 @@ const UserMenu: React.FC<{
     },
   ];
 
+  const { createLocalUrl } = useLocalePath();
+
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
@@ -476,7 +479,7 @@ const UserMenu: React.FC<{
                   if (item.action === 'logout') {
                     onLogout();
                   } else if (item.href) {
-                    router.push(item.href);
+                    router.push(createLocalUrl(item.href));
                   }
                 }}
               >
@@ -511,7 +514,7 @@ const Header: React.FC = () => {
   const tCart = useTranslations('ecommerce.cart');
   const router = useRouter();
   const pathname = usePathname();
-  const { currentLocale } = useLocalePath();
+  const { currentLocale, createLocalUrl } = useLocalePath();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const advancedSectionId = 'header-advanced-search-panel';
 
@@ -624,7 +627,7 @@ const Header: React.FC = () => {
       id: 'services-link',
       type: MenuType.LINK,
       name: t('layout.header.services'),
-      href: '/services',
+      href: createLocalUrl('/services'),
       target: '_self',
       children: [],
     } as NavigationItem
@@ -653,7 +656,7 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    router.push('/');
+    router.push(createLocalUrl('/'));
   };
 
 
@@ -744,7 +747,7 @@ const Header: React.FC = () => {
               className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors`}
               style={{ color: textColor }}
               onClick={() => {
-                router.push('/profile');
+                router.push(createLocalUrl('/profile'));
                 closeMobileMenu?.();
               }}
             >
@@ -782,7 +785,7 @@ const Header: React.FC = () => {
             <DropdownMenu aria-label="User menu actions" variant="flat">
               <DropdownItem
                 key="signin"
-                onPress={() => router.push('/login')}
+                onPress={() => router.push(createLocalUrl('/login'))}
                 className="min-h-[40px]"
               >
                 {t('layout.header.guest.signin')}
@@ -790,7 +793,7 @@ const Header: React.FC = () => {
               <DropdownItem
                 key="signup"
                 color="primary"
-                onPress={() => router.push('/register')}
+                onPress={() => router.push(createLocalUrl('/register'))}
                 className="min-h-[40px]"
               >
                 {t('layout.header.guest.signup')}
@@ -806,7 +809,7 @@ const Header: React.FC = () => {
             className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors px-4 py-3 border-b border-gray-200 dark:border-gray-700`}
             style={{ color: textColor }}
             onClick={() => {
-              router.push('/login');
+              router.push(createLocalUrl('/login'));
               closeMobileMenu?.();
             }}
           >
@@ -817,7 +820,7 @@ const Header: React.FC = () => {
             className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors px-4 py-3`}
             style={{ color: textColor }}
             onClick={() => {
-              router.push('/register');
+              router.push(createLocalUrl('/register'));
               closeMobileMenu?.();
             }}
           >
@@ -855,7 +858,7 @@ const Header: React.FC = () => {
 
     const queryString = params.toString();
     if (queryString) {
-      router.push(`/search?${queryString}`);
+      router.push(createLocalUrl(`/search?${queryString}`));
       setSearchQuery('');
       setIsSearchOpen(false);
     }
@@ -1055,7 +1058,7 @@ const Header: React.FC = () => {
                       badge="5"
                       badgeColor="secondary"
                       label={t('layout.header.actions.wishlist')}
-                      onClick={() => router.push('/wishlist')}
+                      onClick={() => router.push(createLocalUrl('/wishlist'))}
                     />
                   </NavbarItem>
                 </>

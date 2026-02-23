@@ -22,6 +22,7 @@ interface AIGenerateButtonProps {
     allowLengthOptions?: boolean;
     allowProductLinks?: boolean;
     allowStyleOptions?: boolean;
+    plainTextOutput?: boolean;
 }
 
 // AIGenerateButton.tsx modification
@@ -41,6 +42,7 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
     allowLengthOptions = true,
     allowProductLinks = true,
     allowStyleOptions = true,
+    plainTextOutput = false,
 }) => {
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
@@ -75,6 +77,7 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                 includeProductLinks: options.includeProductLinks,
                 includeImages: options.includeImages,
                 length: options.length,
+                plainTextOutput,
             });
 
             if (result.data) {

@@ -192,7 +192,11 @@ const BrandsPage: React.FC = () => {
       deleteMutation.mutate({ id: brandId });
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : undefined;
-      addToast({ type: 'error', title: 'Delete failed', description: errorMessage || 'Failed to delete brand' });
+      addToast({
+        type: 'error',
+        title: t('brands.deleteFailed', 'Delete failed'),
+        description: errorMessage || t('brands.deleteFailedDescription', 'Failed to delete brand'),
+      });
     }
   }, [deleteMutation, addToast, t]);
 
@@ -204,15 +208,31 @@ const BrandsPage: React.FC = () => {
   const handleBulkAction = useCallback((action: string) => {
     switch (action) {
       case 'activate':
-        addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk activate will be available soon' });
+        addToast({
+          type: 'info',
+          title: t('common.feature_coming_soon', 'Feature coming soon'),
+          description: t('brands.bulkActivateComingSoon', 'Bulk activate will be available soon'),
+        });
         break;
       case 'deactivate':
-        addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk deactivate will be available soon' });
+        addToast({
+          type: 'info',
+          title: t('common.feature_coming_soon', 'Feature coming soon'),
+          description: t('brands.bulkDeactivateComingSoon', 'Bulk deactivate will be available soon'),
+        });
         break;
       case 'delete':
-        const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedBrandIds.size} brands? This action cannot be undone.`);
+        const confirmDelete = window.confirm(
+          t('brands.bulkDeleteConfirm', 'Are you sure you want to delete {{count}} brands? This action cannot be undone.', {
+            count: selectedBrandIds.size,
+          }),
+        );
         if (confirmDelete) {
-          addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk delete will be available soon' });
+          addToast({
+            type: 'info',
+            title: t('common.feature_coming_soon', 'Feature coming soon'),
+            description: t('brands.bulkDeleteComingSoon', 'Bulk delete will be available soon'),
+          });
         }
         break;
       default:
@@ -267,12 +287,18 @@ const BrandsPage: React.FC = () => {
               </div>
             )}
           </div>
-          <div>
-            <div className="font-medium text-gray-900 dark:text-gray-100">
+          <div className="min-w-0 max-w-[220px]">
+            <div
+              className="truncate font-medium text-gray-900 dark:text-gray-100"
+              title={brand.name}
+            >
               {brand.name}
             </div>
             {brand.website && (
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div
+                className="truncate text-sm text-gray-500 dark:text-gray-400"
+                title={brand.website.replace(/^https?:\/\//, '')}
+              >
                 {brand.website.replace(/^https?:\/\//, '')}
               </div>
             )}
@@ -281,6 +307,7 @@ const BrandsPage: React.FC = () => {
       ),
       isSortable: false,
       hideable: true,
+      width: '280px',
     },
     {
       id: 'description',
@@ -318,7 +345,7 @@ const BrandsPage: React.FC = () => {
       header: t('brands.status', 'Status'),
       accessor: (brand) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+          className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold leading-none ${
             brand.isActive
               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
               : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
@@ -329,6 +356,7 @@ const BrandsPage: React.FC = () => {
       ),
       isSortable: true,
       hideable: true,
+      width: '120px',
     },
     {
       id: 'productsCount',
@@ -358,7 +386,7 @@ const BrandsPage: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              aria-label={`Actions for ${brand.name}`}
+              aria-label={t('brands.actionsForBrand', 'Actions for {{name}}', { name: brand.name })}
               onClick={(event) => event.stopPropagation()}
               onMouseDown={(event) => event.stopPropagation()}
             >
@@ -399,21 +427,21 @@ const BrandsPage: React.FC = () => {
   // Bulk actions for selected brands
   const bulkActions = useMemo(() => [
     {
-      label: 'Activate Selected',
+      label: t('brands.bulkActivateSelected', 'Activate Selected'),
       value: 'activate',
       variant: 'primary' as const,
     },
     {
-      label: 'Deactivate Selected', 
+      label: t('brands.bulkDeactivateSelected', 'Deactivate Selected'),
       value: 'deactivate',
       variant: 'outline' as const,
     },
     {
-      label: 'Delete Selected',
+      label: t('brands.bulkDeleteSelected', 'Delete Selected'),
       value: 'delete',
       variant: 'danger' as const,
     },
-  ], []);
+  ], [t]);
 
   const actions = useMemo(() => [
     {
@@ -494,12 +522,12 @@ const BrandsPage: React.FC = () => {
 
   const breadcrumbs = useMemo(() => ([
     {
-      label: 'Home',
+      label: t('product.detail.breadcrumb.home', 'Home'),
       href: '/',
       icon: <FiHome className="w-4 h-4" />
     },
     {
-      label: 'Products',
+      label: t('products.products', 'Products'),
       href: '/products',
       icon: <FiPackage className="w-4 h-4" />
     },
@@ -513,7 +541,7 @@ const BrandsPage: React.FC = () => {
     return (
       <StandardListPage
         title={t('brands.title', 'Brand Management')}
-        description={t('brands.description', 'Manage all brands in the system')}
+        description={t('brands.pageDescription', 'Manage all brands in the system')}
         actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
@@ -529,7 +557,7 @@ const BrandsPage: React.FC = () => {
     return (
       <StandardListPage
         title={t('brands.title', 'Brand Management')}
-        description={t('brands.description', 'Manage all brands in the system')}
+        description={t('brands.pageDescription', 'Manage all brands in the system')}
         actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
@@ -545,7 +573,7 @@ const BrandsPage: React.FC = () => {
   return (
     <StandardListPage
       title={t('brands.title', 'Brand Management')}
-      description={t('brands.description', 'Manage all brands in the system')}
+      description={t('brands.pageDescription', 'Manage all brands in the system')}
       actions={actions}
       fullWidth={true}
       breadcrumbs={breadcrumbs}

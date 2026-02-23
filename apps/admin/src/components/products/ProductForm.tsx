@@ -619,6 +619,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 maxLength: 500,
               },
               description: t('products.short_description_help', 'Plain text shown on product cards.'),
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="shortDescription"
+                  sourceFieldName="name"
+                  targetLabel={t('products.short_description')}
+                  sourceLabel={t('products.name')}
+                  entityType="product"
+                  contentType="description"
+                  allowImages={false}
+                  allowProductLinks={false}
+                  allowLengthOptions={false}
+                  allowStyleOptions={false}
+                  plainTextOutput={true}
+                  stripHtmlOutput={true}
+                />
+              ),
             },
             {
               name: 'sku',

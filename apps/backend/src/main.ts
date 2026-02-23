@@ -6,12 +6,14 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from '@backend/app/app.module';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import { GlobalExceptionFilter } from '@backend/modules/shared/filters/global-exception.filter';
 import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.use(cookieParser());
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 

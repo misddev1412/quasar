@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Card, Chip } from '@heroui/react';
+import React, { useMemo } from 'react';
+import { Card, Chip, useDisclosure } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { FiHeart, FiHeart as FiHeartOutline } from 'react-icons/fi';
 import Button from '../common/Button';
@@ -10,6 +10,7 @@ import Rating from '../common/Rating';
 import Input from '../common/Input';
 import AttributeSelector from './AttributeSelector';
 import VariantSelector from './VariantSelector';
+import ContactPriceModal from './ContactPriceModal';
 import type { Product, ProductVariant } from '../../types/product';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
@@ -65,8 +66,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   onScrollToReviews,
 }) => {
   const t = useTranslations('product.detail');
-  const tEcommerce = useTranslations('ecommerce.product');
-  const { name, brand, sku, status, isActive, variants, tags, isContactPrice } = product;
+  const tProduct = useTranslations('product');
+  const tCommon = useTranslations('common');
+  const { isOpen: isContactModalOpen, onOpen: onOpenContactModal, onClose: onCloseContactModal } = useDisclosure();
+  const { name, brand, sku, status, isActive, variants, tags, isContactPrice, contactPriceLabel } = product;
   const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
 
   const currentPrice = selectedVariant?.price ||
@@ -82,9 +85,16 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
     ?? undefined;
 
   const inStock = isActive && status === 'ACTIVE';
+  const allVariantsContactPrice = useMemo(
+    () => Array.isArray(variants) && variants.length > 0 && variants.every((variant) => Boolean(variant.isContactPrice)),
+    [variants],
+  );
+  const isContactOnlyProduct = Boolean(isContactPrice || allVariantsContactPrice);
+  const isPriceUpdating = !isContactOnlyProduct && (currentPrice === 0 || currentPrice === undefined || currentPrice === null || Number.isNaN(currentPrice));
 
   return (
-    <Card className={layout.infoCard}>
+    <>
+      <Card className={layout.infoCard}>
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-4">
           <h1 className={typography.pageTitle}>{name}</h1>
@@ -134,9 +144,9 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       <div className="space-y-2">
-        {isContactPrice ? (
+        {isContactOnlyProduct ? (
           <span className="text-3xl md:text-4xl font-bold text-gray-900">
-            {tEcommerce('contactPrice')}
+            {contactPriceLabel || tProduct('contactPrice')}
           </span>
         ) : (
           <>
@@ -257,31 +267,40 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        {isContactOnlyProduct ? (
           <Button
             color="primary"
-            className="flex-1 font-semibold"
-            onPress={onAddToCart}
-            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || currentPrice === 0}
+            className="w-full font-semibold"
+            onPress={onOpenContactModal}
+            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
           >
-            {!inStock
-              ? t('actions.outOfStock')
-              : currentPrice === 0
-                ? tEcommerce('priceUpdating')
-                : isContactPrice
-                  ? t('actions.addToQuote')
+            {!inStock ? t('actions.outOfStock') : (contactPriceLabel || t('actions.addToQuote'))}
+          </Button>
+        ) : (
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              color="primary"
+              className="flex-1 font-semibold"
+              onPress={onAddToCart}
+              isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || isPriceUpdating}
+            >
+              {!inStock
+                ? t('actions.outOfStock')
+                : isPriceUpdating
+                  ? tProduct('priceUpdating')
                   : t('actions.addToCart')}
-          </Button>
+            </Button>
 
-          <Button
-            color="secondary"
-            className="flex-1 font-semibold"
-            onPress={onBuyNow}
-            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || currentPrice === 0}
-          >
-            {t('actions.buyNow')}
-          </Button>
-        </div>
+            <Button
+              color="secondary"
+              className="flex-1 font-semibold"
+              onPress={onBuyNow}
+              isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || isPriceUpdating}
+            >
+              {t('actions.buyNow')}
+            </Button>
+          </div>
+        )}
       </div>
 
       {tags && tags.length > 0 && (
@@ -301,7 +320,30 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         </div>
       )}
-    </Card>
+      </Card>
+
+      <ContactPriceModal
+        product={product}
+        isOpen={isContactModalOpen}
+        onClose={onCloseContactModal}
+        labels={{
+          contactPrice: tProduct('contactPrice'),
+          contactPriceLabel: tProduct('contactPrice'),
+          name: tCommon('name'),
+          phone: tCommon('phone'),
+          email: tCommon('email'),
+          message: tCommon('message'),
+          cancel: tCommon('cancel'),
+          submit: tCommon('submit'),
+          requiredError: 'Please fill in all required fields',
+          submitSuccess: 'Your inquiry has been submitted successfully',
+          submitError: 'An error occurred while submitting your inquiry',
+          sku: t('sku'),
+          variants: 'Variants',
+          category: 'Category',
+        }}
+      />
+    </>
   );
 };
 

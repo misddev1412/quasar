@@ -153,6 +153,32 @@ const nextConfig = {
   async redirects() {
     return [];
   },
+
+  // Localization rewrites
+  async rewrites() {
+    return [
+      {
+        source: '/san-pham/:slug*',
+        destination: '/products/:slug*?locale=vi',
+      },
+      {
+        source: '/gioi-thieu/:slug*',
+        destination: '/about/:slug*?locale=vi',
+      },
+      {
+        source: '/lien-he/:slug*',
+        destination: '/contact/:slug*?locale=vi',
+      },
+      {
+        source: '/tin-tuc/:slug*',
+        destination: '/news/:slug*?locale=vi',
+      },
+      {
+        source: '/dich-vu/:slug*',
+        destination: '/services/:slug*?locale=vi',
+      },
+    ];
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

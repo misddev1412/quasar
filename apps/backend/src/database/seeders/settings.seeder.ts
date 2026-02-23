@@ -305,6 +305,14 @@ export class SettingsSeeder {
         description: 'Google Analytics Measurement ID (e.g., G-XXXXXXXXXX)',
       },
       {
+        key: 'analytics.pagespeed_api_key',
+        value: '',
+        type: 'string' as const,
+        group: 'analytics',
+        isPublic: false,
+        description: 'Google PageSpeed Insights API key',
+      },
+      {
         key: 'analytics.mixpanel_enabled',
         value: 'false',
         type: 'boolean' as const,

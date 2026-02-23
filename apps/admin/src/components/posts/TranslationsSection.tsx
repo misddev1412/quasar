@@ -155,6 +155,11 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
               contentType: 'description',
               sourceFieldName: 'content',
               tone: 'summarize',
+              allowImages: false,
+              allowProductLinks: false,
+              allowLengthOptions: false,
+              allowStyleOptions: false,
+              plainTextOutput: true,
             },
           },
           {

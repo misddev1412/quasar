@@ -190,6 +190,7 @@ export class AdminOpenAiConfigRouter {
       includeProductLinks: z.boolean().optional(),
       includeImages: z.boolean().optional(),
       length: z.enum(['short', 'medium', 'long', 'very_long']).optional(),
+      plainTextOutput: z.boolean().optional(),
     }),
     output: apiResponseSchema,
   })
@@ -202,6 +203,7 @@ export class AdminOpenAiConfigRouter {
       language?: string;
       tone?: string;
       style?: string;
+      plainTextOutput?: boolean;
     }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {

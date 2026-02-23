@@ -43,7 +43,7 @@ export class UserImpersonationService {
     private readonly activityTrackingService: UserActivityTrackingService,
     private readonly userSessionRepository: UserSessionRepository,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   async startImpersonation(
     adminUser: AuthUser,
@@ -78,12 +78,21 @@ export class UserImpersonationService {
       throw new BadRequestException('Cannot impersonate yourself');
     }
 
-    // 5. Check for active impersonation session by this admin
+    // 5. Check for active impersonation session by this admin and end it
     const existingImpersonation = await this.impersonationRepository.findActiveByAdminId(adminUser.id);
     if (existingImpersonation) {
-      throw new BadRequestException(
-        'You are already impersonating another user. Exit current session first.'
-      );
+      await this.impersonationRepository.endAllActiveForAdmin(adminUser.id);
+
+      // Also terminate the old session in the session repository if possible
+      try {
+        await this.userSessionRepository.terminateSession(
+          existingImpersonation.sessionToken,
+          SessionStatus.LOGGED_OUT
+        );
+      } catch (error) {
+        // Silently continue if session termination fails
+        console.warn('Failed to terminate previous impersonated session:', error);
+      }
     }
 
     // 6. Generate tokens for impersonated user

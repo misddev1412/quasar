@@ -3,6 +3,12 @@
 import { trpc } from '../utils/trpc';
 import { useLocale } from 'next-intl';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
+import {
+  getProductLink,
+  getCategoryLink,
+  getBrandLink,
+  getLocalizedLink
+} from '../lib/link-utils';
 
 export interface MenuItem {
   id: string;
@@ -103,30 +109,30 @@ export const useMenu = (menuGroup: string = 'main') => {
   const buildHref = (item: MenuItem): string => {
     switch (item.type) {
       case MenuType.LINK:
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
       case MenuType.CATEGORY:
         if (item.referenceId) {
-          return `/categories/${item.referenceId}`;
+          return getCategoryLink(item.referenceId, locale);
         }
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
       case MenuType.PRODUCT:
         if (item.referenceId) {
-          return `/products/${item.referenceId}`;
+          return getProductLink(item.referenceId, locale);
         }
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
       case MenuType.BRAND:
         if (item.referenceId) {
-          return `/brands/${item.referenceId}`;
+          return getBrandLink(item.referenceId, locale);
         }
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
       case MenuType.NEW_PRODUCTS:
-        return '/products?filter=new';
+        return getLocalizedLink('/products?filter=new', locale);
       case MenuType.SALE_PRODUCTS:
-        return '/products?filter=sale';
+        return getLocalizedLink('/products?filter=sale', locale);
       case MenuType.FEATURED_PRODUCTS:
-        return '/products?filter=featured';
+        return getLocalizedLink('/products?filter=featured', locale);
       case MenuType.BANNER:
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
       case MenuType.CUSTOM_HTML:
         return '#';
       case MenuType.SITE_CONTENT: {
@@ -137,19 +143,21 @@ export const useMenu = (menuGroup: string = 'main') => {
               return trimmed;
             }
 
+            let path = trimmed;
             if (trimmed.startsWith('/')) {
-              return trimmed.startsWith('/pages/') ? trimmed : `/pages${trimmed}`;
+              path = trimmed.startsWith('/pages/') ? trimmed : `/pages${trimmed}`;
+            } else {
+              const normalized = trimmed.replace(/^pages\//i, '').replace(/^\/+/, '');
+              if (normalized.length > 0) {
+                path = `/pages/${normalized}`;
+              }
             }
-
-            const normalized = trimmed.replace(/^pages\//i, '').replace(/^\/+/, '');
-            if (normalized.length > 0) {
-              return `/pages/${normalized}`;
-            }
+            return getLocalizedLink(path, locale);
           }
         }
 
         if (item.url) {
-          return item.url;
+          return getLocalizedLink(item.url, locale);
         }
 
         return '#';
@@ -169,7 +177,7 @@ export const useMenu = (menuGroup: string = 'main') => {
         return digits ? `tel:${digits}` : '#';
       }
       case MenuType.ORDER_TRACKING:
-        return '/order-tracking';
+        return getLocalizedLink('/order-tracking', locale);
       case MenuType.SEARCH_BUTTON:
       case MenuType.LOCALE_SWITCHER:
       case MenuType.THEME_TOGGLE:
@@ -177,7 +185,7 @@ export const useMenu = (menuGroup: string = 'main') => {
       case MenuType.USER_PROFILE:
         return '#';
       default:
-        return item.url ?? '#';
+        return item.url ? getLocalizedLink(item.url, locale) : '#';
     }
   };
 

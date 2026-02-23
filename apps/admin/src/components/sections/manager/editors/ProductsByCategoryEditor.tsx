@@ -51,11 +51,11 @@ interface CategorySelectOption extends SelectOption {
     searchText: string;
 }
 
-const STRATEGY_SELECT_OPTIONS: { value: ProductsByCategoryStrategy; label: string }[] = [
-    { value: 'latest', label: 'Mới nhất' },
-    { value: 'featured', label: 'Nổi bật' },
-    { value: 'bestsellers', label: 'Bán chạy' },
-    { value: 'custom', label: 'Tùy chỉnh' },
+const STRATEGY_SELECT_OPTIONS: { value: ProductsByCategoryStrategy }[] = [
+    { value: 'latest' },
+    { value: 'featured' },
+    { value: 'bestsellers' },
+    { value: 'custom' },
 ];
 
 const createDefaultRow = (): ProductsByCategoryAdminRow => ({
@@ -520,7 +520,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         className="w-full text-sm text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2 py-2"
                         disabled={productsQuery.isFetching}
                     >
-                        {productsQuery.isFetching ? 'Loading...' : 'Load more products'}
+                        {productsQuery.isFetching ? t('sections.manager.productsByCategory.loading') : t('sections.manager.productsByCategory.loadMoreProducts')}
                     </button>
                 </div>
             )}
@@ -542,7 +542,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">{option.label}</span>
                         <span className="text-xs text-gray-500">
-                            {option.sku ? `SKU: ${option.sku}` : 'No SKU'}
+                            {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
                             {option.brandName ? ` · ${option.brandName}` : ''}
                             {option.priceLabel ? ` · ${option.priceLabel}` : ''}
                         </span>
@@ -657,7 +657,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         >
                             {STRATEGY_SELECT_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
-                                    {option.label}
+                                    {t(`sections.manager.productsByCategory.strategy.${option.value}`)}
                                 </option>
                             ))}
                         </select>
@@ -669,8 +669,8 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                             value={row.displayStyle}
                             onChange={(event) => handleDisplayStyleChange(event.target.value as ProductsByCategoryDisplayStyle)}
                         >
-                            <option value="grid">Grid</option>
-                            <option value="carousel">Carousel</option>
+                            <option value="grid">{t('sections.manager.productsByCategory.grid')}</option>
+                            <option value="carousel">{t('sections.manager.productsByCategory.carousel')}</option>
                         </select>
                     </label>
                     {canRemove && (
@@ -700,14 +700,14 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                             type="text"
                             value={row.title}
                             onChange={(event) => handleTitleChange(event.target.value)}
-                            placeholder="Nhập tiêu đề hiển thị"
+                            placeholder={t('sections.manager.productsByCategory.titlePlaceholder')}
                             className="text-sm"
                             inputSize="md"
                         />
-                        <span className="text-xs text-gray-500">Tự động gợi ý theo danh mục, có thể chỉnh sửa.</span>
+                        <span className="text-xs text-gray-500">{t('sections.manager.productsByCategory.titleAutoSuggestion')}</span>
                     </label>
                     <label className="lg:col-span-8 flex flex-col gap-2 text-sm text-gray-700">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Danh mục</span>
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('sections.manager.productsByCategory.categoryLabel')}</span>
                         <SearchSelect<CategorySelectOption>
                             isClearable
                             isSearchable
@@ -716,18 +716,18 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                             options={categoryOptions}
                             value={selectedCategoryOption}
                             onChange={(option) => handleCategoryChange(option as CategorySelectOption | null)}
-                            placeholder={categoriesLoading ? 'Đang tải danh mục...' : 'Chọn danh mục'}
+                            placeholder={categoriesLoading ? t('sections.manager.productsByCategory.loadingCategories') : t('sections.manager.productsByCategory.selectCategory')}
                             filterOption={categoryFilterOption}
                             formatOptionLabel={formatCategoryOptionLabel}
                             menuPortalTarget={menuPortalTarget}
                             menuPlacement="auto"
                             components={{ IndicatorSeparator: () => null }}
-                            noOptionsMessage={() => 'Không tìm thấy danh mục'}
+                            noOptionsMessage={() => t('sections.manager.productsByCategory.noCategoriesFound')}
                             size="md"
                         />
                     </label>
                     <label className="lg:col-span-4 flex flex-col gap-2 text-sm text-gray-700">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Số lượng sản phẩm</span>
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('sections.manager.productsByCategory.productCount')}</span>
                         <Input
                             type="number"
                             min={1}
@@ -762,10 +762,10 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
 
                 {isCustomStrategy && row.categoryId ? (
                     <div className="space-y-3">
-                        <span className="text-sm font-medium text-gray-700">Chọn sản phẩm</span>
+                        <span className="text-sm font-medium text-gray-700">{t('sections.manager.productsByCategory.selectProducts')}</span>
                         <SelectComponent<ProductOption, true>
                             isMulti
-                            placeholder="Tìm kiếm và chọn sản phẩm..."
+                            placeholder={t('sections.manager.productsByCategory.searchProducts')}
                             value={selectedOptions}
                             onChange={(items) => handleSelectionChange(items as ProductOption[])}
                             options={allOptions}
@@ -792,7 +792,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                                 loadMore();
                             }}
                         />
-                        <p className="text-xs text-gray-500">Chỉ hiển thị các sản phẩm thuộc danh mục đã chọn.</p>
+                        <p className="text-xs text-gray-500">{t('sections.manager.productsByCategory.selectProductsHint')}</p>
 
                         {selectedOptions.length > 0 && (
                             <div className="space-y-2">
@@ -813,7 +813,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                                                 {order + 1}. {option.label}
                                             </p>
                                             <p className="text-xs text-gray-500">
-                                                {option.sku ? `SKU: ${option.sku}` : 'Không có SKU'}
+                                                {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
                                                 {option.brandName ? ` · ${option.brandName}` : ''}
                                                 {option.priceLabel ? ` · ${option.priceLabel}` : ''}
                                             </p>
@@ -827,7 +827,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                     <div className="space-y-3">
                         {row.strategy === 'custom' && !row.categoryId && (
                             <div className="rounded-lg border border-gray-200 bg-gray-50/80 p-4">
-                                <p className="text-xs text-gray-600">Chọn danh mục trước khi thêm sản phẩm cụ thể.</p>
+                                <p className="text-xs text-gray-600">{t('sections.manager.productsByCategory.pickCategoryBeforeCustom')}</p>
                             </div>
                         )}
                         {previewOptions.length > 0 ? (
@@ -849,7 +849,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                                                 {order + 1}. {option.label}
                                             </p>
                                             <p className="text-xs text-gray-500">
-                                                {option.sku ? `SKU: ${option.sku}` : 'Không có SKU'}
+                                                {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
                                                 {option.brandName ? ` · ${option.brandName}` : ''}
                                                 {option.priceLabel ? ` · ${option.priceLabel}` : ''}
                                             </p>
@@ -860,8 +860,8 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         ) : (
                             <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-500">
                                 {row.categoryId
-                                    ? 'Không tồn tại sản phẩm trong danh mục này.'
-                                    : 'Chọn danh mục để xem trước sản phẩm sẽ hiển thị.'}
+                                    ? t('sections.manager.productsByCategory.emptyProductsInCategory')
+                                    : t('sections.manager.productsByCategory.selectCategoryToPreview')}
                             </div>
                         )}
                     </div>

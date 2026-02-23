@@ -26,6 +26,7 @@ export const useProductPage = ({
         id,
         name,
         description,
+        images,
         slug,
         sku,
         status,
@@ -76,8 +77,11 @@ export const useProductPage = ({
             const primaryMedia = media.find((m: ProductMedia) => m.isPrimary);
             return primaryMedia?.url || media[0].url;
         }
+        if (images && images.length > 0) {
+            return images[0];
+        }
         return '/placeholder-product.png';
-    }, [media]);
+    }, [media, images]);
 
     const breadcrumbItems = useMemo(() => {
         const items: { label: string; href?: string; isCurrent?: boolean }[] = [{ label: t('breadcrumb.home'), href: '/' }];
@@ -101,11 +105,26 @@ export const useProductPage = ({
     }, [categories, name, t]);
 
     // Get images for gallery
-    const productImages = useMemo(() =>
-        media
-            ?.filter((m: ProductMedia) => m.isImage)
-            .map((m: ProductMedia) => m.url) || [getPrimaryImage()]
-        , [media, getPrimaryImage]);
+    const productImages = useMemo(() => {
+        const mediaImages = (media ?? [])
+            .filter((m: ProductMedia) => m.isImage && typeof m.url === 'string' && m.url.trim().length > 0)
+            .sort((a: ProductMedia, b: ProductMedia) => {
+                if (a.isPrimary !== b.isPrimary) {
+                    return a.isPrimary ? -1 : 1;
+                }
+                return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+            })
+            .map((m: ProductMedia) => m.url.trim());
+
+        const fallbackImages = (images ?? [])
+            .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+            .map((url) => url.trim());
+
+        const mergedImages = [...mediaImages, ...fallbackImages];
+        const uniqueImages = Array.from(new Set(mergedImages));
+
+        return uniqueImages.length > 0 ? uniqueImages : [getPrimaryImage()];
+    }, [media, images, getPrimaryImage]);
 
     // Get videos
     const productVideos = useMemo(() => {

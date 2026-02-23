@@ -66,11 +66,11 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
   return (
     <div className={className}>
       {/* Main Image */}
-      <div className={`relative overflow-hidden rounded-lg ${imageHeight} bg-gray-100`}>
+      <div className={`relative overflow-hidden rounded-lg ${imageHeight} bg-white`}>
         <Image
           src={images[currentIndex] || '/placeholder-product.png'}
           alt="Product image"
-          className="w-full h-full object-contain cursor-zoom-in"
+          className="w-full h-full object-contain p-4 md:p-6 cursor-zoom-in"
           removeWrapper
           onClick={handleZoomOpen}
         />
@@ -82,7 +82,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
               isIconOnly
               size="md"
               variant="flat"
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+              className="absolute z-20 left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
               onPress={handlePrevImage}
             >
               <span className="text-lg">←</span>
@@ -91,7 +91,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
               isIconOnly
               size="md"
               variant="flat"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+              className="absolute z-20 right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
               onPress={handleNextImage}
             >
               <span className="text-lg">→</span>
@@ -105,7 +105,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
             isIconOnly
             size="md"
             variant="flat"
-            className="absolute right-2 bottom-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+            className="absolute z-20 right-2 bottom-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
             onPress={handleZoomOpen}
           >
             <FiSearch className="text-lg" />
@@ -114,7 +114,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
         {/* Image Counter */}
         {images.length > 1 && (
-          <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
+          <div className="absolute z-20 bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
             {currentIndex + 1} / {images.length}
           </div>
         )}
@@ -148,25 +148,23 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
         size="5xl"
         closeButton={false}
       >
-        <div className="relative bg-black">
+        <div className="relative flex items-center justify-center p-3 md:p-6">
           <Button
             isIconOnly
             size="md"
             variant="flat"
-            className="absolute top-4 right-4 z-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+            className="absolute top-4 right-4 z-20 bg-black/70 hover:bg-black/85 text-white rounded-full shadow-lg"
             onPress={handleZoomClose}
           >
             <FiX className="text-lg" />
           </Button>
 
-          <div className="flex items-center justify-center min-h-screen">
-            <Image
-              src={images[currentIndex] || '/placeholder-product.png'}
-              alt="Product image zoomed"
-              className="max-w-full max-h-[90vh] object-contain"
-              removeWrapper
-            />
-          </div>
+          <Image
+            src={images[currentIndex] || '/placeholder-product.png'}
+            alt="Product image zoomed"
+            className="max-w-full max-h-[85vh] object-contain"
+            removeWrapper
+          />
 
           {/* Navigation Arrows in Zoom Modal */}
           {images.length > 1 && (
@@ -175,7 +173,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
                 isIconOnly
                 size="lg"
                 variant="flat"
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+                className="absolute z-20 left-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/85 text-white rounded-full shadow-lg"
                 onPress={handlePrevImage}
               >
                 <span className="text-2xl">←</span>
@@ -184,7 +182,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
                 isIconOnly
                 size="lg"
                 variant="flat"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
+                className="absolute z-20 right-4 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/85 text-white rounded-full shadow-lg"
                 onPress={handleNextImage}
               >
                 <span className="text-2xl">→</span>

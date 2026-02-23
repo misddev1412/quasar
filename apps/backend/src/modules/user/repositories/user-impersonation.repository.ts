@@ -83,6 +83,16 @@ export class UserImpersonationRepository extends BaseRepository<UserImpersonatio
     );
   }
 
+  async endAllActiveForAdmin(adminUserId: string): Promise<void> {
+    await this.repository.update(
+      { adminUserId, status: ImpersonationStatus.ACTIVE },
+      {
+        status: ImpersonationStatus.ENDED,
+        endedAt: new Date()
+      }
+    );
+  }
+
   async markExpired(sessionToken: string): Promise<void> {
     await this.repository.update(
       { sessionToken, status: ImpersonationStatus.ACTIVE },

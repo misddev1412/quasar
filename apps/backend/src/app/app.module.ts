@@ -21,6 +21,7 @@ import { AuthModule } from '@backend/auth/auth.module';
 import { SharedModule } from '@backend/modules/shared/shared.module';
 import { FirebaseModule } from '@backend/modules/firebase/firebase.module';
 import { OpenAiModule } from '@backend/modules/openai/openai.module';
+import { PageSpeedModule } from '@backend/modules/pagespeed/pagespeed.module';
 import { ProductsModule } from '@backend/modules/products/products.module';
 import { NotificationsModule } from '@backend/modules/notifications/notifications.module';
 import { SectionsModule } from '@backend/modules/sections/sections.module';
@@ -179,6 +180,7 @@ import { NewsletterSubscription } from '@backend/modules/newsletter/entities/new
     AuthModule,
     FirebaseModule,
     OpenAiModule,
+    PageSpeedModule,
     TRPCModule.forRoot({
       context: AppContext,
       errorFormatter: createErrorFormatter('TRPCModule.forRoot'),

@@ -79,6 +79,7 @@ const FirebaseConfigsPage = lazy(() => import(/* webpackChunkName: "admin-config
 const CreateFirebaseConfigPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/firebase-configs/create'));
 const EditFirebaseConfigPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/firebase-configs/[id]/edit'));
 const OpenAiConfigsPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/openai-configs'));
+const PageSpeedPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/pagespeed'));
 const CreateOpenAiConfigPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/openai-configs/create'));
 const EditOpenAiConfigPage = lazy(() => import(/* webpackChunkName: "admin-config" */ '@admin/pages/openai-configs/[id]/edit'));
 const NotificationsPage = lazy(() => import(/* webpackChunkName: "admin-notifications" */ '@admin/pages/notifications'));
@@ -285,6 +286,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />
         <Route path="/firebase-configs/:id/edit" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
         <Route path="/openai-configs" element={<ProtectedRoute><OpenAiConfigsPage /></ProtectedRoute>} />
+        <Route path="/pagespeed" element={<ProtectedRoute><PageSpeedPage /></ProtectedRoute>} />
         <Route path="/openai-configs/create" element={<ProtectedRoute><CreateOpenAiConfigPage /></ProtectedRoute>} />
         <Route path="/openai-configs/:id/edit" element={<ProtectedRoute><EditOpenAiConfigPage /></ProtectedRoute>} />
         {/* Notifications */}

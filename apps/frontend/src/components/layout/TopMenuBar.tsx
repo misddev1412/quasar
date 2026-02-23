@@ -18,6 +18,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { useCart } from '../ecommerce/CartProvider';
+import { useLocalePath } from '../../lib/routing';
 
 const TOP_MENU_GROUP = 'top';
 
@@ -489,6 +490,7 @@ const TopAccountDropdown: React.FC<{
 }> = ({ className, style, label, iconNode }) => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const router = useRouter();
+  const { createLocalUrl } = useLocalePath();
   const t = useTranslations();
 
   const accountItems = useMemo(
@@ -511,15 +513,15 @@ const TopAccountDropdown: React.FC<{
 
   const handleNavigate = useCallback(
     (href: string) => {
-      router.push(href);
+      router.push(createLocalUrl(href));
     },
-    [router],
+    [router, createLocalUrl],
   );
 
   const handleLogout = useCallback(() => {
     logout();
-    router.push('/');
-  }, [logout, router]);
+    router.push(createLocalUrl('/'));
+  }, [logout, router, createLocalUrl]);
 
   const triggerLabel = label || (isAuthenticated ? user?.name || t('layout.header.user.account') : t('layout.header.guest.signin'));
 

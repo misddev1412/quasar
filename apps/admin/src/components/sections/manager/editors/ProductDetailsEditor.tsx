@@ -84,7 +84,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
         <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-4">
-                    <h4 className="font-medium text-gray-700 dark:text-gray-200">Layout & Visibility</h4>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-200">{t('sections.manager.config.product_details.layoutVisibility')}</h4>
 
                     <Switch
                         checked={showSidebar}
@@ -100,7 +100,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
                 </div>
 
                 <div className="space-y-4">
-                    <h4 className="font-medium text-gray-700 dark:text-gray-200">Tabs Visibility</h4>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-200">{t('sections.manager.config.product_details.tabsVisibility')}</h4>
                     <Switch
                         checked={showDescription}
                         onChange={(checked) => updateConfig({ showDescription: checked })}
@@ -136,7 +136,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
 
                 {policies.length === 0 ? (
                     <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900/40">
-                        No policies added yet. Click "Add Policy Box" to create one.
+                        {t('sections.manager.config.product_details.policies.emptyState')}
                     </div>
                 ) : (
                     <div className="mt-4 space-y-4">
@@ -155,7 +155,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
                                             onClick={() => movePolicy(index, -1)}
                                             startIcon={<FiChevronUp className="h-4 w-4" />}
                                         >
-                                            Up
+                                            {t('sections.manager.config.product_details.policies.moveUp')}
                                         </Button>
                                         <Button
                                             type="button"
@@ -165,7 +165,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
                                             onClick={() => movePolicy(index, 1)}
                                             startIcon={<FiChevronDown className="h-4 w-4" />}
                                         >
-                                            Down
+                                            {t('sections.manager.config.product_details.policies.moveDown')}
                                         </Button>
                                         <Button
                                             type="button"
@@ -174,7 +174,7 @@ export const ProductDetailsEditor: React.FC<ProductDetailsEditorProps> = ({ valu
                                             onClick={() => handleRemovePolicy(index)}
                                             startIcon={<FiTrash2 className="h-4 w-4" />}
                                         >
-                                            Remove
+                                            {t('sections.manager.config.product_details.policies.remove')}
                                         </Button>
                                     </div>
                                 </div>

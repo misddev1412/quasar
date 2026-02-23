@@ -18,6 +18,51 @@ import LocaleWrapper from '../components/LocaleWrapper';
 
 import { useFCM } from '../hooks/useFCM';
 import { CurrencyProvider } from '../contexts/CurrencyContext';
+import { useEffect } from 'react';
+import { setAuthToken, setRefreshToken } from '../utils/trpc';
+
+function ImpersonationSync() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+
+    const deleteCookie = (name: string) => {
+      document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+    };
+
+    const impToken = getCookie('impersonation_token');
+    const impRefreshToken = getCookie('impersonation_refresh_token');
+    const adminToken = getCookie('admin_token_backup');
+    const adminRefreshToken = getCookie('admin_refresh_token_backup');
+
+    if (impToken) {
+      setAuthToken(impToken);
+      if (impRefreshToken) setRefreshToken(impRefreshToken);
+
+      if (adminToken) {
+        localStorage.setItem('admin_token_backup', adminToken);
+      }
+      if (adminRefreshToken) {
+        localStorage.setItem('admin_refresh_token_backup', adminRefreshToken);
+      }
+
+      deleteCookie('impersonation_token');
+      deleteCookie('impersonation_refresh_token');
+      deleteCookie('admin_token_backup');
+      deleteCookie('admin_refresh_token_backup');
+
+      window.location.reload();
+    }
+  }, []);
+
+  return null;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +116,7 @@ function AppProviders({ children, locale, messages }: { children: React.ReactNod
                 <ThemeProvider>
                   <ToastProvider>
                     <AuthProvider>
+                      <ImpersonationSync />
                       <FCMListener />
                       <CartSettingsWrapper>
                         <ImpersonationBanner />

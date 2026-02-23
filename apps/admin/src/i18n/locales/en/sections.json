@@ -159,7 +159,8 @@
                 "secondaryButton": "\"View sections\" button",
                 "secondaryButtonDescription": "Show or hide the sections.hero.view_sections link.",
                 "height": "Height (px)",
-                "heightDescription": "Fixed height in pixels (200-1200). Stays the same across all screen sizes."
+                "heightDescription": "Fixed height in pixels (200-1200). Stays the same across all screen sizes.",
+                "sharedBehaviorDescription": "Slides are configured per language in the translation panel. Use this section to manage shared behavior like autoplay and overlays."
             },
             "config": {
                 "header": "Section configuration",
@@ -320,6 +321,8 @@
                     }
                 },
                 "product_details": {
+                    "layoutVisibility": "Layout & Visibility",
+                    "tabsVisibility": "Tabs Visibility",
                     "showSidebar": "Show Sidebar (Specifications)",
                     "showDescription": "Show Description Tab",
                     "showReviews": "Show Reviews Tab",
@@ -330,10 +333,14 @@
                         "description": "Configure the policy boxes displayed below description",
                         "add": "Add Policy Box",
                         "cardTitle": "Policy Box",
+                        "emptyState": "No policies added yet. Click \"Add Policy Box\" to create one.",
                         "label": "Box #{{index}}",
                         "titleLabel": "Title",
                         "descriptionLabel": "Description",
-                        "iconLabel": "Icon"
+                        "iconLabel": "Icon",
+                        "moveUp": "Up",
+                        "moveDown": "Down",
+                        "remove": "Remove"
                     }
                 },
                 "gallery": {
@@ -683,18 +690,30 @@
                 "displayStyle": "Display Style",
                 "remove": "Remove",
                 "displayTitle": "Display Title",
+                "titlePlaceholder": "Enter display title",
+                "titleAutoSuggestion": "Auto-suggested from selected category, editable.",
                 "showDisplayTitle": "Show display title",
                 "showCategoryLabel": "Show storefront category name",
                 "showStrategyLabel": "Show strategy badge",
+                "categoryLabel": "Category",
+                "loadingCategories": "Loading categories...",
+                "selectCategory": "Select category",
+                "noCategoriesFound": "No categories found",
+                "productCount": "Number of products",
                 "unnamedProduct": "Unnamed product",
                 "loading": "Loading...",
                 "loadMoreProducts": "Load more products",
                 "noSku": "No SKU",
                 "featureProducts": "Featured products",
+                "selectProducts": "Select products",
+                "selectProductsHint": "Only products from the selected category are shown.",
                 "searchProducts": "Search and select products...",
                 "loadingProducts": "Loading products...",
                 "noProductsFound": "No products found",
                 "startTyping": "Start typing to search products",
+                "pickCategoryBeforeCustom": "Select a category before adding specific products.",
+                "emptyProductsInCategory": "No products found in this category.",
+                "selectCategoryToPreview": "Select a category to preview products that will be displayed.",
                 "productsAppearOrder": "Products appear in the order selected. Remove and re-add to adjust ordering.",
                 "noProductsSelected": "No products selected yet.",
                 "style": "Display style",

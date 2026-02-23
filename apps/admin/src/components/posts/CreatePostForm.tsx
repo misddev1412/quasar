@@ -188,12 +188,16 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               rightElement: (
                 <FormAIGenerator
                   targetFieldName="excerpt"
-                  sourceFieldName="content"
+                  sourceFieldName="title"
                   targetLabel={t('posts.shortDescription')}
-                  sourceLabel={t('posts.content')}
+                  sourceLabel={t('posts.title')}
                   entityType="post"
                   contentType="description"
                   allowImages={false}
+                  allowProductLinks={false}
+                  allowLengthOptions={false}
+                  allowStyleOptions={false}
+                  plainTextOutput={true}
                   stripHtmlOutput={true}
                 />
               ),

@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getEnvApiBaseUrl, normalizeApiBase } from './utils/apiBase';
 import type { MaintenanceStatus } from './types/maintenance';
 
-export {};
+export { };
 
 const MAINTENANCE_COOKIE = 'maintenance_token';
 const CACHE_TTL_MS = Number(process.env.MAINTENANCE_STATUS_TTL_MS || 5000);
@@ -31,9 +31,78 @@ if (!globalThis.__maintenanceGlobals) {
   };
 }
 
+function shouldBypass(request: NextRequest): boolean {
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/maintenance')) {
+    return true;
+  }
+
+  // Set locale based on path if it's localized
+  const LOCALIZED_PREFIXES: Record<string, string> = {
+    '/san-pham': 'vi',
+    '/gioi-thieu': 'vi',
+    '/lien-he': 'vi',
+    '/tin-tuc': 'vi',
+    '/dich-vu': 'vi',
+  };
+
+  const matchedPrefix = Object.keys(LOCALIZED_PREFIXES).find(prefix =>
+    pathname === prefix || pathname.startsWith(prefix + '/')
+  );
+
+  if (matchedPrefix) {
+    const locale = LOCALIZED_PREFIXES[matchedPrefix];
+    const currentLocale = request.cookies.get('NEXT_LOCALE')?.value;
+
+    if (currentLocale !== locale) {
+      const response = NextResponse.next();
+      response.cookies.set('NEXT_LOCALE', locale, {
+        path: '/',
+        maxAge: 31536000,
+        sameSite: 'lax',
+      });
+      return false; // Don't bypass, we want to return the response with cookie
+    }
+  }
+
+  return false;
+}
+
+// Update middleware to handle the false return from shouldBypass correctly
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Manual locale setting based on path
+  const LOCALIZED_PREFIXES: Record<string, string> = {
+    '/san-pham': 'vi',
+    '/gioi-thieu': 'vi',
+    '/lien-he': 'vi',
+    '/tin-tuc': 'vi',
+    '/dich-vu': 'vi',
+  };
+
+  let response: NextResponse | null = null;
+
+  const matchedPrefix = Object.keys(LOCALIZED_PREFIXES).find(prefix =>
+    pathname === prefix || pathname.startsWith(prefix + '/')
+  );
+
+  if (matchedPrefix) {
+    const locale = LOCALIZED_PREFIXES[matchedPrefix];
+    const currentLocale = request.cookies.get('NEXT_LOCALE')?.value;
+
+    if (currentLocale !== locale) {
+      response = NextResponse.next();
+      response.cookies.set('NEXT_LOCALE', locale, {
+        path: '/',
+        maxAge: 31536000,
+        sameSite: 'lax',
+      });
+    }
+  }
+
   if (shouldBypass(request)) {
-    return NextResponse.next();
+    return response || NextResponse.next();
   }
 
   const baseUrl = resolveMaintenanceApiBaseUrl(request);
@@ -44,26 +113,17 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!status.enabled) {
-    return NextResponse.next();
+    return response || NextResponse.next();
   }
 
   const token = request.cookies.get(MAINTENANCE_COOKIE)?.value;
   const hasAccess = await verifyMaintenanceToken(baseUrl, token);
 
   if (hasAccess) {
-    return NextResponse.next();
+    return response || NextResponse.next();
   }
 
   return redirectToMaintenance(request);
-}
-
-function shouldBypass(request: NextRequest): boolean {
-  const pathname = request.nextUrl.pathname;
-  if (pathname.startsWith('/maintenance')) {
-    return true;
-  }
-
-  return false;
 }
 
 async function getMaintenanceStatus(apiOrigin: string): Promise<MaintenanceStatus | null> {

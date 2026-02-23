@@ -159,7 +159,8 @@
                 "secondaryButton": "Nút \"Xem các section\"",
                 "secondaryButtonDescription": "Hiển thị hoặc ẩn nút mặc định sections.hero.view_sections.",
                 "height": "Chiều cao (px)",
-                "heightDescription": "Chiều cao cố định tính bằng pixel (200-1200). Giữ nguyên trên mọi kích thước màn hình."
+                "heightDescription": "Chiều cao cố định tính bằng pixel (200-1200). Giữ nguyên trên mọi kích thước màn hình.",
+                "sharedBehaviorDescription": "Các slide được cấu hình theo từng ngôn ngữ trong phần bản dịch. Khu vực này dùng để quản lý các hành vi dùng chung như tự động chạy và lớp phủ."
             },
             "config": {
                 "header": "Cấu hình Section",
@@ -320,6 +321,8 @@
                     }
                 },
                 "product_details": {
+                    "layoutVisibility": "Bố cục & hiển thị",
+                    "tabsVisibility": "Hiển thị tab",
                     "showSidebar": "Hiển thị Sidebar (Thông số kỹ thuật)",
                     "showDescription": "Hiển thị Tab Mô tả",
                     "showReviews": "Hiển thị Tab Đánh giá",
@@ -330,10 +333,14 @@
                         "description": "Cấu hình các box chính sách hiển thị dưới mô tả",
                         "add": "Thêm Policy Box",
                         "cardTitle": "Policy Box",
+                        "emptyState": "Chưa có policy nào. Nhấn \"Thêm Policy Box\" để tạo mới.",
                         "label": "Box #{{index}}",
                         "titleLabel": "Tiêu đề",
                         "descriptionLabel": "Mô tả",
-                        "iconLabel": "Biểu tượng"
+                        "iconLabel": "Biểu tượng",
+                        "moveUp": "Lên",
+                        "moveDown": "Xuống",
+                        "remove": "Xóa"
                     }
                 },
                 "gallery": {
@@ -686,18 +693,30 @@
                 "displayStyle": "Kiểu hiển thị",
                 "remove": "Xóa",
                 "displayTitle": "Tiêu đề hiển thị",
+                "titlePlaceholder": "Nhập tiêu đề hiển thị",
+                "titleAutoSuggestion": "Tự động gợi ý theo danh mục đã chọn, có thể chỉnh sửa.",
                 "showDisplayTitle": "Hiển thị Tiêu đề hiển thị",
                 "showCategoryLabel": "Hiển thị tên Danh mục gốc",
                 "showStrategyLabel": "Hiển thị Chiến lược hiển thị",
+                "categoryLabel": "Danh mục",
+                "loadingCategories": "Đang tải danh mục...",
+                "selectCategory": "Chọn danh mục",
+                "noCategoriesFound": "Không tìm thấy danh mục",
+                "productCount": "Số lượng sản phẩm",
                 "unnamedProduct": "Sản phẩm chưa đặt tên",
                 "loading": "Đang tải...",
                 "loadMoreProducts": "Tải thêm sản phẩm",
                 "noSku": "Không có mã",
                 "featureProducts": "Sản phẩm nổi bật",
+                "selectProducts": "Chọn sản phẩm",
+                "selectProductsHint": "Chỉ hiển thị các sản phẩm thuộc danh mục đã chọn.",
                 "searchProducts": "Tìm kiếm và chọn sản phẩm...",
                 "loadingProducts": "Đang tải sản phẩm...",
                 "noProductsFound": "Không tìm thấy sản phẩm",
                 "startTyping": "Nhập để tìm kiếm sản phẩm",
+                "pickCategoryBeforeCustom": "Chọn danh mục trước khi thêm sản phẩm cụ thể.",
+                "emptyProductsInCategory": "Không tồn tại sản phẩm trong danh mục này.",
+                "selectCategoryToPreview": "Chọn danh mục để xem trước sản phẩm sẽ hiển thị.",
                 "productsAppearOrder": "Sản phẩm sẽ hiển thị theo thứ tự được chọn. Xóa và thêm lại để thay đổi thứ tự.",
                 "noProductsSelected": "Chưa chọn sản phẩm nào.",
                 "style": "Kiểu hiển thị",

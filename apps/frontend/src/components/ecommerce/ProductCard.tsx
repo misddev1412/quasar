@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
 import AddToCartButton from './AddToCartButton';
+import ContactPriceModal from './ContactPriceModal';
 import type { Product, ProductMedia, ProductVariant } from '../../types/product';
 import { useAddToCart } from '../../hooks/useAddToCart';
 import { useTranslation } from 'react-i18next';
@@ -14,10 +15,7 @@ import { useProductCardConfig } from '../../hooks/useProductCardConfig';
 import { useAddToCartButtonConfig } from '../../hooks/useAddToCartButtonConfig';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UnifiedIcon } from '../common/UnifiedIcon';
-import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
-import { trpc } from '../../utils/trpc';
-import toast from 'react-hot-toast';
-import { usePathname } from 'next/navigation';
+import { useLocalePath } from '../../lib/routing';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -156,17 +154,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
   const { addToCart, isAdding: isCartAdding } = useAddToCart();
   const { t } = useTranslation();
-  const pathname = usePathname();
-
-  // Contact form state
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
-
-  const submitInquiry = trpc.inquiry.submit.useMutation();
+  const { createProductUrl } = useLocalePath();
   const { formatCurrency } = useCurrencyFormatter({
     currency: priceSettings.currency || product.currencyCode,
     locale: priceSettings.locale,
@@ -225,49 +215,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
-  const categoryNames = useMemo(() => {
-    if (!Array.isArray(product.categories)) {
-      return '';
-    }
-    return product.categories
-      .map((category: any) => category?.name)
-      .filter((value: string | undefined) => Boolean(value))
-      .join(', ');
-  }, [product.categories]);
-  const variantCountValue = Array.isArray(variants) ? variants.length : 0;
-
-  const contactCountriesQuery = trpc.clientAddressBook.getCountries.useQuery(undefined, {
-    enabled: isContactModalOpen,
-    staleTime: 10 * 60 * 1000,
-  });
-  const phoneCountryOptions = useMemo<PhoneInputCountryOption[]>(() => {
-    const raw = contactCountriesQuery.data;
-    if (!Array.isArray(raw)) {
-      return [];
-    }
-
-    return raw
-      .map((country: any) => {
-        const code = country?.code ? String(country.code).toUpperCase() : '';
-        const phoneCode = country?.phoneCode ? String(country.phoneCode) : null;
-        if (!code) {
-          return null;
-        }
-        return {
-          code,
-          name: country?.name || code,
-          phoneCode,
-        } as PhoneInputCountryOption;
-      })
-      .filter((option): option is PhoneInputCountryOption => option !== null && Boolean(option.code));
-  }, [contactCountriesQuery.data]);
-  const defaultPhoneCountry = useMemo(() => {
-    if (!phoneCountryOptions.length) {
-      return undefined;
-    }
-    const vietnam = phoneCountryOptions.find((option) => option.code === 'VN');
-    return vietnam?.code ?? phoneCountryOptions[0]?.code;
-  }, [phoneCountryOptions]);
 
   const attributeGroups = useMemo(() => {
     if (!variants || variants.length === 0) return [] as Array<{ name: string; values: string[] }>;
@@ -458,34 +405,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleInquirySubmit = useCallback(async () => {
-    if (!contactName || !contactEmail || !contactPhone) {
-      toast.error(t('common.pleaseFillAllFields', 'Please fill in all required fields'));
-      return;
-    }
-
-    try {
-      await submitInquiry.mutateAsync({
-        name: contactName,
-        email: contactEmail,
-        phone: contactPhone,
-        message: contactMessage,
-        productId: id,
-        url: typeof window !== 'undefined' ? window.location.href : pathname,
-        subject: `Inquiry for ${displayName}`,
-      });
-
-      toast.success(t('ecommerce.product.contactSuccess', 'Your inquiry has been submitted successfully!'));
-      onCloseContactModal();
-      // Reset form
-      setContactName('');
-      setContactEmail('');
-      setContactMessage('');
-    } catch (error: any) {
-      toast.error(error.message || t('common.errorOccurred', 'An error occurred while submitting your inquiry'));
-    }
-  }, [contactName, contactEmail, contactPhone, contactMessage, id, displayName, pathname, submitInquiry, onCloseContactModal, t]);
-
   const handleQuickView = useCallback(() => {
     if (onQuickView) {
       onQuickView(product);
@@ -543,7 +462,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           isHorizontalLayout && 'md:w-1/2',
         )}
       >
-        <Link href={`/products/${productSlug}`}>
+        <Link href={createProductUrl(productSlug)}>
           <Image
             src={getPrimaryImage()}
             alt={displayName || t('ecommerce.productCard.imageAlt', 'Product Image')}
@@ -610,7 +529,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className={clsx('p-5 flex flex-col flex-1', isHorizontalLayout && 'md:w-1/2')}>
         <div className="flex flex-col gap-1 flex-1 min-h-[120px] sm:min-h-[140px]">
           {/* Product Name */}
-          <Link href={`/products/${productSlug}`} className="block">
+          <Link href={createProductUrl(productSlug)} className="block">
             <TitleTag className={titleClassName} style={titleStyle}>
               {displayName}
             </TitleTag>
@@ -858,26 +777,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                   price: formatCurrency((matchingVariant.price || 0) * quantity),
                                 });
                     return (
-                  <button
-                    onClick={handleAddToCartWithVariant}
-                    disabled={isDisabled}
-                    className={`flex-1 ${unifiedCtaClassName} transition-all duration-300 ${
-                      isDisabled ? 'cursor-not-allowed opacity-70' : ''
-                    }`}
-                    style={actionButtonStyle}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {addToCartButtonConfig.icon && (
-                        <UnifiedIcon
-                          icon={addToCartButtonConfig.icon}
-                          variant="button"
-                          size={18}
-                          color={actionButtonStyle.color as string}
-                        />
-                      )}
-                      <span>{actionLabel}</span>
-                    </span>
-                  </button>
+                      <button
+                        onClick={handleAddToCartWithVariant}
+                        disabled={isDisabled}
+                        className={`flex-1 ${unifiedCtaClassName} transition-all duration-300 ${isDisabled ? 'cursor-not-allowed opacity-70' : ''
+                          }`}
+                        style={actionButtonStyle}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          {addToCartButtonConfig.icon && (
+                            <UnifiedIcon
+                              icon={addToCartButtonConfig.icon}
+                              variant="button"
+                              size={18}
+                              color={actionButtonStyle.color as string}
+                            />
+                          )}
+                          <span>{actionLabel}</span>
+                        </span>
+                      </button>
                     );
                   })()}
                   <button
@@ -924,134 +842,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </ModalContent>
       </Modal>
 
-      {/* Contact Price Modal */}
-      <Modal
+      <ContactPriceModal
+        product={product}
         isOpen={isContactModalOpen}
         onClose={onCloseContactModal}
-        size="2xl"
-        backdrop="blur"
-        className="dark:bg-gray-900"
-      >
-        <ModalContent className="overflow-hidden">
-          <ModalHeader className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-emerald-600 to-teal-600 p-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100">
-                {t('ecommerce.product.contactPrice')}
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">
-                {displayName}
-              </h2>
-            </div>
-          </ModalHeader>
-          <ModalBody className="p-6">
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
-              <div className="rounded-2xl border border-emerald-100 bg-white/80 p-5 text-sm text-emerald-900 shadow-sm backdrop-blur dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-100">
-                <div className="flex items-center gap-3">
-                  <div className="h-14 w-14">
-                    <Image
-                      src={getPrimaryImage()}
-                      alt={displayName}
-                      className="h-full w-full rounded-xl object-cover"
-                      removeWrapper
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-700/70 dark:text-emerald-200/70 mb-0">
-                      {t('ecommerce.product.contactPriceLabel')}
-                    </p>
-                    <p className="text-base font-semibold leading-tight">
-                      {contactPriceLabel || t('ecommerce.product.contactPrice')}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-4 text-xs text-emerald-800/80 dark:text-emerald-100/80">
-                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/40">
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-700/70 dark:text-emerald-200/70">
-                      {t('ecommerce.product.skuLabel')}
-                    </p>
-                    <p className="mt-1 break-all text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                      {sku || '-'}
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/40">
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-700/70 dark:text-emerald-200/70">
-                        {t('ecommerce.product.variantsLabel')}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                        {variantCountValue}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/40">
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-700/70 dark:text-emerald-200/70">
-                        {t('ecommerce.product.categoryLabel')}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                        {categoryNames || '-'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid gap-4">
-                  <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
-                    <span className="font-medium">{t('common.name', 'Name')}</span>
-                    <input
-                      type="text"
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
-                    />
-                  </label>
-                  <PhoneInputField
-                    id={`contact-phone-${id}`}
-                    label={t('common.phone', 'Phone')}
-                    value={contactPhone}
-                    onChange={setContactPhone}
-                    countryOptions={phoneCountryOptions}
-                    defaultCountry={defaultPhoneCountry}
-                  />
-                </div>
-                <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
-                  <span className="font-medium">{t('common.email', 'Email')}</span>
-                  <input
-                    type="email"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
-                  />
-                </label>
-                <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
-                  <span className="font-medium">{t('common.message', 'Message')}</span>
-                  <textarea
-                    value={contactMessage}
-                    onChange={(e) => setContactMessage(e.target.value)}
-                    className="mt-2 min-h-[120px] rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
-                  />
-                </label>
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                  <Button
-                    variant="light"
-                    className="rounded-full"
-                    onPress={onCloseContactModal}
-                  >
-                    {t('common.cancel', 'Cancel')}
-                  </Button>
-                  <Button
-                    className="rounded-full bg-gray-900 text-white hover:bg-gray-800"
-                    onPress={handleInquirySubmit}
-                    isLoading={submitInquiry.isPending}
-                  >
-                    {t('common.submit', 'Submit')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        labels={{
+          contactPrice: t('ecommerce.product.contactPrice', 'Contact Price'),
+          contactPriceLabel: t('ecommerce.product.contactPriceLabel', 'Contact Price'),
+          name: t('common.name', 'Name'),
+          phone: t('common.phone', 'Phone'),
+          email: t('common.email', 'Email'),
+          message: t('common.message', 'Message'),
+          cancel: t('common.cancel', 'Cancel'),
+          submit: t('common.submit', 'Submit'),
+          requiredError: t('common.pleaseFillAllFields', 'Please fill in all required fields'),
+          submitSuccess: t('ecommerce.product.contactSuccess', 'Your inquiry has been submitted successfully!'),
+          submitError: t('common.errorOccurred', 'An error occurred while submitting your inquiry'),
+          sku: t('ecommerce.product.skuLabel', 'SKU'),
+          variants: t('ecommerce.product.variantsLabel', 'Variants'),
+          category: t('ecommerce.product.categoryLabel', 'Category'),
+        }}
+      />
     </div>
   );
 };

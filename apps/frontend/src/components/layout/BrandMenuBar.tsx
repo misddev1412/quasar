@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { useMenu, MenuItem, MenuTranslation } from '../../hooks/useMenu';
 import { MenuType } from '@shared/enums/menu.enums';
+import { useLocalePath } from '../../lib/routing';
 import { useSettings } from '../../hooks/useSettings';
 import Container from '../common/Container';
 import { UnifiedIcon } from '../common/UnifiedIcon';
@@ -13,6 +14,7 @@ import { Button } from '@heroui/react';
 const BrandMenuBar: React.FC = () => {
     const { treeData, isLoading } = useMenu('brand_header');
     const locale = useLocale();
+    const { createLocalUrl } = useLocalePath();
 
     const getLocalizedContent = (item: MenuItem | null | undefined, key: keyof MenuTranslation) => {
         if (!item) return '';
@@ -45,7 +47,7 @@ const BrandMenuBar: React.FC = () => {
 
     // Use useSettings to get the asset URL if it's a LOGO type
     const { getSetting } = useSettings();
-    const logoUrl = logoItem?.url || '/';
+    const logoUrl = logoItem?.url ? createLocalUrl(logoItem.url) : createLocalUrl('/');
 
     const logoImage = useMemo(() => {
         if (!logoItem) return '';

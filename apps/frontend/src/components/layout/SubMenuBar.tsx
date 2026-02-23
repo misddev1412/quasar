@@ -15,6 +15,7 @@ import CartDropdown from '../ecommerce/CartDropdown';
 import { useCart } from '../../contexts/CartContext';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { useLocalePath } from '../../lib/routing';
 
 const SUB_MENU_GROUP = 'sub';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
@@ -209,6 +210,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     }
     : getTopLevelStyles(item, variant, resolvedBorderRadius);
   const router = useRouter();
+  const { createLocalUrl } = useLocalePath();
   const { openCart } = useCart();
   const isCartMenuItem = item.type === MenuType.CART_BUTTON;
 
@@ -235,9 +237,9 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
 
   useEffect(() => {
     if (item.type === MenuType.SEARCH_BAR && router?.prefetch) {
-      router.prefetch('/search');
+      router.prefetch(createLocalUrl('/search'));
     }
-  }, [item.type, router]);
+  }, [item.type, router, createLocalUrl]);
 
   useEffect(() => {
     if (!shouldRenderDropdown || !isHovered) {
@@ -410,7 +412,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         return;
       }
       setSearchError(null);
-      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+      router.push(createLocalUrl(`/search?q=${encodeURIComponent(trimmed)}`));
       setSearchValue(trimmed);
       if (searchInputRef.current) searchInputRef.current.blur();
       if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();

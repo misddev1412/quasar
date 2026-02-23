@@ -5,7 +5,8 @@ import { FormInput } from '@admin/components/common/FormInput';
 import { TextareaInput } from '@admin/components/common/TextareaInput';
 import { Select } from '@admin/components/common/Select';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Wand2, Loader2, Sparkles } from 'lucide-react';
+import { useSettings } from '@admin/hooks/useSettings';
 
 interface AIGenerationOptionsModalProps {
     isOpen: boolean;
@@ -90,6 +91,11 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
 
 
     const toneOptions = useMemo(() => getToneOptions(t), [t]);
+    const { settings } = useSettings();
+    const siteName = useMemo(() => {
+        const siteNameSetting = settings?.find(s => s.key === 'site_name');
+        return siteNameSetting?.value || '';
+    }, [settings]);
     const styleOptions = useMemo(() => getStyleOptions(t), [t]);
     const lengthOptions = useMemo(() => getLengthOptions(t), [t]);
 
@@ -128,6 +134,15 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
         }
     };
 
+    const handleUseSiteName = () => {
+        if (siteName) {
+            setOptions(prev => ({
+                ...prev,
+                context: prev.context ? `${prev.context} (${siteName})` : siteName
+            }));
+        }
+    };
+
     const handleGenerate = () => {
         onGenerate(options);
     };
@@ -156,6 +171,17 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                                 onChange={(e) => setOptions({ ...options, context: e.target.value })}
                                 placeholder={t('ai.context_placeholder', 'Enter topic or product name...')}
                                 rows={3}
+                                rightElement={siteName && (
+                                    <button
+                                        type="button"
+                                        onClick={handleUseSiteName}
+                                        className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                                        title={t('ai.use_site_name_tip', 'Use Site Name as context')}
+                                    >
+                                        <Sparkles className="w-3 h-3" />
+                                        {t('ai.use_site_name', 'Use Site Name')}
+                                    </button>
+                                )}
                             />
                         </div>
 

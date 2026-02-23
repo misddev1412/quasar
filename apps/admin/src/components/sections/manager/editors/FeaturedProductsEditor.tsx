@@ -280,7 +280,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                         className="w-full text-sm text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2 py-2"
                         disabled={productsQuery.isFetching}
                     >
-                        {productsQuery.isFetching ? 'Loading...' : 'Load more products'}
+                        {productsQuery.isFetching ? t('sections.manager.productsByCategory.loading') : t('sections.manager.productsByCategory.loadMoreProducts')}
                     </button>
                 </div>
             )}
@@ -302,7 +302,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                     <div className="flex flex-col">
                         <span className="text-sm font-medium">{option.label}</span>
                         <span className="text-xs opacity-80">
-                            {option.sku ? `SKU: ${option.sku}` : 'No SKU'}
+                            {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
                             {option.brandName ? ` · ${option.brandName}` : ''}
                             {option.priceLabel ? ` · ${option.priceLabel}` : ''}
                         </span>
@@ -438,8 +438,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                                             value={config.displayStyle}
                                             onChange={(e) => handleConfigChange({ displayStyle: e.target.value })}
                                         >
-                                            <option value="grid">Grid</option>
-                                            <option value="carousel">Carousel</option>
+                                            <option value="grid">{t('sections.manager.productsByCategory.grid')}</option>
+                                            <option value="carousel">{t('sections.manager.productsByCategory.carousel')}</option>
                                         </select>
                                     </label>
                                     <label className="flex flex-col gap-1 text-sm text-gray-600">

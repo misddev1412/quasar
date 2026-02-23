@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Layout from '../layout/Layout';
 import PageBreadcrumbs from '../common/PageBreadcrumbs';
 import Container from '../common/Container';
@@ -22,6 +22,8 @@ export default function NewsDetailView({
     processedContent,
 }: NewsDetailViewProps) {
     const tCommon = useTranslations('common');
+    const locale = useLocale();
+
 
     return (
         <Layout>
@@ -60,8 +62,8 @@ export default function NewsDetailView({
                         )}
                     </div>
 
-                    <Container size="lg" className="relative py-16 lg:py-24">
-                        <div className="max-w-4xl mx-auto text-center">
+                    <Container size="lg" className="relative py-12 lg:py-16">
+                        <div className="max-w-7xl mx-auto">
                             {/* Category */}
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
@@ -74,43 +76,67 @@ export default function NewsDetailView({
                                 </span>
                             </motion.div>
 
-                            {/* Title */}
-                            <motion.h1
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-8 leading-[1.15] tracking-tight"
+                                className="mb-5 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm p-4 md:p-5"
                             >
-                                {newsItem.title}
-                            </motion.h1>
+                                <div className="flex flex-col md:flex-row md:items-stretch gap-4 md:gap-5">
+                                    <div className="w-24 h-24 md:w-72 md:h-72 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                        {newsItem.image ? (
+                                            <img
+                                                src={newsItem.image}
+                                                alt={newsItem.title}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-gray-500 dark:text-gray-300">
+                                                {newsItem.title.charAt(0)}
+                                            </div>
+                                        )}
+                                    </div>
 
-                            {/* Meta information */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                                className="flex flex-wrap items-center justify-center gap-6 text-gray-500 dark:text-gray-400 text-sm font-medium"
-                            >
-                                <div className="flex items-center gap-2.5 group">
-                                    <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
+                                    <div className="min-w-0 flex-1 flex flex-col">
+                                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white leading-[1.2] tracking-tight">
+                                            {newsItem.title}
+                                        </h1>
+
+                                        {newsItem.excerpt?.trim() && (
+                                            <p className="mt-3 text-base md:text-lg text-gray-600 dark:text-gray-300 leading-[1.5]">
+                                                {newsItem.excerpt}
+                                            </p>
+                                        )}
+
+                                        {/* Meta information */}
+                                        <div className="mt-auto pt-4 flex flex-wrap items-center gap-4 md:gap-6 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                            <div className="flex items-center gap-2.5 group">
+                                                <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                                <span>{newsItem.author}</span>
+                                            </div>
+                                            <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700 hidden sm:block" />
+                                            <div className="flex items-center gap-2.5 group">
+                                                <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <span>{new Date(newsItem.publishDate).toLocaleDateString(locale, {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span>{newsItem.author}</span>
-                                </div>
-                                <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700 hidden sm:block" />
-                                <div className="flex items-center gap-2.5 group">
-                                    <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <span>{new Date(newsItem.publishDate).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}</span>
                                 </div>
                             </motion.div>
                         </div>
@@ -122,26 +148,6 @@ export default function NewsDetailView({
                     <div className="bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
                         <div className="p-6 md:p-10 lg:p-12 space-y-10">
                             <main className="space-y-10">
-                                {/* Featured Image */}
-                                {newsItem.image && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.98 }}
-                                        whileInView={{ opacity: 1, scale: 1 }}
-                                        viewport={{ once: true }}
-                                        className="rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/10 border border-gray-100 dark:border-gray-800"
-                                    >
-                                        <img
-                                            src={newsItem.image}
-                                            alt={newsItem.title}
-                                            className="w-full h-auto object-cover max-h-[700px] hover:scale-105 transition-transform duration-1000"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.style.display = 'none';
-                                            }}
-                                        />
-                                    </motion.div>
-                                )}
-
                                 {/* Table of Contents - Minimalist integration */}
                                 {headings.length > 0 && (
                                     <TableOfContents headings={headings} variant="minimal" />

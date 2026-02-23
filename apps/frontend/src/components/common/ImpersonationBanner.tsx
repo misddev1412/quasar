@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { formatDistanceToNow } from 'date-fns';
-import { trpc, removeAuthToken, removeRefreshToken } from '../../utils/trpc';
+import { trpc, removeAuthToken, removeRefreshToken, setAuthToken, setRefreshToken } from '../../utils/trpc';
 import type { TrpcApiResponse } from '@shared/types/api-response.types';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -77,13 +77,26 @@ const ImpersonationBanner: React.FC = () => {
 
   const handleExit = async () => {
     try {
+      // Get the admin token backup from localStorage
+      const adminToken = localStorage.getItem('admin_token_backup');
+      const adminRefreshToken = localStorage.getItem('admin_refresh_token_backup');
+
       await endMutation.mutateAsync({
-        originalAdminAccessToken: '',
-        originalAdminRefreshToken: '',
+        originalAdminAccessToken: adminToken || '',
+        originalAdminRefreshToken: adminRefreshToken || '',
       });
 
       removeAuthToken();
       removeRefreshToken();
+
+      // If we have an admin token, restore it to continue session as admin
+      if (adminToken) {
+        setAuthToken(adminToken);
+        if (adminRefreshToken) setRefreshToken(adminRefreshToken);
+
+        localStorage.removeItem('admin_token_backup');
+        localStorage.removeItem('admin_refresh_token_backup');
+      }
 
       showToast({
         type: 'success',
@@ -91,7 +104,8 @@ const ImpersonationBanner: React.FC = () => {
         description: t('exit_success_message'),
       });
 
-      statusQuery.refetch();
+      // Reload to reflect changes in authentication state
+      window.location.reload();
     } catch (error: any) {
       showToast({
         type: 'error',
@@ -129,10 +143,10 @@ const ImpersonationBanner: React.FC = () => {
           <button
             type="button"
             onClick={handleExit}
-            disabled={endMutation.isLoading}
+            disabled={endMutation.isPending}
             className="flex items-center justify-center rounded-md bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-75"
           >
-            {endMutation.isLoading ? t('exiting') : t('exit_button')}
+            {endMutation.isPending ? t('exiting') : t('exit_button')}
           </button>
           <button
             type="button"

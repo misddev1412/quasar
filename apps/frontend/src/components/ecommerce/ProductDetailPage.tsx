@@ -161,7 +161,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               images={productImages}
               selectedImageIndex={selectedImageIndex}
               onImageSelect={handleImageSelect}
-              className={clsx(layout.galleryCard, 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40')}
+              className={clsx(layout.galleryCard, 'bg-white dark:bg-gray-900/40')}
             />
 
             {/* Product Videos (Legacy/Hardcoded, separate from Sections?)

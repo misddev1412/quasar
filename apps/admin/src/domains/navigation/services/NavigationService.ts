@@ -52,6 +52,7 @@ import SpaIcon from '@mui/icons-material/Spa';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PaletteIcon from '@mui/icons-material/Palette';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import SpeedIcon from '@mui/icons-material/Speed';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) { }
@@ -408,6 +409,11 @@ export class NavigationService implements INavigationService {
             path: '/openai-configs'
           },
           {
+            icon: React.createElement(SpeedIcon),
+            label: t('pagespeed.title', 'Google PageSpeed'),
+            path: '/pagespeed'
+          },
+          {
             icon: React.createElement(ImageIcon),
             label: t('brand.assets_title', 'Tài sản thương hiệu'),
             path: '/brand-assets'
@@ -631,7 +637,7 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/permissions\/[^\/]+\/edit$/);
     }
 
-    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes'];
+    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes', '/pagespeed'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

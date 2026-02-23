@@ -31,6 +31,11 @@ interface TranslationField {
     sourceFieldName?: string;
     tone?: string;
     keywords?: string[];
+    allowImages?: boolean;
+    allowLengthOptions?: boolean;
+    allowProductLinks?: boolean;
+    allowStyleOptions?: boolean;
+    plainTextOutput?: boolean;
   };
 }
 
@@ -125,6 +130,11 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                     contentType={field.aiGenerator.contentType}
                     tone={field.aiGenerator.tone}
                     keywords={field.aiGenerator.keywords}
+                    allowImages={field.aiGenerator.allowImages}
+                    allowLengthOptions={field.aiGenerator.allowLengthOptions}
+                    allowProductLinks={field.aiGenerator.allowProductLinks}
+                    allowStyleOptions={field.aiGenerator.allowStyleOptions}
+                    plainTextOutput={field.aiGenerator.plainTextOutput}
                     language={activeLocale}
                     context={(() => {
                       const targetValue = getFieldValue(activeLocale, field.name);

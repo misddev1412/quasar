@@ -164,7 +164,7 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
                 <Input
                   value={formData.website}
                   onChange={(e) => handleInputChange('website', e.target.value)}
-                  placeholder="https://example.com"
+                  placeholder={t('brands.websitePlaceholder', 'https://example.com')}
                   className="pl-10"
                 />
               </div>
@@ -198,7 +198,7 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-600 shadow-sm group-hover:shadow-md transition-shadow">
                       <img
                         src={selectedLogo}
-                        alt="Brand logo"
+                        alt={t('brands.logoAlt', 'Brand logo')}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -206,7 +206,7 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
                         type="button"
                         onClick={() => setSelectedLogo('')}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all transform hover:scale-110 shadow-sm"
-                        title="Remove logo"
+                        title={t('brands.removeLogo', 'Remove logo')}
                       >
                         <FiX className="w-3 h-3" />
                       </button>
