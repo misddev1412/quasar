@@ -72,7 +72,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 autoComplete={field.type === 'email' ? 'email' : undefined}
                 min={field.min}
                 max={field.max}
-                step={field.step}
+                step={field.type === 'number' ? (field.step ?? 'any') : field.step}
                 rightElement={field.rightElementPosition !== 'inside-input' ? field.rightElement : undefined}
                 rightIcon={field.rightElementPosition === 'inside-input' ? field.rightElement : undefined}
               />

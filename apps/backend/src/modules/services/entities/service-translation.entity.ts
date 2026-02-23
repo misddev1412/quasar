@@ -11,6 +11,7 @@ import { Service } from '@backend/modules/services/entities/service.entity';
 
 @Entity('service_translations')
 @Index(['service_id', 'locale'], { unique: true })
+@Index(['locale', 'slug'], { unique: true, where: '"slug" IS NOT NULL' })
 export class ServiceTranslation extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -23,6 +24,9 @@ export class ServiceTranslation extends BaseEntity {
 
     @Column({ length: 255, nullable: true })
     name?: string;
+
+    @Column({ length: 255, nullable: true })
+    slug?: string;
 
     @Column({ type: 'text', nullable: true })
     content?: string; // Rich text content

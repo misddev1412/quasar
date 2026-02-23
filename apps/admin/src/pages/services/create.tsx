@@ -13,13 +13,28 @@ const CreateServicePage = () => {
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
 
+    const extractValidationMessage = (error: any): string | undefined => {
+        const fieldErrors = error?.data?.zodError?.fieldErrors;
+        if (!fieldErrors || typeof fieldErrors !== 'object') return undefined;
+        const entries = Object.entries(fieldErrors) as Array<[string, unknown]>;
+        for (const [field, messages] of entries) {
+            if (Array.isArray(messages) && messages.length > 0) {
+                return `${field}: ${String(messages[0])}`;
+            }
+        }
+        return undefined;
+    };
+
     const createMutation = trpc.services.createService.useMutation({
         onSuccess: () => {
             addToast({ title: t('services.create_success', 'Service created successfully'), type: 'success' });
             navigate('/services');
         },
         onError: (error) => {
-            addToast({ title: error.message || 'Failed to create service', type: 'error' });
+            addToast({
+                title: extractValidationMessage(error) || error.message || 'Failed to create service',
+                type: 'error'
+            });
         }
     });
 

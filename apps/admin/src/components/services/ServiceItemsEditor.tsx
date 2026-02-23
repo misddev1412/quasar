@@ -29,6 +29,44 @@ interface ServiceItemsEditorProps {
     onChange: (items: ServiceItem[]) => void;
 }
 
+const parseLocalizedNumber = (value: unknown): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value !== 'string') return Number(value);
+
+    const normalized = value.trim().replace(/\s+/g, '');
+    if (!normalized) return NaN;
+
+    const hasComma = normalized.includes(',');
+    const hasDot = normalized.includes('.');
+
+    if (hasComma && hasDot) {
+        const lastComma = normalized.lastIndexOf(',');
+        const lastDot = normalized.lastIndexOf('.');
+        const decimalSep = lastComma > lastDot ? ',' : '.';
+        const thousandSep = decimalSep === ',' ? '.' : ',';
+        const withoutThousands = normalized.replace(new RegExp(`\\${thousandSep}`, 'g'), '');
+        const normalizedDecimal = decimalSep === ','
+            ? withoutThousands.replace(',', '.')
+            : withoutThousands;
+        return Number(normalizedDecimal);
+    }
+
+    if (hasComma) {
+        const commaCount = (normalized.match(/,/g) || []).length;
+        if (commaCount > 1) return Number(normalized.replace(/,/g, ''));
+        return /^\d{1,3},\d{3}$/.test(normalized)
+            ? Number(normalized.replace(',', ''))
+            : Number(normalized.replace(',', '.'));
+    }
+
+    if (hasDot) {
+        const dotCount = (normalized.match(/\./g) || []).length;
+        if (dotCount > 1) return Number(normalized.replace(/\./g, ''));
+    }
+
+    return Number(normalized);
+};
+
 export const ServiceItemsEditor: React.FC<ServiceItemsEditorProps> = ({ items = [], onChange }) => {
     const { t } = useTranslationWithBackend();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,7 +109,7 @@ export const ServiceItemsEditor: React.FC<ServiceItemsEditorProps> = ({ items = 
     const handleSave = () => {
         const newItem: ServiceItem = {
             ...editingItem,
-            price: Number(tempItem.price),
+            price: parseLocalizedNumber(tempItem.price),
             translations: [
                 { locale: 'en', name: tempItem.nameEn, description: tempItem.descEn },
                 { locale: 'vi', name: tempItem.nameVi, description: tempItem.descVi },
@@ -143,6 +181,7 @@ export const ServiceItemsEditor: React.FC<ServiceItemsEditorProps> = ({ items = 
                             <Label>Price</Label>
                             <Input
                                 type="number"
+                                step="any"
                                 value={tempItem.price}
                                 onChange={(e) => setTempItem({ ...tempItem, price: e.target.value })}
                             />

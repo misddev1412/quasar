@@ -26,6 +26,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, className = '' }) =>
 
     const name = getTranslation('name') || t('services.common.unnamedService', 'Unnamed Service');
     const description = getTranslation('description');
+    const serviceSlug =
+        service.translations.find((tr) => tr.locale === currentLocale)?.slug ||
+        service.translations.find((tr) => tr.locale === 'en')?.slug ||
+        service.id;
 
     // Truncate description
     const shortDescription = description && description.length > 100
@@ -36,7 +40,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, className = '' }) =>
         <div className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full ${className}`}>
             {/* Thumbnail */}
             <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-100 dark:bg-gray-900">
-                <Link href={`/services/${service.id}`}>
+                <Link href={`/services/${serviceSlug}`}>
                     <Image
                         src={service.thumbnail || '/placeholder-service.jpg'}
                         alt={name}
@@ -53,7 +57,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, className = '' }) =>
 
             {/* Content */}
             <div className="p-5 flex flex-col flex-1">
-                <Link href={`/services/${service.id}`} className="block mb-2">
+                <Link href={`/services/${serviceSlug}`} className="block mb-2">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                         {name}
                     </h3>
@@ -77,7 +81,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, className = '' }) =>
 
                     <Button
                         as={Link}
-                        href={`/services/${service.id}`}
+                        href={`/services/${serviceSlug}`}
                         className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium px-4 rounded-lg hover:opacity-90 transition-opacity"
                         size="sm"
                     >

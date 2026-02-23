@@ -869,18 +869,21 @@ const Footer: React.FC<FooterProps> = ({
     const customCardBg = visitorAnalyticsConfig.cardBackgroundColor?.trim();
     const customCardText = visitorAnalyticsConfig.cardTextColor?.trim();
 
-    const cardBgClass = customCardBg || customCardText
-      ? isDark ? 'border-white/10' : 'border-gray-200'
-      : isDark
-        ? 'bg-gray-900/70 text-gray-100 border-white/10'
-        : 'bg-white text-gray-900 border-gray-200';
+    const cardBgClass = clsx(
+      isDark ? 'border-white/10' : 'border-gray-200',
+      !customCardBg && (isDark ? 'bg-gray-900/70' : 'bg-white'),
+      !customCardText && (isDark ? 'text-gray-100' : 'text-gray-900')
+    );
+
     const labelClass = customCardText ? 'opacity-80' : isDark ? 'text-gray-400' : 'text-gray-600';
     const helperClass = customCardText ? 'opacity-70' : 'text-gray-500';
-    const iconBaseClass = customCardBg || customCardText
+
+    const iconBaseClass = customCardText
       ? 'border border-current opacity-90'
       : isDark
         ? 'bg-white/10 text-white border border-white/15'
         : 'bg-blue-50 text-blue-600 border border-blue-100';
+
     const sectionBackgroundClass = analyticsBackgroundColor
       ? ''
       : isDark

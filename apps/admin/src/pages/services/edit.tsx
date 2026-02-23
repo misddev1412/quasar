@@ -47,7 +47,10 @@ const EditServicePage = () => {
             }
         },
         onError: (error) => {
-            addToast({ title: error.message || 'Failed to update service', type: 'error' });
+            addToast({
+                title: extractValidationMessage(error) || error.message || 'Failed to update service',
+                type: 'error'
+            });
         }
     });
 
@@ -151,3 +154,14 @@ const EditServicePage = () => {
 };
 
 export default EditServicePage;
+    const extractValidationMessage = (error: any): string | undefined => {
+        const fieldErrors = error?.data?.zodError?.fieldErrors;
+        if (!fieldErrors || typeof fieldErrors !== 'object') return undefined;
+        const entries = Object.entries(fieldErrors) as Array<[string, unknown]>;
+        for (const [field, messages] of entries) {
+            if (Array.isArray(messages) && messages.length > 0) {
+                return `${field}: ${String(messages[0])}`;
+            }
+        }
+        return undefined;
+    };

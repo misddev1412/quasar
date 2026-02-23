@@ -5,6 +5,7 @@ export interface ServiceTranslation {
     serviceId: string;
     locale: string;
     name?: string;
+    slug?: string;
     content?: string;
     description?: string;
 }

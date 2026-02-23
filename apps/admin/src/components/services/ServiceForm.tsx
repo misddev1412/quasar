@@ -9,6 +9,44 @@ import { useLanguageOptions } from '@admin/hooks/useLanguages';
 import { ServiceTranslationsSection } from '@admin/components/services/ServiceTranslationsSection';
 import { ServiceItemsEditor } from '@admin/components/services/ServiceItemsEditor';
 
+const parseLocalizedNumber = (value: unknown): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value !== 'string') return Number(value);
+
+    const normalized = value.trim().replace(/\s+/g, '');
+    if (!normalized) return NaN;
+
+    const hasComma = normalized.includes(',');
+    const hasDot = normalized.includes('.');
+
+    if (hasComma && hasDot) {
+        const lastComma = normalized.lastIndexOf(',');
+        const lastDot = normalized.lastIndexOf('.');
+        const decimalSep = lastComma > lastDot ? ',' : '.';
+        const thousandSep = decimalSep === ',' ? '.' : ',';
+        const withoutThousands = normalized.replace(new RegExp(`\\${thousandSep}`, 'g'), '');
+        const normalizedDecimal = decimalSep === ','
+            ? withoutThousands.replace(',', '.')
+            : withoutThousands;
+        return Number(normalizedDecimal);
+    }
+
+    if (hasComma) {
+        const commaCount = (normalized.match(/,/g) || []).length;
+        if (commaCount > 1) return Number(normalized.replace(/,/g, ''));
+        return /^\d{1,3},\d{3}$/.test(normalized)
+            ? Number(normalized.replace(',', ''))
+            : Number(normalized.replace(',', '.'));
+    }
+
+    if (hasDot) {
+        const dotCount = (normalized.match(/\./g) || []).length;
+        if (dotCount > 1) return Number(normalized.replace(/\./g, ''));
+    }
+
+    return Number(normalized);
+};
+
 const serviceSchema = z.object({
     // General (EN default)
     name: z.string().min(1, 'Name is required'),
@@ -16,7 +54,7 @@ const serviceSchema = z.object({
     content: z.string().optional(),
 
     // Settings
-    unitPrice: z.coerce.number().min(0),
+    unitPrice: z.preprocess((value) => parseLocalizedNumber(value), z.number().min(0)),
     isContactPrice: z.boolean(),
     isActive: z.boolean(),
     thumbnail: z.string().optional(),
@@ -177,6 +215,19 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                             label: t('services.thumbnail', 'Thumbnail'),
                             type: 'media-upload',
                             accept: 'image/*',
+                            rightElement: (
+                                <FormAIGenerator
+                                    targetFieldName="thumbnail"
+                                    sourceFieldName="name"
+                                    targetLabel={t('services.thumbnail', 'Thumbnail')}
+                                    sourceLabel={t('services.name', 'Service Name')}
+                                    entityType="product"
+                                    contentType="image"
+                                    allowLengthOptions={false}
+                                    allowProductLinks={false}
+                                    allowStyleOptions={false}
+                                />
+                            ),
                         }
                     ]
                 }
@@ -238,9 +289,11 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     const handleFormSubmit = async (data: any) => {
         const normalizedItems = (items || []).map((item: any, index: number) => ({
             ...item,
-            price: item?.price !== undefined && item?.price !== null && item?.price !== ''
-                ? Number(item.price)
-                : undefined,
+            price: (() => {
+                if (item?.price === undefined || item?.price === null || item?.price === '') return undefined;
+                const parsed = parseLocalizedNumber(item.price);
+                return Number.isFinite(parsed) ? parsed : undefined;
+            })(),
             sortOrder: item?.sortOrder !== undefined && item?.sortOrder !== null && item?.sortOrder !== ''
                 ? Number(item.sortOrder)
                 : index,
@@ -256,7 +309,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         // Merge state
         const submissionData = {
             ...data,
-            unitPrice: Number(data.unitPrice ?? 0),
+            unitPrice: parseLocalizedNumber(data.unitPrice ?? 0),
             currencyId: data.currencyId || undefined,
             items: normalizedItems,
             additionalTranslations,

@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ServiceTranslationSchema = z.object({
   locale: z.string().min(2).max(5),
   name: z.string().optional(),
+  slug: z.string().min(1).max(255).optional(),
   content: z.string().optional(),
   description: z.string().optional(),
 });

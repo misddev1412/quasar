@@ -10,6 +10,11 @@ const getServiceByIdSchema = z.object({
   id: z.string().uuid(),
 });
 
+const getServiceBySlugSchema = z.object({
+  slug: z.string().min(1),
+  locale: z.string().min(2).max(5).optional(),
+});
+
 @Router({ alias: 'clientServices' })
 @Injectable()
 export class ClientServicesRouter {
@@ -52,6 +57,44 @@ export class ClientServicesRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const service = await this.servicesService.findOne(input.id);
+
+      if (!service.isActive) {
+        throw this.responseHandler.createTRPCError(
+          40,
+          2,
+          20,
+          'Service not found'
+        );
+      }
+
+      return this.responseHandler.createTrpcSuccess(service);
+    } catch (error) {
+      if (error.name === 'NotFoundException') {
+        throw this.responseHandler.createTRPCError(
+          40,
+          2,
+          20,
+          'Service not found'
+        );
+      }
+      throw this.responseHandler.createTRPCError(
+        40,
+        2,
+        10,
+        error.message || 'Failed to retrieve service'
+      );
+    }
+  }
+
+  @Query({
+    input: getServiceBySlugSchema,
+    output: apiResponseSchema,
+  })
+  async getServiceBySlug(
+    @Input() input: z.infer<typeof getServiceBySlugSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const service = await this.servicesService.findOneBySlug(input.slug, input.locale);
 
       if (!service.isActive) {
         throw this.responseHandler.createTRPCError(

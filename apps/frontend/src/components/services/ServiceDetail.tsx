@@ -1,24 +1,54 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { trpc } from '../../utils/trpc';
 import { Spinner, Button, Image } from '@heroui/react';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 import Link from 'next/link';
+import { ServiceService } from '../../services/service.service';
+import type { Service } from '../../types/service';
 
 interface ServiceDetailProps {
-    id: string;
+    identifier: string;
 }
 
-const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
+const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
     const { t, i18n } = useTranslation();
     const currentLocale = i18n.language.split('-')[0];
     const { formatCurrency } = useCurrencyFormatter();
+    const [service, setService] = useState<Service | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    const { data, isLoading, error } = trpc.clientServices.getServiceById.useQuery({ id });
+    useEffect(() => {
+        let active = true;
 
-    const service = data?.data;
+        const fetchService = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
+                const data = await ServiceService.getServiceByIdentifier(identifier, currentLocale);
+                if (active) {
+                    setService(data);
+                }
+            } catch (err) {
+                if (active) {
+                    setService(null);
+                    setError(err as Error);
+                }
+            } finally {
+                if (active) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        fetchService();
+
+        return () => {
+            active = false;
+        };
+    }, [identifier, currentLocale]);
 
     if (isLoading) {
         return (
@@ -32,7 +62,8 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
         return (
             <div className="text-center py-20 text-red-500 min-h-[50vh] flex flex-col items-center justify-center">
                 <h2 className="text-2xl font-bold mb-2">{t('services.error.notFound', 'Service Not Found')}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">{t('services.error.notFoundDesc', 'The service you are looking for does not exist or has been removed.')}</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-2">{t('services.error.notFoundDesc', 'The service you are looking for does not exist or has been removed.')}</p>
+                {error?.message && <p className="text-xs text-gray-500 mb-6">{error.message}</p>}
                 <Button as={Link} href="/services" color="primary">
                     {t('services.common.backToServices', 'Back to Services')}
                 </Button>
@@ -53,7 +84,6 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
     return (
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Image Section */}
                 <div className="relative h-64 sm:h-96 lg:h-auto bg-gray-100 dark:bg-gray-800">
                     <Image
                         src={service.thumbnail || '/placeholder-service.jpg'}
@@ -63,7 +93,6 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
                     />
                 </div>
 
-                {/* Content Section */}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         {name}
@@ -108,7 +137,6 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
                 </div>
             </div>
 
-            {/* Rich Content / Details Section */}
             {content && (
                 <div className="p-8 lg:p-12 border-t border-gray-100 dark:border-gray-800">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
@@ -121,7 +149,6 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ id }) => {
                 </div>
             )}
 
-            {/* Service Items List (e.g. tiers or sub-options) */}
             {service.items && service.items.length > 0 && (
                 <div className="p-8 lg:p-12 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">

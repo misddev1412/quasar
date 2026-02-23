@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, EntityManager } from 'typeorm';
 import { Service } from '@backend/modules/services/entities/service.entity';
 import { ServiceItem } from '@backend/modules/services/entities/service-item.entity';
 import { ServiceTranslation } from '@backend/modules/services/entities/service-translation.entity';
 import { ServiceItemTranslation } from '@backend/modules/services/entities/service-item-translation.entity';
 import { CreateServiceDto, UpdateServiceDto, ServiceFilterDto } from '@backend/modules/services/dto/service.dto';
+import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
 
 @Injectable()
 export class ServicesService {
@@ -16,6 +17,29 @@ export class ServicesService {
     private readonly serviceItemRepository: Repository<ServiceItem>,
     private readonly dataSource: DataSource,
   ) { }
+
+  private async ensureUniqueTranslationSlug(
+    manager: EntityManager,
+    locale: string,
+    source: string,
+    excludeServiceId?: string,
+  ): Promise<string> {
+    const baseSlug = SlugUtil.generate(source || 'service') || 'service';
+    let candidate = baseSlug;
+    let counter = 1;
+
+    while (true) {
+      const existing = await manager.findOne(ServiceTranslation, {
+        where: { locale, slug: candidate },
+      });
+
+      if (!existing) return candidate;
+      if (excludeServiceId && existing.service_id === excludeServiceId) return candidate;
+
+      candidate = `${baseSlug}-${counter}`;
+      counter += 1;
+    }
+  }
 
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     const { items, translations, ...serviceData } = createServiceDto;
@@ -30,10 +54,24 @@ export class ServicesService {
 
       // 2. Create service translations
       if (translations && translations.length > 0) {
-        const transEntities = translations.map(t => manager.create(ServiceTranslation, {
-          ...t,
-          serviceId: savedService.id,
-        }));
+        const transEntities: ServiceTranslation[] = [];
+
+        for (const t of translations) {
+          const locale = t.locale.toLowerCase();
+          const slugSource = (typeof t.slug === 'string' && t.slug.trim().length > 0)
+            ? t.slug
+            : (t.name || 'service');
+          const ensuredSlug = await this.ensureUniqueTranslationSlug(manager, locale, slugSource);
+
+          transEntities.push(manager.create(ServiceTranslation, {
+            ...t,
+            locale,
+            slug: ensuredSlug,
+            service_id: savedService.id,
+            service: savedService,
+          }));
+        }
+
         await manager.save(transEntities);
       }
 
@@ -57,7 +95,21 @@ export class ServicesService {
         }
       }
 
-      return this.findOne(savedService.id);
+      const createdService = await manager.findOne(Service, {
+        where: { id: savedService.id },
+        relations: ['translations', 'items', 'items.translations', 'currency'],
+        order: {
+          items: {
+            sortOrder: 'ASC',
+          },
+        },
+      });
+
+      if (!createdService) {
+        throw new NotFoundException(`Service with ID ${savedService.id} not found`);
+      }
+
+      return createdService;
     });
   }
 
@@ -116,6 +168,51 @@ export class ServicesService {
     return service;
   }
 
+  async findOneBySlug(slug: string, locale?: string): Promise<Service> {
+    const normalizedSlug = slug.trim().toLowerCase();
+    const normalizedLocale = locale?.trim().toLowerCase();
+
+    const qb = this.serviceRepository
+      .createQueryBuilder('service')
+      .leftJoinAndSelect('service.translations', 'translations')
+      .leftJoinAndSelect('service.items', 'items')
+      .leftJoinAndSelect('items.translations', 'itemTranslations')
+      .leftJoinAndSelect('service.currency', 'currency')
+      .where('service.isActive = :isActive', { isActive: true });
+
+    if (normalizedLocale) {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM service_translations st
+          WHERE st.service_id = service.id
+            AND LOWER(st.slug) = :slug
+            AND LOWER(st.locale) = :locale
+        )`,
+        { slug: normalizedSlug, locale: normalizedLocale },
+      );
+    } else {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM service_translations st
+          WHERE st.service_id = service.id
+            AND LOWER(st.slug) = :slug
+        )`,
+        { slug: normalizedSlug },
+      );
+    }
+
+    qb.orderBy('items.sortOrder', 'ASC');
+
+    const service = await qb.getOne();
+    if (!service) {
+      throw new NotFoundException(`Service with slug ${slug} not found`);
+    }
+
+    return service;
+  }
+
   async update(id: string, updateServiceDto: UpdateServiceDto): Promise<Service> {
     const service = await this.findOne(id);
     const { items, translations, ...serviceData } = updateServiceDto;
@@ -133,10 +230,25 @@ export class ServicesService {
         // Upsert strategy for translations
         for (const t of translations) {
           const existing = service.translations.find(et => et.locale === t.locale);
+          const locale = t.locale.toLowerCase();
+          const incomingSlug = typeof t.slug === 'string' ? t.slug.trim() : '';
+          const fallbackSlug = existing?.slug || t.name || 'service';
+          const slugSource = incomingSlug || fallbackSlug;
+          const ensuredSlug = await this.ensureUniqueTranslationSlug(manager, locale, slugSource, id);
+
           if (existing) {
-            await manager.update(ServiceTranslation, existing.id, t);
+            await manager.update(ServiceTranslation, existing.id, { ...t, locale, slug: ensuredSlug });
           } else {
-            await manager.save(ServiceTranslation, manager.create(ServiceTranslation, { ...t, serviceId: id }));
+            await manager.save(
+              ServiceTranslation,
+              manager.create(ServiceTranslation, {
+                ...t,
+                locale,
+                slug: ensuredSlug,
+                service_id: id,
+                service: { id } as Service,
+              })
+            );
           }
         }
       }
