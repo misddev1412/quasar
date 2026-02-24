@@ -869,9 +869,10 @@ const Footer: React.FC<FooterProps> = ({
     const customCardBg = visitorAnalyticsConfig.cardBackgroundColor?.trim();
     const customCardText = visitorAnalyticsConfig.cardTextColor?.trim();
 
+    const hasCustomSectionBg = Boolean(analyticsBackgroundColor);
     const cardBgClass = clsx(
       isDark ? 'border-white/10' : 'border-gray-200',
-      !customCardBg && (isDark ? 'bg-gray-900/70' : 'bg-white'),
+      !customCardBg && (hasCustomSectionBg ? (isDark ? 'bg-white/5' : 'bg-black/5') : isDark ? 'bg-gray-900/40' : 'bg-white'),
       !customCardText && (isDark ? 'text-gray-100' : 'text-gray-900')
     );
 

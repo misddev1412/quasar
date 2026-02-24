@@ -2,10 +2,12 @@ import React, { useMemo } from 'react';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '@admin/hooks/useLanguages';
 import { TranslationTabs } from '@admin/components/common/TranslationTabs';
+import { generateSlug } from '@admin/utils/slugUtils';
 
 export interface ServiceTranslationData {
     locale: string;
     name: string;
+    slug?: string;
     description: string;
     content: string;
 }
@@ -48,6 +50,7 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
             if (record[trans.locale]) {
                 record[trans.locale] = {
                     name: trans.name,
+                    slug: trans.slug,
                     description: trans.description,
                     content: trans.content,
                 };
@@ -65,9 +68,14 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
             const hasContent = Object.values(values).some(val => val && String(val).trim() !== '');
 
             if (hasContent) {
+                const normalizedName = (values.name || '').trim();
+                const normalizedSlug = (values.slug || '').trim();
+                const autoSlug = normalizedSlug || (normalizedName ? generateSlug(normalizedName) : '');
+
                 newTranslationsArray.push({
                     locale,
                     name: values.name || '',
+                    slug: autoSlug || undefined,
                     description: values.description || '',
                     content: values.content || '',
                 });
@@ -127,6 +135,17 @@ export const ServiceTranslationsSection: React.FC<ServiceTranslationsSectionProp
                             allowStyleOptions: false,
                             plainTextOutput: true,
                         },
+                    },
+                    {
+                        name: 'slug',
+                        label: t('services.slug', 'Slug'),
+                        value: '',
+                        onChange: () => { },
+                        type: 'text',
+                        placeholder: t('services.slug_placeholder', 'service-slug'),
+                        required: false,
+                        description: t('services.slug_description', 'URL-friendly identifier'),
+                        disabled: readonly,
                     },
                     {
                         name: 'content',

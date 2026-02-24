@@ -159,6 +159,14 @@
         "reset": "Reset",
         "save": "Save changes"
       },
+      "tabs": {
+        "appearance": "Appearance",
+        "branding": "Branding",
+        "navigation": "Navigation",
+        "social": "Social & Widgets",
+        "analytics": "Analytics",
+        "preview": "Preview"
+      },
       "messages": {
         "load_error": "Unable to load footer settings",
         "reset": "Defaults restored",
@@ -191,6 +199,93 @@
         "label": "Columns per row",
         "helper": "Choose between 1 and 4 columns."
       },
+      "menu_typography": {
+        "heading": "Menu typography",
+        "description": "Set the font size, weight, and casing for footer menu items.",
+        "font_size": {
+          "label": "Font size",
+          "xs": "Extra small",
+          "sm": "Small",
+          "md": "Medium",
+          "lg": "Large"
+        },
+        "font_weight": {
+          "label": "Font weight",
+          "normal": "Regular",
+          "medium": "Medium",
+          "semibold": "Semibold",
+          "bold": "Bold"
+        },
+        "case": {
+          "label": "Letter casing",
+          "none": "Keep original",
+          "uppercase": "Uppercase (VIẾT HOA)",
+          "capitalize": "Capitalize Words (Viết Hoa)",
+          "sentence": "Sentence case (Viết hoa)"
+        }
+      },
+      "colors": {
+        "heading": "Colors"
+      },
+      "menu_columns": {
+        "heading": "Footer menu columns",
+        "description": "Configure which links appear in each footer column.",
+        "add_column": "Add column",
+        "column_label": "Column {{index}}",
+        "column_hint": "Add a heading and a list of links.",
+        "title": "Column title",
+        "title_placeholder": "Customer service",
+        "visible": "Visible",
+        "visible_hint": "Hide the column without deleting it.",
+        "section_order": {
+          "heading": "Section order",
+          "description": "Reorder the links, custom HTML, and embed blocks inside this column.",
+          "links": "Links",
+          "custom_html": "Custom HTML",
+          "widget": "Embed"
+        },
+        "custom_html": "Custom HTML (optional)",
+        "custom_html_description": "Add a small HTML block below the column links.",
+        "custom_html_hint": "Basic formatting only. For full control, use the Code view.",
+        "widget": {
+          "heading": "Embedded content",
+          "description": "Show a Google Map or Facebook fanpage inside this column.",
+          "label": "Embed type",
+          "none": "No embed",
+          "google": "Google Maps",
+          "facebook": "Facebook fanpage",
+          "height": "Embed height (px)",
+          "map_url": "Google Maps embed URL",
+          "map_hint": "Copy the embed URL from Google Maps share options.",
+          "facebook_url": "Facebook fanpage URL",
+          "facebook_tabs": "Tabs (optional)",
+          "facebook_tabs_hint": "Comma-separated list (e.g., timeline, messages)."
+        }
+      },
+      "menu_links": {
+        "heading": "Links",
+        "add": "Add link",
+        "empty": "Add at least one link to display this column.",
+        "new_label": "New link",
+        "item_label": "Link {{index}}",
+        "type_label": "Link type",
+        "label": "Label",
+        "url": "URL",
+        "target_label": "Target",
+        "visible": "Visible",
+        "visible_hint": "Hide without deleting by turning this off.",
+        "type": {
+          "external": "External URL",
+          "product": "Product",
+          "category": "Category",
+          "post": "Post",
+          "site_content": "Site content"
+        },
+        "target": {
+          "self": "Same tab",
+          "blank": "New tab"
+        }
+      },
       "visitor_analytics": {
         "heading": "Visitor analytics bar",
         "description": "Control the stat strip shown above the footer.",
@@ -205,8 +300,13 @@
         },
         "background": "Background color",
         "background_hint": "Leave blank to inherit the footer theme colors.",
+        "card_bg": "Card background color",
+        "card_bg_hint": "Leave blank for default glassmorphism effect.",
+        "card_text": "Card text color",
+        "card_text_hint": "Leave blank to match footer link color.",
         "card_label": "Column {{index}}",
         "metric_label": "Metric",
+        "metric_description": "Choose which data metric to display in this column.",
         "metrics": {
           "visitors": "Total visitors",
           "pageViews": "Page views",
@@ -214,10 +314,22 @@
           "lastUpdated": "Last updated"
         }
       },
+      "widget": {
+        "heading": "Google Maps & fanpage block",
+        "description": "Embed a location map or Facebook fanpage directly under your brand column.",
+        "enable": "Show embedded block",
+        "title": "Block title",
+        "height": "Embed height (px)",
+        "show_google": "Show Google Maps embed",
+        "map_url": "Google Maps embed URL",
+        "show_facebook": "Show Facebook fanpage",
+        "facebook_url": "Facebook fanpage URL",
+        "facebook_tabs": "Tabs (optional)"
+      },
       "brand": {
         "heading": "Brand & messaging",
         "logo_label": "Footer logo",
-        "logo_description": "Upload or select an image just for the footer.",
+        "logo_description": "Upload a version that pairs well with your footer background.",
         "logo_choose": "Choose logo",
         "logo_remove": "Remove",
         "logo_url": "Image URL",
@@ -245,7 +357,32 @@
         "description_label": "Description",
         "description_color": "Description color",
         "description_color_hint": "Override the paragraph color shown under your footer logo.",
-        "custom_html": "Custom HTML (optional)"
+        "custom_html": "Custom HTML (optional)",
+        "custom_html_hint": "Basic formatting only.",
+        "title_color": "Brand title color",
+        "title_color_hint": "Override the store name color. Leave blank to match footer text.",
+        "background_color": "Background color",
+        "text_color": "Text color",
+        "color_hint": "Supports HEX, RGB(a), or CSS color keywords. Clear to fallback to theme.",
+        "live_preview_label": "Storefront preview",
+        "preview_badge": "Live footer preview",
+        "preview_subscribe": "Subscribe",
+        "preview_title": "Your store name",
+        "preview_description": "Add a short sentence that builds trust with visitors.",
+        "preview_newsletter_heading": "Stay in the loop",
+        "preview_newsletter_description": "Share launch announcements, offers, or community updates.",
+        "logo_preview_hint": "Preview size",
+        "logo_open": "Open in new tab",
+        "messaging_heading": "Messaging"
+      },
+      "branding": {
+        "copyright_heading": "Copyright notice",
+        "copyright_description": "Customize the brand attribution at the very bottom.",
+        "copyright_text_label": "Custom copyright text",
+        "copyright_text_hint": "Plain text supported. Leave blank to auto-generate based on your site name.",
+        "copyright_color_label": "Copyright text color",
+        "copyright_color_hint": "Hex or RGB support. Leave blank to match dimmed footer text.",
+        "copyright_text_placeholder": "© 2026 Your Store. All rights reserved."
       },
       "newsletter": {
         "enable": "Show newsletter signup",

@@ -14,11 +14,12 @@ interface ServiceDetailProps {
 
 const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
     const { t, i18n } = useTranslation();
-    const currentLocale = i18n.language.split('-')[0];
+    const currentLocale = i18n.language.split('-')[0].toLowerCase();
     const { formatCurrency } = useCurrencyFormatter();
     const [service, setService] = useState<Service | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const getLocaleBase = (locale?: string) => locale?.split('-')[0]?.toLowerCase();
 
     useEffect(() => {
         let active = true;
@@ -72,8 +73,9 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
     }
 
     const getTranslation = (field: 'name' | 'description' | 'content') => {
-        const translation = service.translations.find(t => t.locale === currentLocale) ||
-            service.translations.find(t => t.locale === 'en');
+        const translation = service.translations.find((t) => getLocaleBase(t.locale) === currentLocale) ||
+            service.translations.find((t) => getLocaleBase(t.locale) === 'en') ||
+            service.translations.find((t) => Boolean(t[field]));
         return translation ? translation[field] : '';
     };
 
@@ -156,7 +158,9 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {service.items.map((item) => {
-                            const itemTranslation = item.translations.find(t => t.locale === currentLocale) || item.translations.find(t => t.locale === 'en');
+                            const itemTranslation = item.translations.find((t) => getLocaleBase(t.locale) === currentLocale)
+                                || item.translations.find((t) => getLocaleBase(t.locale) === 'en')
+                                || item.translations.find((t) => Boolean(t.name) || Boolean(t.description));
                             const itemName = itemTranslation?.name || t('services.common.unnamedOption', 'Option');
                             const itemDesc = itemTranslation?.description;
 

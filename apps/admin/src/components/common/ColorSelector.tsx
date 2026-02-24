@@ -22,7 +22,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value || '');
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const presetColors = [
     TRANSPARENT_COLOR,
@@ -38,7 +38,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -62,10 +62,12 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
     }
   };
 
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = (color: string, shouldClose = true) => {
     setInputValue(color);
     onChange(color);
-    setIsOpen(false);
+    if (shouldClose) {
+      setIsOpen(false);
+    }
   };
 
   const handleClear = () => {
@@ -84,7 +86,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   const displayValue = inputValue ? (isTransparentValue ? 'transparent' : inputValue) : '#000000';
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div ref={containerRef} className={cn('space-y-2', className)}>
       {label && (
         <div className="flex items-center justify-between">
           <label className={BASE_LABEL_CLASS}>
@@ -153,7 +155,6 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
 
           {isOpen && (
             <div
-              ref={dropdownRef}
               className="absolute z-50 mt-1 p-3 bg-white border border-gray-200 rounded-lg shadow-lg"
               style={{ minWidth: '280px' }}
             >
@@ -202,7 +203,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
                     <input
                       type="color"
                       value={colorPickerValue}
-                      onChange={(e) => handleColorSelect(e.target.value)}
+                      onChange={(e) => handleColorSelect(e.target.value, false)}
                       className="w-12 h-8 border border-gray-300 rounded cursor-pointer "
                     />
                     <span className="text-sm text-gray-600 font-medium">

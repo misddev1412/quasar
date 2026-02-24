@@ -36,6 +36,16 @@ export class ServiceService {
             const response = await clientServices.getServiceBySlug.query({ slug, locale }) as ApiResponse<Service>;
             return response.data;
         } catch (error) {
+            if (locale) {
+                try {
+                    const clientServices = (trpcClient as any).clientServices;
+                    const fallbackResponse = await clientServices.getServiceBySlug.query({ slug }) as ApiResponse<Service>;
+                    return fallbackResponse.data;
+                } catch (fallbackError) {
+                    console.error('Error fetching service by slug:', fallbackError);
+                    throw fallbackError;
+                }
+            }
             console.error('Error fetching service by slug:', error);
             throw error;
         }

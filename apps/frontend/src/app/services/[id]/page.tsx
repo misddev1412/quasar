@@ -15,8 +15,9 @@ const getTranslationValue = (
     field: 'name' | 'slug'
 ): string | undefined => {
     const normalizedLocale = locale.split('-')[0].toLowerCase();
-    return service?.translations?.find((tr: any) => tr?.locale?.toLowerCase() === normalizedLocale)?.[field]
-        || service?.translations?.find((tr: any) => tr?.locale?.toLowerCase() === 'en')?.[field]
+    const getLocaleBase = (value?: string) => value?.split('-')[0]?.toLowerCase();
+    return service?.translations?.find((tr: any) => getLocaleBase(tr?.locale) === normalizedLocale)?.[field]
+        || service?.translations?.find((tr: any) => getLocaleBase(tr?.locale) === 'en')?.[field]
         || service?.translations?.find((tr: any) => tr?.[field])?.[field];
 };
 
@@ -26,11 +27,18 @@ const resolveService = async (identifier: string, locale: string) => {
         return response?.data || null;
     }
 
-    const response = await (serverTrpc as any).clientServices.getServiceBySlug.query({
-        slug: identifier,
-        locale: locale.split('-')[0],
-    });
-    return response?.data || null;
+    try {
+        const response = await (serverTrpc as any).clientServices.getServiceBySlug.query({
+            slug: identifier,
+            locale: locale.split('-')[0],
+        });
+        return response?.data || null;
+    } catch {
+        const fallbackResponse = await (serverTrpc as any).clientServices.getServiceBySlug.query({
+            slug: identifier,
+        });
+        return fallbackResponse?.data || null;
+    }
 };
 
 // Generate metadata - ideally fetch service name

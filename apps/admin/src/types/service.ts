@@ -2,6 +2,7 @@ export type ServiceTranslation = {
   id?: string;
   locale?: string;
   name?: string;
+  slug?: string;
   description?: string;
   content?: string;
 };

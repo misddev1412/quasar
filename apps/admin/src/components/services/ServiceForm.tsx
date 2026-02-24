@@ -50,6 +50,7 @@ const parseLocalizedNumber = (value: unknown): number => {
 const serviceSchema = z.object({
     // General (EN default)
     name: z.string().min(1, 'Name is required'),
+    slug: z.string().optional(),
     description: z.string().optional(),
     content: z.string().optional(),
 
@@ -148,6 +149,14 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                                 />
                             ),
                             rightElementPosition: 'inside-input',
+                        },
+                        {
+                            name: 'slug',
+                            label: t('services.slug', 'Slug'),
+                            type: 'slug',
+                            sourceField: 'name',
+                            placeholder: t('services.slug_placeholder', 'service-slug'),
+                            description: t('services.slug_description', 'URL-friendly identifier'),
                         },
                         {
                             name: 'description',
@@ -318,6 +327,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                 {
                     locale: data.languageCode || 'en',
                     name: data.name,
+                    slug: typeof data.slug === 'string' && data.slug.trim().length > 0 ? data.slug.trim() : undefined,
                     description: data.description,
                     content: data.content
                 },

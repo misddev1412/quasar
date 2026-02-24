@@ -14,21 +14,30 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, className = '' }) => {
     const { t, i18n } = useTranslation();
-    const currentLocale = i18n.language.split('-')[0];
+    const currentLocale = i18n.language.split('-')[0].toLowerCase();
     const { formatCurrency } = useCurrencyFormatter();
+    const getLocaleBase = (locale?: string) => locale?.split('-')[0]?.toLowerCase();
+
+    const findTranslationByLocale = () =>
+        service.translations.find((translation) => getLocaleBase(translation.locale) === currentLocale);
 
     // Helper to get translated content
     const getTranslation = (field: 'name' | 'description' | 'content') => {
-        const translation = service.translations.find(t => t.locale === currentLocale) ||
-            service.translations.find(t => t.locale === 'en'); // Fallback to EN
+        const translation = findTranslationByLocale() ||
+            service.translations.find((translation) => getLocaleBase(translation.locale) === 'en') ||
+            service.translations.find((translation) => Boolean(translation[field]));
         return translation ? translation[field] : '';
     };
 
     const name = getTranslation('name') || t('services.common.unnamedService', 'Unnamed Service');
     const description = getTranslation('description');
     const serviceSlug =
-        service.translations.find((tr) => tr.locale === currentLocale)?.slug ||
-        service.translations.find((tr) => tr.locale === 'en')?.slug ||
+        findTranslationByLocale()?.slug ||
+        service.translations.find((translation) => getLocaleBase(translation.locale) === 'en')?.slug ||
+        service.translations.find((translation) => {
+            const slug = translation.slug?.trim();
+            return Boolean(slug);
+        })?.slug ||
         service.id;
 
     // Truncate description

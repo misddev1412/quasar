@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
@@ -18,22 +18,35 @@ const EditServicePage = () => {
     const trpcContext = trpc.useContext();
     const lastSubmitActionRef = useRef<FormSubmitAction>('save');
 
-    // Use URL tabs hook with tab keys for clean URLs
+    const extractValidationMessage = (error: any): string | undefined => {
+        const fieldErrors = error?.data?.zodError?.fieldErrors;
+        if (!fieldErrors || typeof fieldErrors !== 'object') return undefined;
+
+        const entries = Object.entries(fieldErrors) as Array<[string, unknown]>;
+        for (const [field, messages] of entries) {
+            if (Array.isArray(messages) && messages.length > 0) {
+                return `${field}: ${String(messages[0])}`;
+            }
+        }
+
+        return undefined;
+    };
+
     const { activeTab, handleTabChange } = useUrlTabs({
         defaultTab: 0,
         tabParam: 'tab',
-        tabKeys: ['general', 'items', 'translations'] // Maps to ServiceForm tab IDs
+        tabKeys: ['general', 'items', 'translations'],
     });
 
     const { data: serviceResponse, isLoading, error } = trpc.services.getServiceById.useQuery(
         { id: id! },
         { enabled: !!id }
     );
+
     const service = (serviceResponse as { data?: ServiceEntity } | undefined)?.data;
 
     const updateMutation = trpc.services.updateService.useMutation({
-        onSuccess: async (_data, variables) => {
-            // Invalidate queries
+        onSuccess: async () => {
             await Promise.all([
                 trpcContext.services.getServiceById.invalidate({ id: id! }),
                 trpcContext.services.getServices.invalidate(),
@@ -41,45 +54,38 @@ const EditServicePage = () => {
 
             addToast({ title: t('services.update_success', 'Service updated successfully'), type: 'success' });
 
-            const shouldNavigateAway = lastSubmitActionRef.current !== 'save_and_stay';
-            if (shouldNavigateAway) {
+            if (lastSubmitActionRef.current !== 'save_and_stay') {
                 navigate('/services');
             }
         },
-        onError: (error) => {
+        onError: (mutationError) => {
             addToast({
-                title: extractValidationMessage(error) || error.message || 'Failed to update service',
-                type: 'error'
+                title: extractValidationMessage(mutationError) || mutationError.message || 'Failed to update service',
+                type: 'error',
             });
-        }
+        },
     });
 
     if (isLoading) return <Loading />;
     if (error || !service) return <div>{t('common.error', 'Error loading service')}</div>;
 
-    // Prepare initial values
-    // We need to extract default translation (EN or matching system default) for the main fields
-    // And put others in 'additionalTranslations'
-    const defaultLocale = 'en'; // Should ideally come from config
-
-    // Actually, 'service' object structure depends on backend response.
-    // It returns Service entity with relations.
+    const defaultLocale = 'en';
     const mainTrans: ServiceTranslation =
         service.translations?.find((tr) => tr.locale === defaultLocale) ??
         service.translations?.[0] ??
         {};
+
     const otherTrans = service.translations?.filter((tr) => tr.id !== mainTrans.id) ?? [];
 
-    // Map otherTrans to format expected by TranslationsSection (often needs 'title' instead of 'name' if reused directly)
-    // But ServiceForm handles mapping back. Here we map forward.
     const additionalTranslations = otherTrans.map((tr) => ({
         ...tr,
-        title: tr.name, // Mapping 'name' to 'title' for the UI component if needed
+        title: tr.name,
     }));
 
     const initialValues = {
         ...service,
         name: mainTrans.name,
+        slug: mainTrans.slug,
         description: mainTrans.description,
         content: mainTrans.content,
         languageCode: mainTrans.locale || defaultLocale,
@@ -88,9 +94,7 @@ const EditServicePage = () => {
     };
 
     const handleSubmit = async (data: ServiceSubmitPayload, options?: ServiceFormSubmitOptions) => {
-        const {
-            unitPrice, isContactPrice, isActive, thumbnail, currencyId, items, translations
-        } = data;
+        const { unitPrice, isContactPrice, isActive, thumbnail, currencyId, items, translations } = data;
 
         lastSubmitActionRef.current = options?.submitAction === 'save_and_stay' ? 'save_and_stay' : 'save';
 
@@ -103,13 +107,12 @@ const EditServicePage = () => {
                 thumbnail,
                 currencyId,
                 translations,
-                items
-            }
+                items,
+            },
         });
     };
 
     const handleCancel = () => navigate('/services');
-
     const formId = 'service-edit-form';
 
     return (
@@ -125,17 +128,9 @@ const EditServicePage = () => {
             mode="update"
             formId={formId}
             breadcrumbs={[
-                {
-                    label: t('navigation.home', 'Home'),
-                    href: '/',
-                },
-                {
-                    label: t('services.entity_name_plural', 'Services'),
-                    onClick: handleCancel,
-                },
-                {
-                    label: service.name || t('services.edit_title', 'Edit Service'),
-                }
+                { label: t('navigation.home', 'Home'), href: '/' },
+                { label: t('services.entity_name_plural', 'Services'), onClick: handleCancel },
+                { label: service.name || t('services.edit_title', 'Edit Service') },
             ]}
         >
             <ServiceForm
@@ -154,14 +149,3 @@ const EditServicePage = () => {
 };
 
 export default EditServicePage;
-    const extractValidationMessage = (error: any): string | undefined => {
-        const fieldErrors = error?.data?.zodError?.fieldErrors;
-        if (!fieldErrors || typeof fieldErrors !== 'object') return undefined;
-        const entries = Object.entries(fieldErrors) as Array<[string, unknown]>;
-        for (const [field, messages] of entries) {
-            if (Array.isArray(messages) && messages.length > 0) {
-                return `${field}: ${String(messages[0])}`;
-            }
-        }
-        return undefined;
-    };

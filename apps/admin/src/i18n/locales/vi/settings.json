@@ -160,6 +160,14 @@
         "reset": "Khôi phục",
         "save": "Lưu thay đổi"
       },
+      "tabs": {
+        "appearance": "Giao diện",
+        "branding": "Thương hiệu",
+        "navigation": "Điều hướng",
+        "social": "Mạng xã hội & Widget",
+        "analytics": "Thống kê",
+        "preview": "Xem trước"
+      },
       "messages": {
         "load_error": "Không thể tải cài đặt footer",
         "reset": "Đã khôi phục mặc định",
@@ -191,6 +199,34 @@
       "columns": {
         "label": "Số cột mỗi hàng",
         "helper": "Chọn từ 1 đến 4 cột."
+      },
+      "menu_typography": {
+        "heading": "Kiểu chữ Menu",
+        "description": "Thiết lập cỡ chữ, độ đậm và kiểu viết hoa cho các mục menu chân trang.",
+        "font_size": {
+          "label": "Cỡ chữ",
+          "xs": "Rất nhỏ",
+          "sm": "Nhỏ",
+          "md": "Trung bình",
+          "lg": "Lớn"
+        },
+        "font_weight": {
+          "label": "Độ đậm",
+          "normal": "Bình thường",
+          "medium": "Trung bình",
+          "semibold": "Hơi đậm",
+          "bold": "Đậm"
+        },
+        "case": {
+          "label": "Kiểu chữ",
+          "none": "Giữ nguyên",
+          "uppercase": "Dạng HOA (VIẾT HOA)",
+          "capitalize": "Viết Hoa Chữ Cái Đầu",
+          "sentence": "Viết hoa đầu câu"
+        }
+      },
+      "colors": {
+        "heading": "Màu sắc"
       },
       "menu_columns": {
         "heading": "Các cột menu footer",
@@ -233,10 +269,10 @@
         "empty": "Thêm ít nhất một liên kết để hiển thị cột này.",
         "new_label": "Liên kết mới",
         "item_label": "Liên kết {{index}}",
-        "type": "Loại liên kết",
+        "type_label": "Loại liên kết",
         "label": "Nhãn",
         "url": "URL",
-        "target": "Mục tiêu",
+        "target_label": "Mục tiêu",
         "visible": "Hiển thị",
         "visible_hint": "Ẩn mà không cần xóa bằng cách tắt phần này.",
         "type": {
@@ -271,12 +307,25 @@
         "card_text_hint": "Để trống để dùng màu chữ liên kết footer.",
         "card_label": "Cột {{index}}",
         "metric_label": "Loại hiển thị",
+        "metric_description": "Chọn loại dữ liệu thống kê muốn hiển thị.",
         "metrics": {
           "visitors": "Tổng lượt truy cập",
           "pageViews": "Lượt xem trang",
           "topPage": "Trang nổi bật",
           "lastUpdated": "Thời điểm cập nhật"
         }
+      },
+      "widget": {
+        "heading": "Khối Google Maps & Fanpage",
+        "description": "Nhúng bản đồ vị trí hoặc fanpage Facebook trực tiếp dưới cột thương hiệu của bạn.",
+        "enable": "Hiển thị khối nội dung nhúng",
+        "title": "Tiêu đề khối",
+        "height": "Chiều cao nhúng (px)",
+        "show_google": "Hiển thị Google Maps nhúng",
+        "map_url": "URL nhúng Google Maps",
+        "show_facebook": "Hiển thị Facebook fanpage",
+        "facebook_url": "URL fanpage Facebook",
+        "facebook_tabs": "Các tab (tùy chọn)"
       },
       "brand": {
         "heading": "Thương hiệu & thông điệp",
@@ -310,9 +359,22 @@
         "description_color": "Màu đoạn mô tả",
         "description_color_hint": "Để trống để lấy màu đoạn văn mặc định của giao diện.",
         "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)",
-        "custom_html_description": "Sử dụng định dạng đơn giản, liên kết, hoặc chuyển sang chế độ Code để nhập HTML thuần.",
+        "custom_html_hint": "Chỉ hỗ trợ định dạng cơ bản.",
         "title_color": "Màu tên thương hiệu",
-        "title_color_hint": "Đặt màu cụ thể cho tên cửa hàng. Để trống để sử dụng màu văn bản của chân trang."
+        "title_color_hint": "Đặt màu cụ thể cho tên cửa hàng. Để trống để sử dụng màu văn bản của chân trang.",
+        "background_color": "Màu nền",
+        "text_color": "Màu chữ",
+        "color_hint": "Hỗ trợ mã màu HEX, RGB(a) hoặc CSS. Xóa dữ liệu để sử dụng màu mặc định của chủ đề.",
+        "live_preview_label": "Xem trước Storefront",
+        "preview_badge": "Xem trước Footer trực tiếp",
+        "preview_subscribe": "Đăng ký",
+        "preview_title": "Tên cửa hàng của bạn",
+        "preview_description": "Thêm một câu ngắn gọn để xây dựng lòng tin với khách truy cập.",
+        "preview_newsletter_heading": "Luôn cập nhật thông tin",
+        "preview_newsletter_description": "Chia sẻ các thông báo ra mắt, ưu đãi hoặc cập nhật cộng đồng.",
+        "logo_preview_hint": "Kích thước xem trước",
+        "logo_open": "Mở trong tab mới",
+        "messaging_heading": "Thông điệp"
       },
       "branding": {
         "copyright_heading": "Thông báo bản quyền",
