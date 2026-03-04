@@ -17,6 +17,9 @@
         "mail_templates": "Mẫu Email",
         "mail_providers": "Nhà cung cấp Email",
         "email_flows": "Ưu tiêu kênh Email",
-        "telegram_configs": "Cấu hình Telegram"
+        "telegram_configs": "Cấu hình Telegram",
+        "create_new_category": "Tạo danh mục mới",
+        "create_category_description": "Thêm một danh mục mới để sắp xếp sản phẩm của bạn",
+        "update_user": "Cập nhật người dùng"
     }
 }

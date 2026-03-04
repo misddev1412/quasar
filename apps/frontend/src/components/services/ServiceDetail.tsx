@@ -54,7 +54,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
-                <Spinner size="lg" color="primary" label={t('common.loading', 'Loading...')} />
+                <Spinner size="lg" color="primary" label={t('common.loading.default')} />
             </div>
         );
     }
@@ -62,11 +62,11 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
     if (error || !service) {
         return (
             <div className="text-center py-20 text-red-500 min-h-[50vh] flex flex-col items-center justify-center">
-                <h2 className="text-2xl font-bold mb-2">{t('services.error.notFound', 'Service Not Found')}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-2">{t('services.error.notFoundDesc', 'The service you are looking for does not exist or has been removed.')}</p>
+                <h2 className="text-2xl font-bold mb-2">{t('services.error.notFound')}</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-2">{t('services.error.notFoundDesc')}</p>
                 {error?.message && <p className="text-xs text-gray-500 mb-6">{error.message}</p>}
                 <Button as={Link} href="/services" color="primary">
-                    {t('services.common.backToServices', 'Back to Services')}
+                    {t('services.common.backToServices')}
                 </Button>
             </div>
         );
@@ -79,7 +79,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
         return translation ? translation[field] : '';
     };
 
-    const name = getTranslation('name') || t('services.common.unnamedService', 'Unnamed Service');
+    const name = getTranslation('name') || t('services.common.unnamedService');
     const description = getTranslation('description');
     const content = getTranslation('content');
 
@@ -103,11 +103,11 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
                     <div className="mb-6">
                         <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                             {service.isContactPrice
-                                ? t('services.common.contactUs', 'Contact Us')
+                                ? t('services.common.contactUs')
                                 : formatCurrency(service.unitPrice)}
                         </span>
                         {!service.isContactPrice && (
-                            <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">/ {t('services.common.perSession', 'per session')}</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">/ {t('services.common.perSession')}</span>
                         )}
                     </div>
 
@@ -121,19 +121,19 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
                         <Button
                             as={Link}
                             href="/contact"
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/30 transform transition hover:scale-105"
+                            className="bg-blue-600 hover:bg-blue-700 !text-white hover:!text-white focus:!text-white active:!text-white [&_*]:!text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/30 transform transition hover:scale-105"
                             size="lg"
                         >
-                            {t('services.common.bookNow', 'Inquire Now')}
+                            {t('services.common.bookNow')}
                         </Button>
                         <Button
                             as={Link}
                             href="/services"
-                            className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-3 px-8 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            className="bg-gray-100 dark:bg-gray-800 !text-gray-800 dark:!text-gray-100 font-semibold py-3 px-8 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 hover:!text-gray-900 dark:hover:!text-white transition"
                             size="lg"
                             variant="flat"
                         >
-                            {t('services.common.backToList', 'Back to List')}
+                            {t('services.common.backToList')}
                         </Button>
                     </div>
                 </div>
@@ -142,7 +142,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
             {content && (
                 <div className="p-8 lg:p-12 border-t border-gray-100 dark:border-gray-800">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        {t('services.common.serviceDetails', 'Service Details')}
+                        {t('services.common.serviceDetails')}
                     </h2>
                     <div
                         className="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
@@ -154,14 +154,14 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
             {service.items && service.items.length > 0 && (
                 <div className="p-8 lg:p-12 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        {t('services.common.pricingOptions', 'Pricing Options')}
+                        {t('services.common.pricingOptions')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {service.items.map((item) => {
                             const itemTranslation = item.translations.find((t) => getLocaleBase(t.locale) === currentLocale)
                                 || item.translations.find((t) => getLocaleBase(t.locale) === 'en')
                                 || item.translations.find((t) => Boolean(t.name) || Boolean(t.description));
-                            const itemName = itemTranslation?.name || t('services.common.unnamedOption', 'Option');
+                            const itemName = itemTranslation?.name || t('services.common.unnamedOption');
                             const itemDesc = itemTranslation?.description;
 
                             return (
@@ -169,7 +169,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ identifier }) => {
                                     <div className="flex justify-between items-start mb-2">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{itemName}</h3>
                                         <span className="font-bold text-blue-600 dark:text-blue-400">
-                                            {item.price ? formatCurrency(item.price) : t('services.common.included', 'Included')}
+                                            {item.price ? formatCurrency(item.price) : t('services.common.included')}
                                         </span>
                                     </div>
                                     {itemDesc && (

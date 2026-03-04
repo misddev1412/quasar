@@ -55,8 +55,18 @@
             "delete": "Delete",
             "clone": "Clone",
             "noSections": "No sections found",
+            "searchPlaceholder": "Search by name, keyword or description",
             "sectionCloned": "Section cloned successfully",
             "cloneFailed": "Failed to clone section",
+            "filters": {
+                "title": "Filter Sections"
+            },
+            "statistics": {
+                "totalSections": "Total Sections",
+                "enabledSections": "Enabled",
+                "disabledSections": "Disabled",
+                "sectionTypes": "Section Types"
+            },
             "configEditor": {
                 "rawJson": "Raw JSON Configuration",
                 "useFormEditor": "Use Form Editor",

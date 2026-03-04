@@ -59,6 +59,7 @@ export interface AttributeValue {
   value: string;
   displayValue?: string;
   sortOrder: number;
+  scope?: 'LOCAL' | 'GLOBAL';
   createdAt: Date;
   updatedAt: Date;
 }

@@ -364,6 +364,14 @@ const buildFacebookEmbedUrl = (pageUrl: string, tabs: string, height: number) =>
   return `https://www.facebook.com/plugins/page.php?${params.toString()}`;
 };
 
+const getSoftDividerColor = (backgroundColor?: string): string | undefined => {
+  const color = backgroundColor?.trim();
+  if (!color) {
+    return undefined;
+  }
+  return `color-mix(in srgb, ${color} 98%, black)`;
+};
+
 const Footer: React.FC<FooterProps> = ({
   className,
   logo: propLogo,
@@ -434,6 +442,19 @@ const Footer: React.FC<FooterProps> = ({
         ...(customTextColor ? { color: customTextColor } : {}),
       } as React.CSSProperties)
       : undefined;
+  const footerDividerColor = getSoftDividerColor(customBackgroundColor);
+  const footerStyleWithDivider =
+    rootStyle || footerDividerColor
+      ? ({
+        ...(rootStyle || {}),
+        ...(footerDividerColor
+          ? ({ ['--storefront-footer-border-color' as string]: footerDividerColor } as React.CSSProperties)
+          : {}),
+      } as React.CSSProperties)
+      : undefined;
+  const footerBottomDividerStyle = footerDividerColor
+    ? ({ ['--storefront-footer-border-color' as string]: footerDividerColor } as React.CSSProperties)
+    : undefined;
 
   const socialLinks = useMemo(
     () =>
@@ -840,6 +861,7 @@ const Footer: React.FC<FooterProps> = ({
         'pt-6 border-t flex flex-col gap-4 md:flex-row md:items-center md:justify-between',
         themeClasses.divider
       )}
+      style={footerBottomDividerStyle}
     >
       <p
         className={clsx('text-sm', !(copyrightColorValue || customTextColor) && themeClasses.subtle)}
@@ -865,7 +887,6 @@ const Footer: React.FC<FooterProps> = ({
     const isDark = theme === 'dark';
     const analyticsBackgroundColor =
       visitorAnalyticsConfig.backgroundColor?.trim() || customBackgroundColor || '';
-    const sectionBorderClass = isDark ? 'border-gray-800/70' : 'border-gray-200';
     const customCardBg = visitorAnalyticsConfig.cardBackgroundColor?.trim();
     const customCardText = visitorAnalyticsConfig.cardTextColor?.trim();
 
@@ -994,7 +1015,7 @@ const Footer: React.FC<FooterProps> = ({
 
     return (
       <section
-        className={clsx('w-full border-b', sectionBackgroundClass, sectionBorderClass)}
+        className={clsx('w-full', sectionBackgroundClass)}
         style={sectionStyle}
         data-footer-stats
       >
@@ -1050,7 +1071,7 @@ const Footer: React.FC<FooterProps> = ({
   const renderColumnsLayout = () => (
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
-      style={rootStyle}
+      style={footerStyleWithDivider}
       data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
@@ -1083,7 +1104,7 @@ const Footer: React.FC<FooterProps> = ({
   const renderSplitLayout = () => (
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
-      style={rootStyle}
+      style={footerStyleWithDivider}
       data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
@@ -1112,7 +1133,7 @@ const Footer: React.FC<FooterProps> = ({
   const renderSimpleLayout = () => (
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
-      style={rootStyle}
+      style={footerStyleWithDivider}
       data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-8 space-y-6')}>

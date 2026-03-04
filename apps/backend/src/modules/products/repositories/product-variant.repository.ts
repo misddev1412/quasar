@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProductVariant } from '@backend/modules/products/entities/product-variant.entity';
 import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
 import { Product } from '@backend/modules/products/entities/product.entity';
+import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
 
 export interface CreateProductVariantDto {
   productId: string;
@@ -22,6 +23,7 @@ export interface CreateProductVariantDto {
   image?: string;
   isActive?: boolean;
   sortOrder?: number;
+  attributes?: Record<string, string>;
   variantItems?: Array<{
     attributeId: string;
     attributeValueId: string;
@@ -45,6 +47,7 @@ export interface UpdateProductVariantDto {
   image?: string;
   isActive?: boolean;
   sortOrder?: number;
+  attributes?: Record<string, string>;
   variantItems?: Array<{
     attributeId: string;
     attributeValueId: string;
@@ -60,6 +63,11 @@ export interface ProductVariantFilters {
   maxPrice?: number;
   hasStock?: boolean;
   attributeFilters?: Record<string, string>; // attributeId -> attributeValueId
+}
+
+export interface VariantAttributeSelection {
+  attributeId: string;
+  attributeValueId: string;
 }
 
 export interface ProductVariantQueryOptions {
@@ -80,7 +88,36 @@ export class ProductVariantRepository {
     private readonly variantItemRepo: Repository<ProductVariantItem>,
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
+    @InjectRepository(AttributeValue)
+    private readonly attributeValueRepo: Repository<AttributeValue>,
   ) {}
+
+  private async validateVariantItems(
+    variantItems: Array<{ attributeId: string; attributeValueId: string; sortOrder?: number }>
+  ): Promise<void> {
+    const seenAttributeIds = new Set<string>();
+
+    for (const item of variantItems) {
+      if (!item?.attributeId || !item?.attributeValueId) {
+        throw new Error('Each variant item must include both attributeId and attributeValueId');
+      }
+
+      if (seenAttributeIds.has(item.attributeId)) {
+        throw new Error(`Duplicate attribute '${item.attributeId}' in variant items`);
+      }
+      seenAttributeIds.add(item.attributeId);
+
+      const value = await this.attributeValueRepo.findOne({
+        where: { id: item.attributeValueId, attributeId: item.attributeId },
+      });
+
+      if (!value) {
+        throw new Error(
+          `Attribute value '${item.attributeValueId}' does not belong to attribute '${item.attributeId}'`
+        );
+      }
+    }
+  }
 
   async findMany(options: ProductVariantQueryOptions = {}) {
     const { page = 1, limit = 50, filters = {}, relations = [], sortBy = 'sortOrder', sortOrder = 'ASC' } = options;
@@ -197,6 +234,66 @@ export class ProductVariantRepository {
     });
   }
 
+  async findByAttributeSelections(
+    productId: string,
+    selections: VariantAttributeSelection[],
+    relations: string[] = []
+  ) {
+    const normalizedSelections = (selections || [])
+      .filter((item) => item?.attributeId && item?.attributeValueId)
+      .map((item) => ({
+        attributeId: String(item.attributeId),
+        attributeValueId: String(item.attributeValueId),
+      }));
+
+    if (!productId || normalizedSelections.length === 0) {
+      return null;
+    }
+
+    const uniqueAttributeCount = new Set(normalizedSelections.map((item) => item.attributeId)).size;
+    if (uniqueAttributeCount !== normalizedSelections.length) {
+      throw new Error('Duplicate attributeId in variant attribute selections');
+    }
+
+    const queryBuilder = this.variantRepo
+      .createQueryBuilder('variant')
+      .where('variant.productId = :productId', { productId });
+
+    normalizedSelections.forEach((selection, index) => {
+      const alias = `vi_match_${index}`;
+      queryBuilder
+        .innerJoin(
+          'variant.variantItems',
+          alias,
+          `${alias}.attributeId = :attributeId_${index} AND ${alias}.attributeValueId = :attributeValueId_${index}`,
+          {
+            [`attributeId_${index}`]: selection.attributeId,
+            [`attributeValueId_${index}`]: selection.attributeValueId,
+          }
+        );
+    });
+
+    queryBuilder.andWhere(
+      `(SELECT COUNT(*) FROM product_variant_items vi_total WHERE vi_total.product_variant_id = variant.id) = :selectionCount`,
+      { selectionCount: normalizedSelections.length }
+    );
+
+    const defaultRelations = ['product', 'variantItems', 'variantItems.attribute', 'variantItems.attributeValue'];
+    const allRelations = [...new Set([...defaultRelations, ...relations])];
+
+    allRelations.forEach((relation) => {
+      const relationPath = relation.split('.');
+      if (relationPath.length === 1) {
+        queryBuilder.leftJoinAndSelect(`variant.${relation}`, relation);
+      } else {
+        const [parent, child] = relationPath;
+        queryBuilder.leftJoinAndSelect(`${parent}.${child}`, child);
+      }
+    });
+
+    return queryBuilder.getOne();
+  }
+
   async create(data: CreateProductVariantDto) {
 
     // Validate that the product exists
@@ -218,6 +315,8 @@ export class ProductVariantRepository {
 
     // Create variant items if provided
     if (variantItems && variantItems.length > 0) {
+      await this.validateVariantItems(variantItems);
+
       const variantItemsToCreate = variantItems.map(item => ({
         productVariantId: savedVariant.id,
         attributeId: item.attributeId,
@@ -241,14 +340,14 @@ export class ProductVariantRepository {
     // Update variant data
     const { variantItems, ...restUpdateData } = data;
 
-    const updateData = {
-      ...restUpdateData,
-    };
-
-    await this.variantRepo.update(id, updateData);
+    await this.variantRepo.update(id, restUpdateData as any);
 
     // Update variant items if provided
     if (variantItems !== undefined) {
+      if (variantItems.length > 0) {
+        await this.validateVariantItems(variantItems);
+      }
+
       // Delete existing items
       await this.variantItemRepo.delete({ productVariantId: id });
 

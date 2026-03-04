@@ -103,6 +103,9 @@
     "update_entity_description": "Update the information and settings",
     "saved": "Saved",
     "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
     "description": "Description",
     "type": "Type",
     "category": "Category",
@@ -247,12 +250,28 @@
     }
   },
   "services": {
+    "meta": {
+      "detailDescriptionWithName": "Service details and pricing for {{name}}.",
+      "detailDescriptionDefault": "Service details and pricing."
+    },
+    "error": {
+      "notFound": "Service Not Found",
+      "notFoundDesc": "The service you are looking for does not exist or has been removed."
+    },
     "common": {
       "unnamedService": "Unnamed Service",
       "contactForPrice": "Contact for Price",
       "price": "Price",
       "contactUs": "Contact Us",
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "backToServices": "Back to Services",
+      "perSession": "per session",
+      "bookNow": "Inquire Now",
+      "backToList": "Back to List",
+      "serviceDetails": "Service Details",
+      "pricingOptions": "Pricing Options",
+      "unnamedOption": "Option",
+      "included": "Included"
     }
   },
   "currencies": {
@@ -344,6 +363,10 @@
       "view_all_categories": "View all categories",
       "products_title": "{{category}} picks",
       "products_description": "Showing {{shown}} of {{total}} products.",
+      "stats": {
+        "products": "products",
+        "subcategories": "subcategories"
+      },
       "updating_products": "Updating products...",
       "sort": {
         "newest": "Newest first",
@@ -1588,9 +1611,39 @@
       "variantsLabel": "Variants",
       "categoryLabel": "Category"
     },
+    "productFilterSidebar": {
+      "title": "Filters",
+      "clear": "Clear",
+      "clearAll": "Clear All Filters",
+      "sections": {
+        "categories": "Categories",
+        "brands": "Brands",
+        "priceRange": "Price Range",
+        "features": "Features",
+        "rating": "Rating"
+      },
+      "price": {
+        "min": "Min",
+        "max": "Max",
+        "minPlaceholder": "0",
+        "maxPlaceholder": "Max",
+        "range": "Range: ${{min}} - ${{max}}"
+      },
+      "features": {
+        "featuredProducts": "Featured Products",
+        "inStockOnly": "In Stock Only",
+        "onSale": "On Sale"
+      },
+      "rating": {
+        "andUp": "& up"
+      }
+    },
     "productCard": {
       "stock": "Stock",
-      "selectionWarning": "Please select all required options ({{current}}/{{total}} selected) to add to cart",
+      "stockAvailable": "{{count}} available",
+      "stockBackorder": "Available for backorder",
+      "stockInStock": "Available",
+      "selectionWarning": "Please select all required options ({current}/{total} selected) to add to cart",
       "combinationUnavailable": "Combination Not Available",
       "imageAlt": "Product Image",
       "startingFrom": "Starting from {{price}}"
@@ -1608,6 +1661,7 @@
     "detail": {
       "breadcrumb": {
         "home": "Home",
+        "categories": "Categories",
         "categoryFallback": "Category"
       },
       "overview": {
@@ -1745,11 +1799,16 @@
         "selectVariant": "Select Variant",
         "selectedVariant": "Selected Variant",
         "noVariantFound": "No variant found with selected attributes",
-        "selectRequiredAttributes": "Please select all required attributes ({{current}}/{{total}} selected)"
+        "selectRequiredAttributes": "Please select all required attributes ({current}/{total} selected)"
       },
       "common": {
         "quantity": "Quantity",
         "cancel": "Cancel"
+      },
+      "variantSelector": {
+        "states": {
+          "selectRequiredAttributes": "Please select all required attributes ({current}/{total} selected)"
+        }
       },
       "variants": {
         "inStock": "{count, plural, one {{count} item in stock} other {{count} items in stock}}",

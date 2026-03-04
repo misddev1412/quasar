@@ -123,7 +123,17 @@
       "skipped": "Đã bỏ qua",
       "duplicates": "Trùng lặp",
       "template_error": "Tải mẫu thất bại."
-    }
+    },
+    "additional_translations": "Phiên bản Ngôn ngữ Bổ sung",
+    "additional_translations_description": "Tạo phiên bản của danh mục này bằng các ngôn ngữ khác",
+    "select_language": "Chọn ngôn ngữ...",
+    "add_translation": "Thêm bản dịch",
+    "no_additional_languages": "Không có ngôn ngữ bổ sung",
+    "no_additional_languages_description": "Thêm bản dịch để cung cấp danh mục này bằng các ngôn ngữ khác.",
+    "add_first_translation": "Thêm bản dịch đầu tiên của bạn",
+    "name_label": "Tên danh mục",
+    "description_label": "Mô tả",
+    "all_languages_added": "Tất cả các ngôn ngữ có sẵn đã được thêm."
   },
   "brands": {
     "title": "Thương hiệu",

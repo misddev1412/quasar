@@ -57,6 +57,7 @@ import { ProductSpecificationRepository } from '@backend/modules/products/reposi
 import { ProductSpecificationLabelRepository } from '@backend/modules/products/repositories/product-specification-label.repository';
 import { ProductWarehouseQuantityRepository } from '@backend/modules/products/repositories/product-warehouse-quantity.repository';
 import { PurchaseOrderRepository } from '@backend/modules/products/repositories/purchase-order.repository';
+import { PurchaseOrderItemRepository } from '@backend/modules/products/repositories/purchase-order-item.repository';
 import { StockMovementRepository } from '@backend/modules/products/repositories/stock-movement.repository';
 import { CategoryRepository } from '@backend/modules/products/repositories/category.repository';
 import { SupplierRepository } from '@backend/modules/products/repositories/supplier.repository';
@@ -95,6 +96,7 @@ import { AdminProductAttributesRouter } from '@backend/modules/products/routers/
 import { AdminProductBrandsRouter } from '@backend/modules/products/routers/admin-brands.router';
 import { AdminProductCategoriesRouter } from '@backend/modules/products/routers/admin-categories.router';
 import { AdminProductSuppliersRouter } from '@backend/modules/products/routers/admin-suppliers.router';
+import { AdminPurchaseOrdersRouter } from '@backend/modules/products/routers/admin-purchase-orders.router';
 import { AdminWarehousesRouter } from '@backend/modules/products/routers/admin-warehouse.router';
 import { PublicProductsRouter } from '@backend/modules/products/routers/public.router';
 import { AdminOrdersRouter } from '@backend/modules/products/routers/admin-orders.router';
@@ -189,6 +191,7 @@ import { ImportModule } from '@backend/modules/import/import.module';
     ProductSpecificationLabelRepository,
     ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
+    PurchaseOrderItemRepository,
     StockMovementRepository,
     CategoryRepository,
     SupplierRepository,
@@ -226,6 +229,7 @@ import { ImportModule } from '@backend/modules/import/import.module';
     AdminProductBrandsRouter,
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
+    AdminPurchaseOrdersRouter,
     AdminProductSpecificationLabelsRouter,
     AdminWarehousesRouter,
     PublicProductsRouter,
@@ -255,6 +259,7 @@ import { ImportModule } from '@backend/modules/import/import.module';
     ProductSpecificationLabelRepository,
     ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
+    PurchaseOrderItemRepository,
     StockMovementRepository,
     CategoryRepository,
     SupplierRepository,
@@ -286,6 +291,7 @@ import { ImportModule } from '@backend/modules/import/import.module';
     AdminProductBrandsRouter,
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
+    AdminPurchaseOrdersRouter,
     AdminProductSpecificationLabelsRouter,
     AdminWarehousesRouter,
     PublicProductsRouter,

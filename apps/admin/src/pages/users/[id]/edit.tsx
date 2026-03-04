@@ -432,18 +432,15 @@ const UserUpdatePage: React.FC = () => {
         <Breadcrumb
           items={[
             {
-              label: 'Home',
-              href: '/',
-              icon: <Home className="w-4 h-4" />
+              label: t('navigation.home', 'Home'),
+              href: '/'
             },
             {
-              label: 'Users',
-              href: '/users',
-              icon: <UserIcon className="w-4 h-4" />
+              label: t('common.users', 'Users'),
+              href: '/users'
             },
             {
-              label: 'Update User',
-              icon: <UserIcon className="w-4 h-4" />
+              label: t('admin.update_user', 'Update User')
             }
           ]}
         />

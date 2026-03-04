@@ -55,8 +55,18 @@
             "delete": "Xóa",
             "clone": "Nhân bản",
             "noSections": "Chưa có section nào",
+            "searchPlaceholder": "Tìm theo tên, từ khóa hoặc mô tả",
             "sectionCloned": "Đã nhân bản section thành công",
             "cloneFailed": "Nhân bản thất bại",
+            "filters": {
+                "title": "Lọc Section"
+            },
+            "statistics": {
+                "totalSections": "Tổng Section",
+                "enabledSections": "Đang bật",
+                "disabledSections": "Đang tắt",
+                "sectionTypes": "Loại Section"
+            },
             "configEditor": {
                 "rawJson": "Cấu hình JSON thô",
                 "useFormEditor": "Sử dụng trình chỉnh sửa biểu mẫu",

@@ -38,5 +38,13 @@ export const reorderSectionsSchema = z.object({
   sections: z.array(reorderSectionSchema).min(1),
 });
 
+export const adminListSectionsSchema = z.object({
+  page: z.string().min(1).max(100).optional().nullable(),
+  search: z.string().trim().max(255).optional().nullable(),
+  type: z.nativeEnum(SectionType).optional().nullable(),
+  isEnabled: z.boolean().optional().nullable(),
+});
+
 export type ReorderSectionDto = z.infer<typeof reorderSectionSchema>;
 export type ReorderSectionsDto = z.infer<typeof reorderSectionsSchema>;
+export type AdminListSectionsDto = z.infer<typeof adminListSectionsSchema>;

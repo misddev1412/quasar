@@ -48,7 +48,10 @@
             "select_posts_hint": "Vui lòng chọn ít nhất một bài viết để tiếp tục."
         },
         "bulkActions": {
-            "publishSelected": "Xuất bản các mục đã chọn"
+            "publishSelected": "Xuất bản các mục đã chọn",
+            "draftSelected": "Chuyển thành bản nháp",
+            "archiveSelected": "Lưu trữ các mục đã chọn",
+            "deleteSelected": "Xóa các mục đã chọn"
         },
         "search_placeholder": "Tìm bài viết theo tiêu đề, nội dung hoặc slug...",
         "no_posts_found": "Không tìm thấy bài viết",

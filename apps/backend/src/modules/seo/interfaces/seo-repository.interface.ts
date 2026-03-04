@@ -1,5 +1,6 @@
 import { IBaseRepository } from '@shared';
 import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
+import type { AdminSeoListQueryDto, AdminSeoStatsDto } from '@backend/modules/seo/dto/seo.dto';
 
 export interface SEORepositoryInterface extends IBaseRepository<SEOEntity> {
   /**
@@ -13,4 +14,14 @@ export interface SEORepositoryInterface extends IBaseRepository<SEOEntity> {
    * @param path Page path
    */
   existsByPath(path: string): Promise<boolean>;
-} 
+
+  findAllPaginated(query: AdminSeoListQueryDto): Promise<{
+    items: SEOEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
+
+  findStats(): Promise<AdminSeoStatsDto>;
+}

@@ -123,7 +123,17 @@
       "skipped": "Skipped",
       "duplicates": "Duplicates",
       "template_error": "Failed to download template."
-    }
+    },
+    "additional_translations": "Additional Language Versions",
+    "additional_translations_description": "Create versions of this category in other languages",
+    "select_language": "Select language...",
+    "add_translation": "Add Translation",
+    "no_additional_languages": "No Additional Languages",
+    "no_additional_languages_description": "Add translations to make this category available in other languages.",
+    "add_first_translation": "Add Your First Translation",
+    "name_label": "Category Name",
+    "description_label": "Description",
+    "all_languages_added": "All available languages have been added."
   },
   "brands": {
     "title": "Brands",

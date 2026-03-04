@@ -9,7 +9,6 @@ import PriceDisplay from './PriceDisplay';
 import Rating from '../common/Rating';
 import Input from '../common/Input';
 import AttributeSelector from './AttributeSelector';
-import VariantSelector from './VariantSelector';
 import ContactPriceModal from './ContactPriceModal';
 import type { Product, ProductVariant } from '../../types/product';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
@@ -71,18 +70,26 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   const { isOpen: isContactModalOpen, onOpen: onOpenContactModal, onClose: onCloseContactModal } = useDisclosure();
   const { name, brand, sku, status, isActive, variants, tags, isContactPrice, contactPriceLabel } = product;
   const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
+  const requiredAttributeCount = variantAttributes.length;
+  const selectedAttributeCount = Object.values(selectedAttributes).filter(Boolean).length;
+  const hasCompleteAttributeSelection = !hasAttributeBasedVariants
+    || (requiredAttributeCount > 0 && selectedAttributeCount === requiredAttributeCount);
 
-  const currentPrice = selectedVariant?.price ||
-    (variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price);
+  const currentPrice = hasAttributeBasedVariants
+    ? selectedVariant?.price
+    : (selectedVariant?.price
+      ?? (variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price));
 
   const variantOriginalPrice = variants && variants.length > 0
     ? variants.find(variant => typeof variant.compareAtPrice === 'number')?.compareAtPrice
     : undefined;
 
-  const originalPrice = selectedVariant?.compareAtPrice
-    ?? variantOriginalPrice
-    ?? product.compareAtPrice
-    ?? undefined;
+  const originalPrice = hasAttributeBasedVariants
+    ? (selectedVariant?.compareAtPrice ?? undefined)
+    : (selectedVariant?.compareAtPrice
+      ?? variantOriginalPrice
+      ?? product.compareAtPrice
+      ?? undefined);
 
   const inStock = isActive && status === 'ACTIVE';
   const allVariantsContactPrice = useMemo(
@@ -90,7 +97,13 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
     [variants],
   );
   const isContactOnlyProduct = Boolean(isContactPrice || allVariantsContactPrice);
-  const isPriceUpdating = !isContactOnlyProduct && (currentPrice === 0 || currentPrice === undefined || currentPrice === null || Number.isNaN(currentPrice));
+  const isPriceUpdating = !isContactOnlyProduct && (
+    (hasAttributeBasedVariants && !hasCompleteAttributeSelection)
+    || currentPrice === 0
+    || currentPrice === undefined
+    || currentPrice === null
+    || Number.isNaN(currentPrice)
+  );
 
   return (
     <>
@@ -130,7 +143,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           <Rating value={averageRating} readOnly size="md" />
           <span className="text-lg font-semibold">{averageRating.toFixed(1)}</span>
         </div>
-        <span className={typography.meta}>({reviewCount} reviews)</span>
+        <span className={typography.meta}>({t('reviews.countLabel', { count: reviewCount })})</span>
         {reviewCount > 0 && (
           <Button
             variant="bordered"
@@ -148,6 +161,18 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           <span className="text-3xl md:text-4xl font-bold text-gray-900">
             {contactPriceLabel || tProduct('contactPrice')}
           </span>
+        ) : hasAttributeBasedVariants && !hasCompleteAttributeSelection ? (
+          <div className="space-y-2">
+            <span className="text-3xl md:text-4xl font-bold text-gray-500">
+              {tProduct('priceUpdating')}
+            </span>
+            <p className={typography.meta}>
+              {t('variantSelector.states.selectRequiredAttributes', {
+                current: selectedAttributeCount,
+                total: requiredAttributeCount,
+              })}
+            </p>
+          </div>
         ) : (
           <>
             <PriceDisplay
@@ -180,41 +205,33 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {(variantAttributes.length > 0 || (variants && variants.length > 0)) && (
-        <div className="space-y-6">
-          {variantAttributes.length > 0
-            ? variantAttributes.map((attribute) => {
-              const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
-              const previousAttributeId = attributeIndex > 0
-                ? variantAttributes[attributeIndex - 1]?.attributeId
-                : undefined;
-              const hasPreviousSelection = previousAttributeId
-                ? Boolean(selectedAttributes[previousAttributeId])
-                : true;
-              const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
-              const selectedValue = selectedAttributes[attribute.attributeId];
+      {variantAttributes.length > 0 && (
+        <div className="space-y-3">
+          {variantAttributes.map((attribute) => {
+            const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
+            const previousAttributeId = attributeIndex > 0
+              ? variantAttributes[attributeIndex - 1]?.attributeId
+              : undefined;
+            const hasPreviousSelection = previousAttributeId
+              ? Boolean(selectedAttributes[previousAttributeId])
+              : true;
+            const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
+            const selectedValue = selectedAttributes[attribute.attributeId];
 
-              return (
-                <AttributeSelector
-                  key={attribute.attributeId}
-                  attribute={attribute}
-                  selectedValue={selectedValue}
-                  disabled={!isActiveStep}
-                  isActiveStep={isActiveStep}
-                  isOptionDisabled={(valueId) =>
-                    isOptionDisabled(attribute.attributeId, valueId)
-                  }
-                  onSelect={onAttributeSelect}
-                />
-              );
-            })
-            : (
-              <VariantSelector
-                variants={variants || []}
-                selectedVariant={selectedVariant}
-                onVariantSelect={onVariantSelect}
+            return (
+              <AttributeSelector
+                key={attribute.attributeId}
+                attribute={attribute}
+                selectedValue={selectedValue}
+                disabled={!isActiveStep}
+                isActiveStep={isActiveStep}
+                isOptionDisabled={(valueId) =>
+                  isOptionDisabled(attribute.attributeId, valueId)
+                }
+                onSelect={onAttributeSelect}
               />
-            )}
+            );
+          })}
         </div>
       )}
 

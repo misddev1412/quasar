@@ -247,15 +247,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const submitActionRef = useRef<ProductFormSubmitAction>('save');
   const [lastSubmitAction, setLastSubmitAction] = useState<ProductFormSubmitAction>('save');
 
-  const handleSubmitActionSelect = (action: ProductFormSubmitAction) => {
-    submitActionRef.current = action;
-    setLastSubmitAction(action);
-  };
+  const mapProductVariantsToMatrixItems = React.useCallback((sourceProduct?: Product | null): VariantMatrixItem[] => {
+    if (!sourceProduct?.variants) return [];
 
-  const [variants, setVariants] = useState<VariantMatrixItem[]>(() => {
-    if (!product?.variants) return [];
-
-    const mapped = product.variants.map(v => {
+    const mapped = sourceProduct.variants.map(v => {
       // Build attribute combination from variantItems
       const attributeCombination: Record<string, string> = {};
       let combinationDisplay = v.name;
@@ -285,9 +280,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         isContactPrice: Boolean((v as any).isContactPrice),
       };
     });
-    console.log('DEBUG: Frontend initialized variants:', mapped);
+
     return mapped;
-  });
+  }, []);
+
+  const handleSubmitActionSelect = (action: ProductFormSubmitAction) => {
+    submitActionRef.current = action;
+    setLastSubmitAction(action);
+  };
+
+  const [variants, setVariants] = useState<VariantMatrixItem[]>(() => mapProductVariantsToMatrixItems(product));
+
+  useEffect(() => {
+    setVariants(mapProductVariantsToMatrixItems(product));
+  }, [mapProductVariantsToMatrixItems, product?.id]);
 
   const [translations, setTranslations] = useState<TranslationState>({});
   const [initialTranslations, setInitialTranslations] = useState<TranslationState>({});

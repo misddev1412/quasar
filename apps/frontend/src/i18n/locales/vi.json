@@ -103,6 +103,9 @@
     "update_entity_description": "Cập nhật thông tin và cài đặt",
     "saved": "Đã lưu",
     "name": "Tên",
+    "email": "Email",
+    "phone": "Điện thoại",
+    "message": "Nội dung",
     "description": "Mô tả",
     "type": "Loại",
     "category": "Danh mục",
@@ -247,12 +250,28 @@
     }
   },
   "services": {
+    "meta": {
+      "detailDescriptionWithName": "Chi tiết dịch vụ và báo giá cho {{name}}.",
+      "detailDescriptionDefault": "Chi tiết dịch vụ và báo giá."
+    },
+    "error": {
+      "notFound": "Không tìm thấy dịch vụ",
+      "notFoundDesc": "Dịch vụ bạn đang tìm không tồn tại hoặc đã bị gỡ."
+    },
     "common": {
       "unnamedService": "Dịch vụ",
       "contactForPrice": "Liên hệ báo giá",
       "price": "Giá",
       "contactUs": "Liên hệ",
-      "viewDetails": "Xem chi tiết"
+      "viewDetails": "Xem chi tiết",
+      "backToServices": "Quay lại danh sách dịch vụ",
+      "perSession": "mỗi lần",
+      "bookNow": "Liên hệ ngay",
+      "backToList": "Quay lại danh sách",
+      "serviceDetails": "Chi tiết dịch vụ",
+      "pricingOptions": "Các gói giá",
+      "unnamedOption": "Tùy chọn",
+      "included": "Đã bao gồm"
     }
   },
   "layout": {
@@ -342,6 +361,10 @@
       "view_all_categories": "Xem tất cả danh mục",
       "products_title": "Gợi ý từ {{category}}",
       "products_description": "Hiển thị {{shown}} trên tổng {{total}} sản phẩm.",
+      "stats": {
+        "products": "sản phẩm",
+        "subcategories": "danh mục con"
+      },
       "updating_products": "Đang cập nhật sản phẩm...",
       "sort": {
         "newest": "Mới nhất",
@@ -1558,9 +1581,39 @@
       "variantsLabel": "Biến thể",
       "categoryLabel": "Danh mục"
     },
+    "productFilterSidebar": {
+      "title": "Bộ lọc",
+      "clear": "Xóa",
+      "clearAll": "Xóa tất cả bộ lọc",
+      "sections": {
+        "categories": "Danh mục",
+        "brands": "Thương hiệu",
+        "priceRange": "Khoảng giá",
+        "features": "Tính năng",
+        "rating": "Đánh giá"
+      },
+      "price": {
+        "min": "Tối thiểu",
+        "max": "Tối đa",
+        "minPlaceholder": "0",
+        "maxPlaceholder": "Tối đa",
+        "range": "Khoảng: ${{min}} - ${{max}}"
+      },
+      "features": {
+        "featuredProducts": "Sản phẩm nổi bật",
+        "inStockOnly": "Chỉ còn hàng",
+        "onSale": "Đang giảm giá"
+      },
+      "rating": {
+        "andUp": "trở lên"
+      }
+    },
     "productCard": {
       "stock": "Tồn kho",
-      "selectionWarning": "Vui lòng chọn đủ các tuỳ chọn bắt buộc ({{current}}/{{total}}) trước khi thêm vào giỏ hàng",
+      "stockAvailable": "Còn {{count}}",
+      "stockBackorder": "Có thể đặt trước",
+      "stockInStock": "Còn hàng",
+      "selectionWarning": "Vui lòng chọn đủ các tuỳ chọn bắt buộc ({current}/{total}) trước khi thêm vào giỏ hàng",
       "combinationUnavailable": "Tổ hợp không khả dụng",
       "imageAlt": "Hình ảnh sản phẩm",
       "startingFrom": "Giá từ {{price}}"
@@ -1578,6 +1631,7 @@
     "detail": {
       "breadcrumb": {
         "home": "Trang chủ",
+        "categories": "Danh mục",
         "categoryFallback": "Danh mục"
       },
       "overview": {
@@ -1718,11 +1772,16 @@
         "selectVariant": "Chọn biến thể",
         "selectedVariant": "Biến thể đã chọn",
         "noVariantFound": "Không tìm thấy biến thể nào với thuộc tính đã chọn",
-        "selectRequiredAttributes": "Vui lòng chọn tất cả các thuộc tính bắt buộc ({{current}}/{{total}} đã chọn)"
+        "selectRequiredAttributes": "Vui lòng chọn tất cả các thuộc tính bắt buộc ({current}/{total} đã chọn)"
       },
       "common": {
         "quantity": "Số lượng",
         "cancel": "Hủy"
+      },
+      "variantSelector": {
+        "states": {
+          "selectRequiredAttributes": "Vui lòng chọn đủ các thuộc tính bắt buộc ({current}/{total} đã chọn)"
+        }
       },
       "variants": {
         "inStock": "{count, plural, one {Còn {count} sản phẩm} other {Còn {count} sản phẩm}}",

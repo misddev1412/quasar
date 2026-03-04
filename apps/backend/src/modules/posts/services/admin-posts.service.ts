@@ -31,7 +31,7 @@ export class AdminPostsService {
       const result = await this.postRepository.findWithPagination({
         page: filters.page,
         limit: filters.limit,
-        relations: ['translations'],
+        relations: ['translations', 'author'],
       });
 
       return {
@@ -99,6 +99,19 @@ export class AdminPostsService {
       throw this.responseHandler.createError(
         500,
         'Failed to delete post',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
+  async bulkDeletePosts(ids: string[]): Promise<number> {
+    try {
+      return await this.postRepository.deleteMultiple(ids);
+    } catch (error) {
+      console.error('AdminPostsService.bulkDeletePosts error:', error);
+      throw this.responseHandler.createError(
+        500,
+        'Failed to delete posts in bulk',
         'INTERNAL_SERVER_ERROR'
       );
     }

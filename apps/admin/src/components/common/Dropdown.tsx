@@ -25,11 +25,19 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <span className="inline-flex outline-none" role="button" tabIndex={0}>{button}</span>
+        <span
+          className="inline-flex outline-none"
+          role="button"
+          tabIndex={0}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {button}
+        </span>
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
+          onClick={(e) => e.stopPropagation()}
           className={clsx(
             'w-48 z-50 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none',
             'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',

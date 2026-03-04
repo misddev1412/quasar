@@ -148,7 +148,17 @@ const PostListPage = () => {
     onError: (error) => {
       addToast({
         type: 'error',
-        title: t('posts.messages.publish_error', 'Failed to publish posts'),
+        title: t('common.error', 'Error'),
+        description: error.message,
+      });
+    },
+  });
+
+  const bulkDeleteMutation = trpc.adminPosts.bulkDelete.useMutation({
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
         description: error.message,
       });
     },
@@ -255,7 +265,7 @@ const PostListPage = () => {
       id: 'status',
       header: t('posts.table.status', 'Status'),
       accessor: (item) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.status === PostStatus.PUBLISHED
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${item.status === PostStatus.PUBLISHED
           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
           : item.status === PostStatus.DRAFT
             ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
@@ -538,13 +548,31 @@ const PostListPage = () => {
         label: t('posts.bulkActions.publishSelected', 'Publish selected'),
         value: 'publish',
         icon: <FiEye className="w-4 h-4" />,
-        disabled: bulkUpdateStatusMutation.isPending,
+        disabled: bulkUpdateStatusMutation.isPending || bulkDeleteMutation.isPending,
+      },
+      {
+        label: t('posts.bulkActions.draftSelected', 'Set to Draft'),
+        value: 'draft',
+        icon: <FiEdit2 className="w-4 h-4" />,
+        disabled: bulkUpdateStatusMutation.isPending || bulkDeleteMutation.isPending,
+      },
+      {
+        label: t('posts.bulkActions.archiveSelected', 'Archive selected'),
+        value: 'archive',
+        icon: <FiFolder className="w-4 h-4" />,
+        disabled: bulkUpdateStatusMutation.isPending || bulkDeleteMutation.isPending,
+      },
+      {
+        label: t('posts.bulkActions.deleteSelected', 'Delete selected'),
+        value: 'delete',
+        icon: <FiTrash2 className="w-4 h-4" />,
+        disabled: bulkUpdateStatusMutation.isPending || bulkDeleteMutation.isPending,
+        className: 'text-red-600 dark:text-red-400',
       },
     ];
-  }, [selectedPostIds, t, bulkUpdateStatusMutation.isPending]);
+  }, [selectedPostIds, t, bulkUpdateStatusMutation.isPending, bulkDeleteMutation.isPending]);
 
   const handleBulkAction = useCallback(async (action: string) => {
-    if (action !== 'publish') return;
     const ids = Array.from(selectedPostIds).map(String);
     if (!ids.length) {
       addToast({
@@ -556,14 +584,38 @@ const PostListPage = () => {
     }
 
     try {
-      const success = await publishPosts(ids);
-      if (success) {
+      if (action === 'publish') {
+        const success = await publishPosts(ids);
+        if (success) {
+          setSelectedPostIds(new Set());
+        }
+      } else if (action === 'draft' || action === 'archive') {
+        const status = action === 'draft' ? PostStatus.DRAFT : PostStatus.ARCHIVED;
+        const result = await bulkUpdateStatusMutation.mutateAsync({ ids, status });
+        const affected = (result as any)?.data?.affected ?? ids.length;
+        addToast({
+          type: 'success',
+          title: t('common.success', 'Success'),
+          description: t('posts.messages.status_updated_description', '{{count}} posts updated successfully').replace('{{count}}', String(affected)),
+        });
         setSelectedPostIds(new Set());
+        await refetchPosts();
+      } else if (action === 'delete') {
+        if (!confirm(t('posts.messages.delete_multiple_confirm', 'Are you sure you want to delete the selected posts?'))) return;
+        const result = await bulkDeleteMutation.mutateAsync({ ids });
+        const affected = (result as any)?.data?.affected ?? ids.length;
+        addToast({
+          type: 'success',
+          title: t('common.success', 'Success'),
+          description: t('posts.messages.posts_deleted', '{{count}} posts deleted successfully').replace('{{count}}', String(affected)),
+        });
+        setSelectedPostIds(new Set());
+        await refetchPosts();
       }
     } catch {
       // Error toast already handled via mutation onError
     }
-  }, [selectedPostIds, publishPosts, addToast, t]);
+  }, [selectedPostIds, publishPosts, bulkUpdateStatusMutation, bulkDeleteMutation, addToast, t, refetchPosts]);
 
   if (postsQuery.isLoading) {
     return (

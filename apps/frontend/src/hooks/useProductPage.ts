@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useProductState } from '@frontend/hooks/useProductState';
 import { useProductVariants } from '@frontend/hooks/useProductVariants';
 import type { Product, ProductVariant, ProductMedia, ProductSpecification } from '@frontend/types/product';
+import { useLocalePath } from '@frontend/lib/routing';
 
 interface UseProductPageProps {
     product: Product;
@@ -20,6 +21,7 @@ export const useProductPage = ({
 }: UseProductPageProps) => {
     const t = useTranslations('product.detail');
     const router = useRouter();
+    const { createLocalUrl } = useLocalePath();
     const detailTabsRef = useRef<HTMLDivElement | null>(null);
 
     const {
@@ -85,6 +87,10 @@ export const useProductPage = ({
 
     const breadcrumbItems = useMemo(() => {
         const items: { label: string; href?: string; isCurrent?: boolean }[] = [{ label: t('breadcrumb.home'), href: '/' }];
+        items.push({
+            label: t('breadcrumb.categories'),
+            href: createLocalUrl('/categories'),
+        });
 
         if (categories && categories.length > 0) {
             const primaryCategory = categories[0] as any;
@@ -94,7 +100,7 @@ export const useProductPage = ({
 
                 items.push({
                     label: categoryName,
-                    href: categorySlug ? `/categories/${categorySlug}` : undefined,
+                    href: categorySlug ? createLocalUrl(`/categories/${categorySlug}`) : undefined,
                 });
             }
         }
@@ -102,7 +108,7 @@ export const useProductPage = ({
         items.push({ label: name, isCurrent: true });
 
         return items;
-    }, [categories, name, t]);
+    }, [categories, createLocalUrl, name, t]);
 
     // Get images for gallery
     const productImages = useMemo(() => {

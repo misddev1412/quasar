@@ -55,6 +55,7 @@ import { AdminSupportClientsRouter } from '@backend/modules/support/routers/admi
 import { ComponentConfigsModule } from '@backend/modules/component-configs/component-configs.module';
 import { AdminComponentConfigsRouter } from '@backend/modules/component-configs/routers/admin-component-configs.router';
 import { ClientComponentConfigsRouter } from '@backend/modules/component-configs/routers/client-component-configs.router';
+import { AdminProductSuppliersRouter } from '@backend/modules/products/routers/admin-suppliers.router';
 import { AdminProductSpecificationLabelsRouter } from '@backend/modules/products/routers/admin-product-specification-labels.router';
 import { ServicesRouter } from '@backend/modules/services/routers/services.router';
 import { ClientServicesRouter } from '@backend/trpc/routers/client/services.router';
@@ -143,6 +144,7 @@ import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.
     AdminOpenAiConfigRouter,
     AdminPageSpeedRouter,
     AdminImportRouter,
+    AdminProductSuppliersRouter,
     ClientNewsletterRouter,
   ],
 })

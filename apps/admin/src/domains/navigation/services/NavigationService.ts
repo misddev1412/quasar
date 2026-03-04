@@ -39,6 +39,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PolicyIcon from '@mui/icons-material/Policy';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LoyaltyIcon from '@mui/icons-material/CardMembership';
 import StarsIcon from '@mui/icons-material/Stars';
 import RedeemIcon from '@mui/icons-material/Redeem';
@@ -310,6 +311,23 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(LocalShippingIcon),
             label: t('delivery_methods.title', 'Phương thức giao hàng'),
             path: '/delivery-methods'
+          },
+          {
+            icon: React.createElement(ShoppingBagIcon),
+            label: t('purchase_orders.title', 'Đơn mua hàng'),
+            path: '/purchase-orders',
+            subItems: [
+              {
+                icon: React.createElement(ViewListIcon),
+                label: t('purchase_orders.list', 'Danh sách đơn hàng'),
+                path: '/purchase-orders'
+              },
+              {
+                icon: React.createElement(ShoppingCartIcon),
+                label: t('purchase_orders.create', 'Tạo đơn hàng'),
+                path: '/purchase-orders/create'
+              }
+            ]
           }
         ]
       },
@@ -544,6 +562,13 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/customers\/[^\/]+(\/edit)?$/);
     }
 
+    // Special handling for purchase orders
+    if (path === '/purchase-orders') {
+      return currentPath === '/purchase-orders' ||
+        currentPath.startsWith('/purchase-orders/create') ||
+        !!currentPath.match(/^\/purchase-orders\/[^\/]+(\/edit)?$/);
+    }
+
     // Special handling for shipping providers - main /shipping-providers should match detail/edit/create
     if (path === '/shipping-providers') {
       return currentPath === '/shipping-providers' ||
@@ -637,7 +662,7 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/permissions\/[^\/]+\/edit$/);
     }
 
-    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes', '/pagespeed'];
+    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/purchase-orders', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes', '/pagespeed'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

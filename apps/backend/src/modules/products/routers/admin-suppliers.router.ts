@@ -1,11 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { SupplierRepository } from '@backend/modules/products/repositories/supplier.repository';
 import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '@backend/trpc/context';
 
 export const getSuppliersQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -69,7 +70,7 @@ export const updateSupplierTranslationSchema = z.object({
   contactPerson: z.string().optional(),
 });
 
-@Router({ alias: 'adminProductSuppliers' })
+@Router({ alias: 'adminSuppliers' })
 @Injectable()
 export class AdminProductSuppliersRouter {
   constructor(
@@ -246,6 +247,66 @@ export class AdminProductSuppliersRouter {
         4,  // OperationCode.DELETE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to delete supplier'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      ids: z.array(z.string().uuid()),
+      isActive: z.boolean(),
+    }),
+    output: apiResponseSchema,
+  })
+  async bulkUpdateStatus(
+    @Input() input: { ids: string[]; isActive: boolean },
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const affected = await this.supplierRepository.bulkUpdateStatus(input.ids, input.isActive);
+      return this.responseHandler.createTrpcSuccess({
+        affected,
+        message: `Successfully updated ${affected} suppliers`,
+      });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to bulk update supplier status'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      ids: z.array(z.string().uuid()),
+    }),
+    output: apiResponseSchema,
+  })
+  async bulkDelete(
+    @Input() input: { ids: string[] },
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Note: In an ideal scenario, we should check if any of the selected suppliers have products
+      // But for bulk delete, we might just attempt to delete and let it fail if there are constraints,
+      // or filter out those that have products.
+      // To keep it simple and consistent with standard delete, let's just attempt it.
+
+      const affected = await this.supplierRepository.bulkDelete(input.ids);
+      return this.responseHandler.createTrpcSuccess({
+        affected,
+        message: `Successfully deleted ${affected} suppliers`,
+      });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        4,  // OperationCode.DELETE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to bulk delete suppliers'
       );
     }
   }

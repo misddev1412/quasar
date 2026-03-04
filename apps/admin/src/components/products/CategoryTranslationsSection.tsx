@@ -69,7 +69,7 @@ export const CategoryTranslationsSection: React.FC<CategoryTranslationsSectionPr
             {t('categories.additional_translations_description', 'Create versions of this category in other languages')}
           </p>
         </div>
-        
+
         {availableLanguages.length > 0 && (
           <div className="flex items-center space-x-2">
             <Select
@@ -136,7 +136,7 @@ export const CategoryTranslationsSection: React.FC<CategoryTranslationsSectionPr
         <div className="space-y-4">
           {translations.map((translation, index) => {
             const language = languageOptions.find(lang => lang.value === translation.locale);
-            
+
             return (
               <Card key={`${translation.locale}-${index}`} className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -167,7 +167,7 @@ export const CategoryTranslationsSection: React.FC<CategoryTranslationsSectionPr
                   <FormInput
                     id={`category-name-${index}`}
                     type="text"
-                    label={t('categories.name', 'Category Name')}
+                    label={t('categories.name_label', 'Category Name')}
                     value={translation.name}
                     onChange={(e) => updateTranslation(index, 'name', e.target.value)}
                     placeholder={t('categories.name_placeholder', 'Enter category name')}
@@ -177,7 +177,7 @@ export const CategoryTranslationsSection: React.FC<CategoryTranslationsSectionPr
                   {/* Category Description */}
                   <TextareaInput
                     id={`category-description-${index}`}
-                    label={t('categories.description', 'Description')}
+                    label={t('categories.description_label', 'Description')}
                     value={translation.description || ''}
                     onChange={(e) => updateTranslation(index, 'description', e.target.value)}
                     placeholder={t('categories.description_placeholder', 'Enter category description')}

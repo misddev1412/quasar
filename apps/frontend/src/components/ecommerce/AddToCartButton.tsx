@@ -118,7 +118,9 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     try {
       const result = await Promise.resolve(onAddToCart(product, selectedQuantity));
 
-      if (mountedRef.current && result !== false) {
+      // In delegated mode, only a strict `true` means item was actually added.
+      // `undefined` is often used by callers to trigger option/variant selection UI.
+      if (mountedRef.current && result === true) {
         markAsAdded();
       }
     } catch (error) {

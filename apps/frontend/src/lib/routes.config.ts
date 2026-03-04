@@ -1,4 +1,4 @@
-export type AppRoute = 'home' | 'products' | 'about' | 'contact' | 'news' | 'blog' | 'services';
+export type AppRoute = 'home' | 'products' | 'categories' | 'about' | 'contact' | 'news' | 'blog' | 'services';
 
 export const ROUTES_CONFIG: Record<AppRoute, { en: string; vi: string }> = {
     home: {
@@ -8,6 +8,10 @@ export const ROUTES_CONFIG: Record<AppRoute, { en: string; vi: string }> = {
     products: {
         en: '/products',
         vi: '/san-pham',
+    },
+    categories: {
+        en: '/categories',
+        vi: '/danh-muc',
     },
     about: {
         en: '/about',

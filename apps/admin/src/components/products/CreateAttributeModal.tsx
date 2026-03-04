@@ -70,6 +70,7 @@ export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
             value: value.value,
             displayValue: value.displayValue || undefined,
             sortOrder: value.sortOrder,
+            scope: 'GLOBAL',
           });
         }
       }

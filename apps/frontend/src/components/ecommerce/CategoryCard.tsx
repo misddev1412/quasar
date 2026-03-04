@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Card, Chip } from '@heroui/react';
 import type { Category } from '../../types/product';
 import { useTranslation } from 'react-i18next';
+import { useLocale } from 'next-intl';
+import { getCategoryLink } from '../../lib/link-utils';
 
 interface CategoryCardProps {
   category: Category;
@@ -22,6 +24,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   onCategoryClick,
 }) => {
   const { t } = useTranslation();
+  const locale = useLocale();
+  const localeBase = locale.split('-')[0].toLowerCase();
   const { id, name, description, image, productCount } = category;
   const productCountLabel = typeof productCount === 'number'
     ? t('ecommerce.categoryCard.productCount', { count: productCount })
@@ -44,7 +48,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   // 1. Try translation slug
   if (Array.isArray(category.translations) && category.translations.length > 0) {
-    const translation = category.translations.find(t => t.slug);
+    const translation = category.translations.find((translation) => {
+      if (!translation?.slug) return false;
+      const normalizedLocale = translation.locale?.split('-')[0]?.toLowerCase();
+      return normalizedLocale === localeBase;
+    }) || category.translations.find((translation) => Boolean(translation?.slug));
     if (translation && translation.slug) {
       linkSlug = translation.slug;
     }
@@ -62,7 +70,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   return (
     <Link
-      href={`/categories/${linkSlug}`}
+      href={getCategoryLink(linkSlug, localeBase)}
       className={`group ${className}`}
       onClick={handleClick}
     >
@@ -86,8 +94,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           {showProductCount && productCount !== undefined && (
             <Chip
               size="sm"
-              variant="flat"
-              className="absolute top-2 right-2 bg-white bg-opacity-80"
+              variant="solid"
+              className="absolute top-2 right-2 bg-black/70 text-white border border-white/25 backdrop-blur-sm font-semibold"
             >
               {productCountLabel}
             </Chip>

@@ -37,6 +37,8 @@ interface CategoryPageProps {
   }>;
 }
 
+const CATEGORY_PRODUCTS_PAGE_SIZE = 20;
+
 // Generate metadata for server-side SEO
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -83,6 +85,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 async function CategoryPageContent({ params }: CategoryPageProps) {
   const { slug } = await params;
   const tCommon = await getTranslations('common');
+  const tCategoryDetail = await getTranslations('pages.category_detail');
 
   // Fetch category data server-side
   const categoryResponse = await serverTrpc.clientCategories.getCategoryBySlug.query({ slug }) as any;
@@ -93,15 +96,24 @@ async function CategoryPageContent({ params }: CategoryPageProps) {
   }
 
   // Fetch products in this category server-side
-  const productsResponse = await serverTrpc.clientProducts.getProductsByCategory.query({ categoryId: slug }) as any;
+  const productsResponse = await serverTrpc.clientProducts.getProductsByCategory.query({
+    categoryId: slug,
+    limit: CATEGORY_PRODUCTS_PAGE_SIZE,
+    page: 1,
+  }) as any;
   const products = productsResponse?.data?.items as Product[] || [];
+  const productsPagination = productsResponse?.data?.pagination as { total?: number } | undefined;
 
   // Fetch subcategories
   const subcategoriesResponse = await serverTrpc.clientCategories.getRootCategories.query({ parentId: category.id }) as any;
   const subcategories = subcategoriesResponse?.data as Category[] || [];
 
   const numberFormatter = new Intl.NumberFormat();
-  const productTotal = typeof category.productCount === 'number' ? category.productCount : products.length;
+  const productTotal = typeof productsPagination?.total === 'number'
+    ? productsPagination.total
+    : typeof category.productCount === 'number'
+      ? category.productCount
+      : products.length;
   const friendlyDescription = category.description || `Explore ${category.name} with curated picks for every style.`;
   const heroBackground = category.heroBackgroundImage || category.image || '';
   const showTitle = category.showTitle ?? true;
@@ -148,12 +160,12 @@ async function CategoryPageContent({ params }: CategoryPageProps) {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               {showProductCount && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
-                  {numberFormatter.format(productTotal)} products
+                  {numberFormatter.format(productTotal)} {tCategoryDetail('stats.products')}
                 </span>
               )}
               {showSubcategoryCount && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
-                  {numberFormatter.format(subcategories.length)} subcategories
+                  {numberFormatter.format(subcategories.length)} {tCategoryDetail('stats.subcategories')}
                 </span>
               )}
             

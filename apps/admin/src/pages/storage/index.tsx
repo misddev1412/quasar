@@ -71,11 +71,11 @@ const storageConfigSchema: z.ZodSchema<StorageConfigFormData> = z.object({
   provider: z.enum(['local', 's3']),
   maxFileSize: z.string().min(4), // At least 4 digits (1024 minimum)
   allowedFileTypes: z.array(z.string()).min(1),
-  
+
   // Local storage settings
   localUploadPath: z.string().optional(),
   localBaseUrl: z.string().optional(),
-  
+
   // S3 settings
   s3Provider: z.enum(['aws', 'gcp', 'digitalocean', 'minio', 'custom']).optional(),
   s3AccessKey: z.string().optional(),
@@ -166,30 +166,30 @@ const StorageConfigPage: React.FC = () => {
         maxFileSize: Number(formData.maxFileSize),
         allowedFileTypes: formData.allowedFileTypes,
         // Only include non-empty local settings
-        ...(formData.localUploadPath && formData.localUploadPath.trim() !== '' && { 
-          localUploadPath: formData.localUploadPath.trim() 
+        ...(formData.localUploadPath && formData.localUploadPath.trim() !== '' && {
+          localUploadPath: formData.localUploadPath.trim()
         }),
-        ...(formData.localBaseUrl && formData.localBaseUrl.trim() !== '' && { 
-          localBaseUrl: formData.localBaseUrl.trim() 
+        ...(formData.localBaseUrl && formData.localBaseUrl.trim() !== '' && {
+          localBaseUrl: formData.localBaseUrl.trim()
         }),
         // Only include non-empty S3 settings
-        ...(formData.s3AccessKey && formData.s3AccessKey.trim() !== '' && { 
-          s3AccessKey: formData.s3AccessKey.trim() 
+        ...(formData.s3AccessKey && formData.s3AccessKey.trim() !== '' && {
+          s3AccessKey: formData.s3AccessKey.trim()
         }),
-        ...(formData.s3SecretKey && formData.s3SecretKey.trim() !== '' && { 
-          s3SecretKey: formData.s3SecretKey.trim() 
+        ...(formData.s3SecretKey && formData.s3SecretKey.trim() !== '' && {
+          s3SecretKey: formData.s3SecretKey.trim()
         }),
-        ...(formData.s3Region && formData.s3Region.trim() !== '' && { 
-          s3Region: formData.s3Region.trim() 
+        ...(formData.s3Region && formData.s3Region.trim() !== '' && {
+          s3Region: formData.s3Region.trim()
         }),
-        ...(formData.s3Bucket && formData.s3Bucket.trim() !== '' && { 
-          s3Bucket: formData.s3Bucket.trim() 
+        ...(formData.s3Bucket && formData.s3Bucket.trim() !== '' && {
+          s3Bucket: formData.s3Bucket.trim()
         }),
-        ...(formData.s3Endpoint && formData.s3Endpoint.trim() !== '' && { 
-          s3Endpoint: formData.s3Endpoint.trim() 
+        ...(formData.s3Endpoint && formData.s3Endpoint.trim() !== '' && {
+          s3Endpoint: formData.s3Endpoint.trim()
         }),
-        ...(formData.s3ForcePathStyle !== undefined && { 
-          s3ForcePathStyle: formData.s3ForcePathStyle 
+        ...(formData.s3ForcePathStyle !== undefined && {
+          s3ForcePathStyle: formData.s3ForcePathStyle
         }),
         ...(formData.s3CdnUrl && formData.s3CdnUrl.trim() !== '' && {
           s3CdnUrl: formData.s3CdnUrl.trim()
@@ -345,7 +345,7 @@ const StorageConfigPage: React.FC = () => {
         const region = formValues.s3Region;
         const expectedEndpoint = `https://${region}.digitaloceanspaces.com`;
         const currentEndpoint = formValues.s3Endpoint || '';
-        
+
         if (currentEndpoint !== expectedEndpoint) {
           formRef.current.setValue('s3Endpoint', expectedEndpoint);
         }
@@ -471,22 +471,20 @@ const StorageConfigPage: React.FC = () => {
           customContent: (
             <div className="space-y-4">
               {testResult && activeTab === 1 && (
-                <div className={`p-4 rounded-lg border ${
-                  testResult.success 
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
+                <div className={`p-4 rounded-lg border ${testResult.success
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
                     : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                }`}>
+                  }`}>
                   <div className="flex items-center space-x-2">
                     {testResult.success ? (
                       <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                     ) : (
                       <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                     )}
-                    <p className={`${
-                      testResult.success 
-                        ? 'text-green-800 dark:text-green-200' 
+                    <p className={`${testResult.success
+                        ? 'text-green-800 dark:text-green-200'
                         : 'text-red-800 dark:text-red-200'
-                    }`}>
+                      }`}>
                       {testResult.message}
                     </p>
                   </div>
@@ -619,22 +617,20 @@ const StorageConfigPage: React.FC = () => {
                 </div>
               )}
               {testResult && activeTab === 2 && (
-                <div className={`p-4 rounded-lg border ${
-                  testResult.success 
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
+                <div className={`p-4 rounded-lg border ${testResult.success
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
                     : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                }`}>
+                  }`}>
                   <div className="flex items-center space-x-2">
                     {testResult.success ? (
                       <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                     ) : (
                       <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                     )}
-                    <p className={`${
-                      testResult.success 
-                        ? 'text-green-800 dark:text-green-200' 
+                    <p className={`${testResult.success
+                        ? 'text-green-800 dark:text-green-200'
                         : 'text-red-800 dark:text-red-200'
-                    }`}>
+                      }`}>
                       {testResult.message}
                     </p>
                   </div>
@@ -707,17 +703,17 @@ const StorageConfigPage: React.FC = () => {
         <Breadcrumb
           items={[
             {
-              label: 'Home',
+              label: t('navigation.home', 'Home'),
               href: '/',
               icon: <Home className="w-4 h-4" />
             },
             {
-              label: 'Settings',
+              label: t('common.settings', 'Settings'),
               href: '/settings',
               icon: <Settings className="w-4 h-4" />
             },
             {
-              label: 'Storage Configuration',
+              label: t('navigation.storage', 'Storage Configuration'),
               icon: <HardDrive className="w-4 h-4" />
             }
           ]}

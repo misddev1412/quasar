@@ -50,15 +50,16 @@ export async function generateMetadata({
     const siteName = getPublicSiteName();
     const { id: identifier } = await params;
     const locale = await getLocale();
+    const tServices = await getTranslations('services');
 
     try {
         const service = await resolveService(identifier, locale);
         if (service) {
-            const name = getTranslationValue(service, locale, 'name') || 'Service Details';
+            const name = getTranslationValue(service, locale, 'name') || tServices('common.serviceDetails');
             const slug = getTranslationValue(service, locale, 'slug') || identifier;
             return {
                 title: `${name} - ${siteName}`,
-                description: `Service details and pricing for ${name}.`,
+                description: tServices('meta.detailDescriptionWithName', { name }),
                 alternates: {
                     canonical: `/services/${slug}`,
                 },
@@ -73,8 +74,8 @@ export async function generateMetadata({
     }
 
     return {
-        title: `Service Details - ${siteName}`,
-        description: 'Service details and pricing.',
+        title: `${tServices('common.serviceDetails')} - ${siteName}`,
+        description: tServices('meta.detailDescriptionDefault'),
         robots: {
             index: true,
             follow: true

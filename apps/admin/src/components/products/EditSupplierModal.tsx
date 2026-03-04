@@ -67,7 +67,7 @@ export const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
   const [initialTranslations, setInitialTranslations] = useState<Record<string, Record<string, string>>>({});
 
   // Load supplier translations
-  const { data: translationsData } = trpc.adminProductSuppliers.getSupplierTranslations.useQuery(
+  const { data: translationsData } = trpc.adminSuppliers.getSupplierTranslations.useQuery(
     { supplierId: supplier?.id },
     { enabled: !!supplier?.id }
   );
@@ -120,7 +120,7 @@ export const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
     }
   }, [translationsData]);
 
-  const updateMutation = trpc.adminProductSuppliers.update.useMutation({
+  const updateMutation = trpc.adminSuppliers.update.useMutation({
     onSuccess: async (result: any) => {
       if (!supplier?.id) return;
 
@@ -179,8 +179,8 @@ export const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
     },
   });
 
-  const createTranslationMutation = trpc.adminProductSuppliers.createSupplierTranslation.useMutation();
-  const updateTranslationMutation = trpc.adminProductSuppliers.updateSupplierTranslation.useMutation();
+  const createTranslationMutation = trpc.adminSuppliers.createSupplierTranslation.useMutation();
+  const updateTranslationMutation = trpc.adminSuppliers.updateSupplierTranslation.useMutation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

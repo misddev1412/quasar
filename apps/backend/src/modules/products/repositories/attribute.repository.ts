@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Attribute, AttributeType } from '@backend/modules/products/entities/attribute.entity';
-import { AttributeValue } from '@backend/modules/products/entities/attribute-value.entity';
+import { AttributeValue, AttributeValueScope } from '@backend/modules/products/entities/attribute-value.entity';
 import { AttributeTranslation } from '@backend/modules/products/entities/attribute-translation.entity';
 
 export interface AttributeFilters {
@@ -103,7 +103,9 @@ export class AttributeRepository {
     } = options;
     
     const queryBuilder = this.attributeRepo.createQueryBuilder('attribute')
-      .leftJoinAndSelect('attribute.values', 'values');
+      .leftJoinAndSelect('attribute.values', 'values', 'values.scope = :globalScope', {
+        globalScope: AttributeValueScope.GLOBAL,
+      });
     
     // Apply filters
     if (search) {
@@ -181,7 +183,7 @@ export class AttributeRepository {
   // Attribute Value methods
   async findAttributeValues(attributeId: string): Promise<AttributeValue[]> {
     return this.attributeValueRepo.find({
-      where: { attributeId },
+      where: { attributeId, scope: AttributeValueScope.GLOBAL },
       order: { sortOrder: 'ASC', value: 'ASC' },
     });
   }
@@ -202,22 +204,28 @@ export class AttributeRepository {
   }
 
   async getSelectAttributes(): Promise<Attribute[]> {
-    return this.attributeRepo.find({
-      where: [
-        { type: AttributeType.SELECT },
-        { type: AttributeType.MULTISELECT }
-      ],
-      relations: ['values'],
-      order: { sortOrder: 'ASC', name: 'ASC' },
-    });
+    return this.attributeRepo.createQueryBuilder('attribute')
+      .leftJoinAndSelect('attribute.values', 'values', 'values.scope = :globalScope', {
+        globalScope: AttributeValueScope.GLOBAL,
+      })
+      .orderBy('attribute.sortOrder', 'ASC')
+      .addOrderBy('attribute.name', 'ASC')
+      .addOrderBy('values.sortOrder', 'ASC')
+      .addOrderBy('values.value', 'ASC')
+      .getMany();
   }
 
   async getFilterableAttributes(): Promise<Attribute[]> {
-    return this.attributeRepo.find({
-      where: { isFilterable: true },
-      relations: ['values'],
-      order: { sortOrder: 'ASC', name: 'ASC' },
-    });
+    return this.attributeRepo.createQueryBuilder('attribute')
+      .leftJoinAndSelect('attribute.values', 'values', 'values.scope = :globalScope', {
+        globalScope: AttributeValueScope.GLOBAL,
+      })
+      .where('attribute.isFilterable = :isFilterable', { isFilterable: true })
+      .orderBy('attribute.sortOrder', 'ASC')
+      .addOrderBy('attribute.name', 'ASC')
+      .addOrderBy('values.sortOrder', 'ASC')
+      .addOrderBy('values.value', 'ASC')
+      .getMany();
   }
 
   async getStats() {
@@ -293,7 +301,9 @@ export class AttributeRepository {
   async findByIdWithTranslations(id: string, locale?: string): Promise<Attribute | null> {
     const query = this.attributeRepo.createQueryBuilder('attribute')
       .leftJoinAndSelect('attribute.translations', 'translations')
-      .leftJoinAndSelect('attribute.values', 'values')
+      .leftJoinAndSelect('attribute.values', 'values', 'values.scope = :globalScope', {
+        globalScope: AttributeValueScope.GLOBAL,
+      })
       .where('attribute.id = :id', { id });
 
     if (locale) {
@@ -317,7 +327,9 @@ export class AttributeRepository {
     
     const queryBuilder = this.attributeRepo.createQueryBuilder('attribute')
       .leftJoinAndSelect('attribute.translations', 'translations')
-      .leftJoinAndSelect('attribute.values', 'values');
+      .leftJoinAndSelect('attribute.values', 'values', 'values.scope = :globalScope', {
+        globalScope: AttributeValueScope.GLOBAL,
+      });
     
     if (locale) {
       queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });

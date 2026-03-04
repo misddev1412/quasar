@@ -38,6 +38,7 @@ export interface StandardFormPageProps {
   tipsTitle?: string;
   tipsItems?: string[];
   showTips?: boolean;
+  fullWidth?: boolean;
 }
 
 const StandardFormPage: React.FC<StandardFormPageProps> = ({
@@ -64,6 +65,7 @@ const StandardFormPage: React.FC<StandardFormPageProps> = ({
   tipsTitle,
   tipsItems,
   showTips = true,
+  fullWidth = true,
 }) => {
   const { t } = useTranslationWithBackend();
   const [formStatus, setFormStatus] = useState<'idle' | 'modified' | 'saving' | 'saved'>('idle');
@@ -162,47 +164,45 @@ const StandardFormPage: React.FC<StandardFormPageProps> = ({
       description={description}
       actions={pageActions}
       breadcrumbs={defaultBreadcrumbs}
+      fullWidth={fullWidth}
     >
       <div className={maxWidth === 'full' ? 'w-full' : `mx-auto ${maxWidthClasses[maxWidth]}`}>
         <div className="space-y-6">
-          <div className={`rounded-lg border p-4 transition-all duration-300 ${
-            formStatus === 'saving'
+          <div className={`rounded-lg border p-4 transition-all duration-300 ${formStatus === 'saving'
               ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
               : formStatus === 'saved'
-              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-          }`}>
+                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+            }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                    formStatus === 'saving'
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${formStatus === 'saving'
                       ? 'bg-blue-100 dark:bg-blue-800'
                       : formStatus === 'saved'
-                      ? 'bg-green-100 dark:bg-green-800'
-                      : 'bg-primary-100 dark:bg-primary-900'
-                  }`}>
+                        ? 'bg-green-100 dark:bg-green-800'
+                        : 'bg-primary-100 dark:bg-primary-900'
+                    }`}>
                     {getStatusIcon()}
                   </div>
                 </div>
                 <div>
-                  <h3 className={`text-sm font-medium transition-colors ${
-                    formStatus === 'saving'
+                  <h3 className={`text-sm font-medium transition-colors ${formStatus === 'saving'
                       ? 'text-blue-900 dark:text-blue-100'
                       : formStatus === 'saved'
-                      ? 'text-green-900 dark:text-green-100'
-                      : 'text-gray-900 dark:text-gray-100'
-                  }`}>
+                        ? 'text-green-900 dark:text-green-100'
+                        : 'text-gray-900 dark:text-gray-100'
+                    }`}>
                     {getStatusText()}
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {formStatus === 'saving'
                       ? t('common.processing_request', 'Processing your request...')
                       : formStatus === 'saved'
-                      ? t('common.changes_saved_successfully', 'Changes saved successfully')
-                      : mode === 'update'
-                      ? t('common.update_required_fields', 'Update the information below as needed')
-                      : t('common.fill_required_fields', 'Fill in the required information below')
+                        ? t('common.changes_saved_successfully', 'Changes saved successfully')
+                        : mode === 'update'
+                          ? t('common.update_required_fields', 'Update the information below as needed')
+                          : t('common.fill_required_fields', 'Fill in the required information below')
                     }
                   </p>
                 </div>

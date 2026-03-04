@@ -25,7 +25,7 @@ export function useLanguages() {
 
   const getLanguageName = (locale: string): string => {
     const language = displayLanguages.find((lang: Language) => lang.code === locale);
-    return language?.name || language?.nativeName || locale;
+    return language?.nativeName || language?.name || locale;
   };
 
   const getLanguageFlag = (locale: string): string => {

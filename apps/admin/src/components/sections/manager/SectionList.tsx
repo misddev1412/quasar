@@ -1,14 +1,17 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useSectionsManager, AdminSection } from '@admin/hooks/useSectionsManager';
 import { useToast } from '@admin/contexts/ToastContext';
+import { StatisticsGrid } from '@admin/components/common';
+import type { StatisticData } from '@admin/components/common';
+import { Card } from '@admin/components/common/Card';
 import { Select } from '@admin/components/common/Select';
 import { Button } from '@admin/components/common/Button';
 import { ReorderableTable, DragHandle, type ReorderableColumn } from '@admin/components/common/ReorderableTable';
 import { Toggle } from '@admin/components/common/Toggle';
 import { Dropdown } from '@admin/components/common/Dropdown';
-import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2, FiCopy } from 'react-icons/fi';
+import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2, FiCopy, FiFilter, FiX, FiLayers, FiCheckCircle, FiXCircle, FiGrid } from 'react-icons/fi';
 import { SectionType } from '@shared/enums/section.enums';
 
 interface SectionListProps {
@@ -496,7 +499,25 @@ const getSectionDetails = (
 export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) => {
     const { t } = useTranslationWithBackend();
     const navigate = useNavigate();
-    const { sections, languages, sectionsQuery, languagesQuery, updateSection, deleteSection, reorderSections, cloneSection } = useSectionsManager(page);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialSearch = searchParams.get('q') || '';
+    const initialTypeParam = searchParams.get('type') || 'all';
+    const initialStatusParam = searchParams.get('status') || 'all';
+    const isValidInitialType = initialTypeParam === 'all' || Object.values(SectionType).includes(initialTypeParam as SectionType);
+    const isValidInitialStatus = initialStatusParam === 'all' || initialStatusParam === 'enabled' || initialStatusParam === 'disabled';
+    const [searchQuery, setSearchQuery] = useState(initialSearch);
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [selectedType, setSelectedType] = useState<string>(isValidInitialType ? initialTypeParam : 'all');
+    const [selectedStatus, setSelectedStatus] = useState<string>(isValidInitialStatus ? initialStatusParam : 'all');
+    const [showFilters, setShowFilters] = useState(
+        Boolean(initialSearch.trim()) || (isValidInitialType && initialTypeParam !== 'all') || (isValidInitialStatus && initialStatusParam !== 'all')
+    );
+    const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set());
+    const { sections, languages, sectionsQuery, sectionsStats, sectionsStatsQuery, languagesQuery, updateSection, deleteSection, reorderSections, cloneSection } = useSectionsManager(page, {
+        search: debouncedSearchQuery.trim() || undefined,
+        type: selectedType !== 'all' ? selectedType as SectionType : undefined,
+        isEnabled: selectedStatus === 'all' ? undefined : selectedStatus === 'enabled',
+    });
     const { addToast } = useToast();
     const [localSections, setLocalSections] = useState<AdminSection[]>([]);
     const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -510,12 +531,69 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
         { value: 'news_detail', label: t('sections.pages.news_detail') },
     ], [t]);
 
+    const typeFilterOptions = useMemo(() => [
+        { value: 'all', label: t('common.all') },
+        ...Object.values(SectionType).map((type) => ({
+            value: type,
+            label: t(`sections.types.${type}`),
+        })),
+    ], [t]);
+
+    const statusFilterOptions = useMemo(() => [
+        { value: 'all', label: t('common.all') },
+        { value: 'enabled', label: t('common.enabled') },
+        { value: 'disabled', label: t('common.disabled') },
+    ], [t]);
+
     useEffect(() => {
         const sorted = [...sections].sort((a, b) => a.position - b.position);
         setLocalSections(sorted);
     }, [sections]);
 
+    useEffect(() => {
+        const timeout = window.setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 350);
+        return () => window.clearTimeout(timeout);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const nextParams = new URLSearchParams(searchParams);
+
+        if (searchQuery.trim()) {
+            nextParams.set('q', searchQuery.trim());
+        } else {
+            nextParams.delete('q');
+        }
+
+        if (selectedType !== 'all') {
+            nextParams.set('type', selectedType);
+        } else {
+            nextParams.delete('type');
+        }
+
+        if (selectedStatus !== 'all') {
+            nextParams.set('status', selectedStatus);
+        } else {
+            nextParams.delete('status');
+        }
+
+        const current = searchParams.toString();
+        const next = nextParams.toString();
+        if (current !== next) {
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [searchQuery, selectedType, selectedStatus, searchParams, setSearchParams]);
+
     const defaultLanguage = useMemo(() => languages.find((language) => language.isDefault)?.code || languages[0]?.code || 'en', [languages]);
+    const hasActiveFilters = selectedType !== 'all' || selectedStatus !== 'all' || searchQuery.trim().length > 0;
+    const activeFilterCount = (selectedType !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0);
+
+    useEffect(() => {
+        if (hasActiveFilters && !showFilters) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilters, showFilters]);
 
     const handleEditNavigate = useCallback((section: AdminSection) => {
         navigate(`/sections/${section.page}/${section.id}/edit`);
@@ -620,6 +698,11 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
     }, [resetDragState]);
 
     const isLoading = sectionsQuery.isLoading || languagesQuery.isLoading;
+
+    const handleClearFilters = useCallback(() => {
+        setSelectedType('all');
+        setSelectedStatus('all');
+    }, []);
 
     const sectionColumns = useMemo<ReorderableColumn<AdminSection>[]>(() => [
         {
@@ -736,6 +819,64 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
         },
     ], [t, defaultLanguage, reorderSections.isPending, draggedId, handleToggleEnabled, handleEditNavigate, handleDelete]);
 
+    const hideableColumnIds = useMemo(
+        () => sectionColumns.filter((column) => column.hideable !== false).map((column) => column.id),
+        [sectionColumns]
+    );
+
+    useEffect(() => {
+        if (visibleColumns.size > 0) {
+            return;
+        }
+        setVisibleColumns(new Set(hideableColumnIds));
+    }, [hideableColumnIds, visibleColumns.size]);
+
+    const handleColumnVisibilityChange = useCallback((columnId: string, isVisible: boolean) => {
+        setVisibleColumns((prev) => {
+            const next = new Set(prev);
+            if (isVisible) {
+                next.add(columnId);
+            } else {
+                next.delete(columnId);
+            }
+            return next;
+        });
+    }, []);
+
+    const statisticsCards = useMemo<StatisticData[]>(() => {
+        const totalSections = sectionsStats.totalSections ?? 0;
+        const enabledSections = sectionsStats.enabledSections ?? 0;
+        const disabledSections = sectionsStats.disabledSections ?? 0;
+        const totalTypes = sectionsStats.totalTypes ?? 0;
+
+        return [
+            {
+                id: 'total-sections',
+                title: t('sections.manager.statistics.totalSections'),
+                value: totalSections,
+                icon: <FiLayers className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+            },
+            {
+                id: 'enabled-sections',
+                title: t('sections.manager.statistics.enabledSections'),
+                value: enabledSections,
+                icon: <FiCheckCircle className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+            },
+            {
+                id: 'disabled-sections',
+                title: t('sections.manager.statistics.disabledSections'),
+                value: disabledSections,
+                icon: <FiXCircle className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+            },
+            {
+                id: 'section-types',
+                title: t('sections.manager.statistics.sectionTypes'),
+                value: totalTypes,
+                icon: <FiGrid className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+            },
+        ];
+    }, [sectionsStats, t]);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -765,19 +906,80 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
                 </Button>
             </div>
 
+            <StatisticsGrid
+                statistics={statisticsCards}
+                isLoading={sectionsStatsQuery.isLoading || sectionsStatsQuery.isFetching}
+                skeletonCount={4}
+            />
+
+            {showFilters && (
+                <Card className="p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                <FiFilter className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                                    {t('sections.manager.filters.title')}
+                                </h3>
+                                {activeFilterCount > 0 && (
+                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        {activeFilterCount} {t('common.filters', 'Filters')}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {activeFilterCount > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearFilters}
+                                startIcon={<FiX />}
+                                className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            >
+                                {t('common.clear_all', 'Clear All')}
+                            </Button>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Select
+                            value={selectedType}
+                            onChange={setSelectedType}
+                            options={typeFilterOptions}
+                            label={t('sections.manager.tableHeaders.type')}
+                        />
+                        <Select
+                            value={selectedStatus}
+                            onChange={setSelectedStatus}
+                            options={statusFilterOptions}
+                            label={t('sections.manager.tableHeaders.enabled')}
+                        />
+                    </div>
+                </Card>
+            )}
+
             <ReorderableTable<AdminSection>
                 tableId="sections-table"
                 columns={sectionColumns}
                 data={localSections}
                 isLoading={isLoading}
-                emptyMessage={t('sections.manager.noSections')}
-                showColumnVisibility={false}
-                showSearch={false}
-                showFilter={false}
+                emptyMessage={hasActiveFilters ? t('common.no_results') : t('sections.manager.noSections')}
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                onFilterClick={() => setShowFilters((prev) => !prev)}
+                isFilterActive={showFilters}
+                searchPlaceholder={t('sections.manager.searchPlaceholder')}
+                showSearch={true}
+                showFilter={true}
+                visibleColumns={visibleColumns}
+                onColumnVisibilityChange={handleColumnVisibilityChange}
+                showColumnVisibility={true}
                 enableRowHover={true}
                 density="normal"
                 dragState={{
-                    disabled: reorderSections.isPending,
+                    disabled: reorderSections.isPending || hasActiveFilters,
                     draggedId,
                     dragOverId,
                 }}

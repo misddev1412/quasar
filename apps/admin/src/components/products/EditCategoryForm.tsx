@@ -7,6 +7,7 @@ import { CreateCategoryFormData } from '@admin/types/product';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
+import { generateSlug } from '@admin/utils/slugUtils';
 import { z } from 'zod';
 
 const editCategorySchema = z.object({
@@ -61,6 +62,29 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
     vi: {},
   });
   const [initialTranslations, setInitialTranslations] = useState<Record<string, Record<string, string>>>({});
+
+  const handleTranslationsChange = (nextTranslations: Record<string, Record<string, string>>) => {
+    const withAutoSlug = Object.entries(nextTranslations).reduce<Record<string, Record<string, string>>>((acc, [locale, value]) => {
+      const translation = value || {};
+      const name = typeof translation.name === 'string' ? translation.name.trim() : '';
+      const slug = typeof translation.slug === 'string' ? translation.slug.trim() : '';
+      const previousTranslation = translations[locale] || {};
+      const previousName = typeof previousTranslation.name === 'string' ? previousTranslation.name.trim() : '';
+      const previousSlug = typeof previousTranslation.slug === 'string' ? previousTranslation.slug.trim() : '';
+      const previousAutoSlug = previousName ? generateSlug(previousName) : '';
+      const wasAutoManaged = !previousSlug || (previousAutoSlug && previousSlug === previousAutoSlug);
+      const nextSlug = (name && (!slug || wasAutoManaged)) ? generateSlug(name) : translation.slug;
+
+      acc[locale] = {
+        ...translation,
+        slug: nextSlug,
+      };
+
+      return acc;
+    }, {});
+
+    setTranslations(withAutoSlug);
+  };
 
   const { data: categoriesData } = trpc.adminProductCategories.getTree.useQuery({
     includeInactive: false,
@@ -371,7 +395,7 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
           customContent: (
             <TranslationTabs
               translations={translations}
-              onTranslationsChange={setTranslations}
+              onTranslationsChange={handleTranslationsChange}
               entityName={category.name}
               fields={[
                 {

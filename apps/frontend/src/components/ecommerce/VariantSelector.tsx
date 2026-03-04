@@ -1,8 +1,7 @@
 import React from 'react';
-import clsx from 'clsx';
-import { Button } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import type { ProductVariant } from '../../types/product';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface VariantSelectorProps {
   variants: ProductVariant[];
@@ -16,41 +15,46 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   onVariantSelect,
 }) => {
   const t = useTranslations('product.detail');
+  const { formatCurrency } = useCurrencyFormatter();
 
   if (!variants || variants.length === 0) {
     return null;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-1.5">
       {variants.map((variant) => {
         const isSelected = selectedVariant?.id === variant.id;
         const variantPrice = typeof variant.price === 'number' ? variant.price : Number(variant.price || 0);
+        const hasStock = variant.stockQuantity > 0;
 
         return (
           <button
             key={variant.id}
             onClick={() => onVariantSelect(variant)}
-            disabled={variant.stockQuantity <= 0}
-            className={`w-full rounded-lg border-2 p-4 text-left transition-all duration-200 ${
+            disabled={!hasStock}
+            className={`w-full rounded-lg border px-2.5 py-2 text-left transition-all duration-200 ${
               isSelected
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-gray-200 bg-white hover:border-gray-300'
             } ${
-              variant.stockQuantity <= 0
+              !hasStock
                 ? 'cursor-not-allowed opacity-50'
-                : 'hover:border-blue-300'
+                : 'hover:bg-gray-50'
             }`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{variant.name}</h4>
-                {variant.sku && <p className="text-sm text-gray-500">SKU: {variant.sku}</p>}
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <h4 className="line-clamp-1 text-sm font-semibold text-gray-900">
+                  {variant.name}
+                </h4>
               </div>
-              <div className="text-right">
-                <p className="font-semibold">${variantPrice.toFixed(2)}</p>
-                <p className={`text-sm ${variant.stockQuantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {variant.stockQuantity > 0
+              <div className="shrink-0 text-right">
+                <p className="text-base font-semibold text-gray-900">
+                  {formatCurrency(variantPrice)}
+                </p>
+                <p className={`text-[11px] leading-4 ${hasStock ? 'text-green-600' : 'text-red-600'}`}>
+                  {hasStock
                     ? t('variants.inStock', { count: variant.stockQuantity })
                     : t('variants.outOfStock')}
                 </p>

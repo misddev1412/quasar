@@ -14,6 +14,7 @@ import { ProductsByCategorySidebar } from './ProductsByCategorySidebar';
 import SectionContainer from './SectionContainer';
 import { ViewMoreButton } from '../common/ViewMoreButton';
 import type { ViewMoreButtonConfig } from '@shared/types/component.types';
+import { getCategoryLink, getLocalizedLink } from '../../lib/link-utils';
 
 export type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 
@@ -838,6 +839,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
   const sidebarShowSidebarHeader = sidebarConfig.showSidebarHeader;
   const sidebarShowDescription = sidebarConfig.showDescription;
   const sidebarSectionFallback = t('sections.products_by_category.sidebar_section_title');
+  const currentLocale = i18n.language.split('-')[0].toLowerCase();
 
   if (rows.length === 0) {
     return null;
@@ -901,10 +903,11 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                 ? normalizedRowCategoryId
                 : null;
               const resolvedSlugForCta = state.categorySlug || fallbackSlug;
+              const localizedProductsPath = getLocalizedLink('/products', currentLocale);
               const hasCategoryNavigation = Boolean(resolvedSlugForCta);
               const ctaHref = resolvedSlugForCta
-                ? `/categories/${resolvedSlugForCta}`
-                : '/products';
+                ? getCategoryLink(resolvedSlugForCta, currentLocale)
+                : localizedProductsPath;
 
               const strategyLabel = t(strategyTranslationKeyMap[row.strategy]);
               const badgeClass = strategyBadgeClassMap[row.strategy];
@@ -1087,7 +1090,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                     ctaLabel={hasCategoryNavigation
                       ? t('sections.products_by_category.view_category', { category: categoryLabel })
                       : t('sections.products_by_category.view_more')}
-                    ctaLink={hasCategoryNavigation ? ctaHref : '/products'}
+                    ctaLink={hasCategoryNavigation ? ctaHref : localizedProductsPath}
                     className="mb-8"
                   />
 

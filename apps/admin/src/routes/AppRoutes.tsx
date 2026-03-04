@@ -131,6 +131,9 @@ const OrderFulfillmentsPage = lazy(() => import(/* webpackChunkName: "admin-orde
 const OrderFulfillmentCreatePage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/fulfillments/new'));
 const OrderFulfillmentDetailPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/fulfillments/[id]'));
 const OrderFulfillmentEditPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/fulfillments/edit'));
+const PurchaseOrdersPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/purchase-orders'));
+const CreatePurchaseOrderPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/purchase-orders/create'));
+const PurchaseOrderDetailPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/purchase-orders/[id]'));
 const CustomersIndexPage = lazy(() => import(/* webpackChunkName: "admin-customers" */ '@admin/pages/customers'));
 const CustomerCreatePage = lazy(() => import(/* webpackChunkName: "admin-customers" */ '@admin/pages/customers/create'));
 const CustomerEditPage = lazy(() => import(/* webpackChunkName: "admin-customers" */ '@admin/pages/customers/[id]/edit'));
@@ -348,6 +351,9 @@ const AppRoutes: React.FC = () => {
         <Route path="/orders/fulfillments/new" element={<ProtectedRoute><OrderFulfillmentCreatePage /></ProtectedRoute>} />
         <Route path="/orders/fulfillments/:id" element={<ProtectedRoute><OrderFulfillmentDetailPage /></ProtectedRoute>} />
         <Route path="/orders/fulfillments/:id/edit" element={<ProtectedRoute><OrderFulfillmentEditPage /></ProtectedRoute>} />
+        <Route path="/purchase-orders" element={<ProtectedRoute><PurchaseOrdersPage /></ProtectedRoute>} />
+        <Route path="/purchase-orders/create" element={<ProtectedRoute><CreatePurchaseOrderPage /></ProtectedRoute>} />
+        <Route path="/purchase-orders/:id" element={<ProtectedRoute><PurchaseOrderDetailPage /></ProtectedRoute>} />
         {/* Customer Management */}
         <Route path="/customers" element={<ProtectedRoute><CustomersIndexPage /></ProtectedRoute>} />
         <Route path="/customers/create" element={<ProtectedRoute><CustomerCreatePage /></ProtectedRoute>} />

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
 import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '@backend/modules/sections/dto/section.dto';
+import { createSectionSchema, updateSectionSchema, reorderSectionsSchema, adminListSectionsSchema } from '@backend/modules/sections/dto/section.dto';
 import { AdministrativeDivisionType } from '@backend/modules/products/entities/administrative-division.entity';
 import {
   listSiteContentQuerySchema,
@@ -436,7 +436,14 @@ export const appRouter = router({
       }),
 
     listAll: procedure
-      .input(z.object({ page: z.string().optional().nullable() }))
+      .input(adminListSectionsSchema)
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    stats: procedure
+      .input(adminListSectionsSchema)
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -1118,6 +1125,21 @@ export const appRouter = router({
   // Add adminSeo router to match the actual server implementation
   adminSeo: router({
     getAll: procedure
+      .input(
+        z.object({
+          page: z.number().optional(),
+          limit: z.number().optional(),
+          search: z.string().optional(),
+          active: z.boolean().optional(),
+          group: z.string().optional(),
+        }).optional()
+      )
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getStats: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -1960,6 +1982,15 @@ export const appRouter = router({
 
     deletePost: procedure
       .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkDelete: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()).min(1),
+      }))
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;
@@ -4188,6 +4219,7 @@ export const appRouter = router({
         value: z.string().min(1),
         displayValue: z.string().optional(),
         sortOrder: z.number().min(0).default(0),
+        scope: z.enum(['LOCAL', 'GLOBAL']).default('GLOBAL'),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -4200,6 +4232,7 @@ export const appRouter = router({
         value: z.string().min(1).optional(),
         displayValue: z.string().optional(),
         sortOrder: z.number().min(0).optional(),
+        scope: z.enum(['LOCAL', 'GLOBAL']).optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -4273,8 +4306,8 @@ export const appRouter = router({
       }),
   }),
 
-  // Admin Product Suppliers router
-  adminProductSuppliers: router({
+  // Admin Suppliers router
+  adminSuppliers: router({
     getAll: procedure
       .input(z.object({
         page: z.number().min(1).default(1),
@@ -4410,6 +4443,25 @@ export const appRouter = router({
       .input(z.object({
         supplierId: z.string().uuid(),
         locale: z.string().min(2).max(5),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkUpdateStatus: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()),
+        isActive: z.boolean(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkDelete: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -5530,6 +5582,131 @@ export const appRouter = router({
         limit: z.number().min(1).max(50).default(10),
         page: z.number().min(1).default(1),
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Purchase Orders router
+  adminPurchaseOrders: router({
+    list: procedure
+      .input(z.object({
+        status: z.string().optional(),
+        supplierId: z.string().uuid().optional(),
+        warehouseId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        supplierId: z.string().uuid(),
+        warehouseId: z.string().uuid(),
+        expectedDeliveryDate: z.string().optional(),
+        notes: z.string().optional(),
+        termsAndConditions: z.string().optional(),
+        items: z.array(z.object({
+          productVariantId: z.string().uuid(),
+          quantityOrdered: z.number().min(1),
+          unitCost: z.number().min(0),
+          notes: z.string().optional(),
+        })).min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        supplierId: z.string().uuid().optional(),
+        warehouseId: z.string().uuid().optional(),
+        expectedDeliveryDate: z.string().optional(),
+        notes: z.string().optional(),
+        termsAndConditions: z.string().optional(),
+        items: z.array(z.object({
+          id: z.string().uuid().optional(),
+          productVariantId: z.string().uuid(),
+          quantityOrdered: z.number().min(1),
+          unitCost: z.number().min(0),
+          notes: z.string().optional(),
+        })).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    approve: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    send: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    cancel: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    receiveItems: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        items: z.array(z.object({
+          purchaseOrderItemId: z.string().uuid(),
+          quantityReceived: z.number().min(1),
+          locationId: z.string().uuid().optional(),
+          batchNumber: z.string().optional(),
+          expiryDate: z.string().optional(),
+          notes: z.string().optional(),
+        })).min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getOverdueOrders: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getPendingReceivingOrders: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getOrderStats: procedure
+      .input(z.object({ warehouseId: z.string().uuid().optional() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

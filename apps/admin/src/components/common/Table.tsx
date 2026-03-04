@@ -1239,7 +1239,7 @@ export function Table<T extends { id: string | number }>({
                           onClick={emptyAction.onClick}
                           variant="primary"
                           startIcon={emptyAction.icon}
-                          className="shadow-sm"
+                          className="mx-auto shadow-sm"
                         >
                           {emptyAction.label}
                         </Button>

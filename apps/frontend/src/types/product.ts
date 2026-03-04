@@ -69,6 +69,7 @@ export interface AttributeValue {
   id: string;
   value: string;
   displayValue?: string;
+  scope?: 'LOCAL' | 'GLOBAL';
 }
 
 export interface ProductVariantItem {

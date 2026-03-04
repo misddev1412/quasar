@@ -264,6 +264,7 @@ const appRouter = t.router({
     createPost: t.procedure.input(z.any()).mutation(() => null),
     updatePost: t.procedure.input(z.any()).mutation(() => null),
     deletePost: t.procedure.input(z.any()).mutation(() => null),
+    bulkDelete: t.procedure.input(z.any()).mutation(() => null),
     bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminProductAttributes: t.router({
@@ -432,6 +433,8 @@ const appRouter = t.router({
     createSupplierTranslation: t.procedure.input(z.any()).mutation(() => null),
     updateSupplierTranslation: t.procedure.input(z.any()).mutation(() => null),
     deleteSupplierTranslation: t.procedure.input(z.any()).mutation(() => null),
+    bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
+    bulkDelete: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminWarehouses: t.router({
     getAll: t.procedure.query(() => null),

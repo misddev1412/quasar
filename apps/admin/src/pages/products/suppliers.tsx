@@ -144,7 +144,7 @@ const SuppliersPage: React.FC = () => {
     country: filters.country || undefined,
   };
 
-  const { data: suppliersData, isLoading, error, refetch, isFetching } = trpc.adminProductSuppliers.getAll.useQuery(queryParams, {
+  const { data: suppliersData, isLoading, error, refetch, isFetching } = trpc.adminSuppliers.getAll.useQuery(queryParams, {
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -155,7 +155,7 @@ const SuppliersPage: React.FC = () => {
   const totalPages = Math.ceil(totalSuppliers / limit);
 
   // Fetch supplier statistics
-  const { data: statsData, isLoading: statsLoading } = trpc.adminProductSuppliers.getStats.useQuery(undefined, {
+  const { data: statsData, isLoading: statsLoading } = trpc.adminSuppliers.getStats.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -201,12 +201,50 @@ const SuppliersPage: React.FC = () => {
   const statisticsLoading = isLoading || statsLoading;
   const statisticsError = null;
 
-  const deleteMutation = trpc.adminProductSuppliers.delete.useMutation({
+  const deleteMutation = trpc.adminSuppliers.delete.useMutation({
     onSuccess: () => {
       addToast({
         title: t('suppliers.deleteSuccess', 'Supplier deleted successfully'),
         type: 'success'
       });
+      refetch();
+    },
+    onError: (error) => {
+      addToast({
+        title: t('common.error', 'Error'),
+        description: error.message,
+        type: 'error'
+      });
+    },
+  });
+
+  const bulkUpdateStatusMutation = trpc.adminSuppliers.bulkUpdateStatus.useMutation({
+    onSuccess: (data) => {
+      const affected = (data as any)?.data?.affected || 0;
+      addToast({
+        title: t('inventory:suppliers.bulkActions.activateSuccess', { count: affected, defaultValue: `Updated ${affected} suppliers` }),
+        type: 'success'
+      });
+      setSelectedSupplierIds(new Set());
+      refetch();
+    },
+    onError: (error) => {
+      addToast({
+        title: t('common.error', 'Error'),
+        description: error.message,
+        type: 'error'
+      });
+    },
+  });
+
+  const bulkDeleteMutation = trpc.adminSuppliers.bulkDelete.useMutation({
+    onSuccess: (data) => {
+      const affected = (data as any)?.data?.affected || 0;
+      addToast({
+        title: t('inventory:suppliers.bulkActions.deleteSuccess', { count: affected, defaultValue: `Deleted ${affected} suppliers` }),
+        type: 'success'
+      });
+      setSelectedSupplierIds(new Set());
       refetch();
     },
     onError: (error) => {
@@ -246,24 +284,33 @@ const SuppliersPage: React.FC = () => {
   }, [deleteMutation, addToast, t]);
 
   // Handle bulk actions
-  const handleBulkAction = useCallback((action: string) => {
+  const handleBulkAction = useCallback(async (action: string) => {
+    const ids = Array.from(selectedSupplierIds).map(String);
+    if (!ids.length) {
+      addToast({
+        type: 'info',
+        title: t('inventory:suppliers.bulkActions.noSelection', 'No suppliers selected'),
+        description: t('inventory:suppliers.bulkActions.selectHint', 'Please select at least one supplier to perform this action.')
+      });
+      return;
+    }
+
     switch (action) {
       case 'activate':
-        addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk activate will be available soon' });
+        await bulkUpdateStatusMutation.mutateAsync({ ids, isActive: true });
         break;
       case 'deactivate':
-        addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk deactivate will be available soon' });
+        await bulkUpdateStatusMutation.mutateAsync({ ids, isActive: false });
         break;
       case 'delete':
-        const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedSupplierIds.size} suppliers? This action cannot be undone.`);
-        if (confirmDelete) {
-          addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk delete will be available soon' });
+        if (window.confirm(t('inventory:suppliers.bulkActions.deleteConfirm', { count: ids.length, defaultValue: `Are you sure you want to delete ${ids.length} suppliers? This action cannot be undone.` }))) {
+          await bulkDeleteMutation.mutateAsync({ ids });
         }
         break;
       default:
         break;
     }
-  }, [selectedSupplierIds.size, addToast]);
+  }, [selectedSupplierIds, addToast, t, bulkUpdateStatusMutation, bulkDeleteMutation]);
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -455,21 +502,21 @@ const SuppliersPage: React.FC = () => {
   // Bulk actions for selected suppliers
   const bulkActions = useMemo(() => [
     {
-      label: 'Activate Selected',
+      label: t('inventory:suppliers.bulkActions.activateSelected', 'Activate Selected'),
       value: 'activate',
       variant: 'primary' as const,
     },
     {
-      label: 'Deactivate Selected',
+      label: t('inventory:suppliers.bulkActions.deactivateSelected', 'Deactivate Selected'),
       value: 'deactivate',
       variant: 'outline' as const,
     },
     {
-      label: 'Delete Selected',
+      label: t('inventory:suppliers.bulkActions.deleteSelected', 'Delete Selected'),
       value: 'delete',
       variant: 'danger' as const,
     },
-  ], []);
+  ], [t]);
 
   const actions = useMemo(() => [
     {

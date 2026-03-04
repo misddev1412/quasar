@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ProductCard from './ProductCard';
 import ProductFilterSidebar from './ProductFilterSidebar';
 import { Button } from '@heroui/react';
 import { ProductService } from '../../services/product.service';
+import { CategoryService } from '../../services/category.service';
+import { Pagination } from '../common/Pagination';
 import type { Product } from '../../types/product';
 import type { ProductFilters } from '../../types/product';
 import type { PaginationInfo } from '../../types/trpc';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface ProductsContainerProps {
   initialProducts?: Product[];
@@ -32,16 +35,19 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
   heading,
   subheading,
 }) => {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const categoryFromQuery = searchParams.get('category')?.trim() || '';
   const resolvedHeading = heading === undefined ? 'All Products' : heading;
   const resolvedSubheading = subheading ?? '';
-  const hasHeading = resolvedHeading.trim().length > 0;
-  const hasSubheading = resolvedSubheading.trim().length > 0;
+  const [activeCategoryId, setActiveCategoryId] = useState('');
   // State for products and filters
   const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     search: '',
-    category: '',
+    category: categoryFromQuery,
     brand: '',
     minPrice: undefined,
     maxPrice: undefined,
@@ -66,14 +72,23 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
     brands: [],
     priceRange: { min: 0, max: 0 },
   });
+  const activeCategoryName = availableFilters.categories.find((category) => category.id === activeCategoryId)?.name || '';
+  const computedHeading = activeCategoryName ? `Sản phẩm danh mục: ${activeCategoryName}` : resolvedHeading;
+  const computedSubheading = activeCategoryName
+    ? `Đang lọc theo danh mục ${activeCategoryName}`
+    : resolvedSubheading;
+  const hasHeading = computedHeading.trim().length > 0;
+  const hasSubheading = computedSubheading.trim().length > 0;
 
   // Loading states
   const [isLoading, setIsLoading] = useState(false);
   const [isFiltersLoading, setIsFiltersLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const latestProductsRequestRef = useRef(0);
 
   // Fetch products function
   const fetchProducts = async () => {
+    const requestId = ++latestProductsRequestRef.current;
     setIsLoading(true);
     setError(null);
     try {
@@ -91,12 +106,21 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
         sortOrder: sortBy === 'price_DESC' ? 'DESC' : 'ASC',
       });
 
+      if (latestProductsRequestRef.current !== requestId) {
+        return;
+      }
+
       setProducts(response.items);
       setPagination(response.pagination);
     } catch (err) {
+      if (latestProductsRequestRef.current !== requestId) {
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
-      setIsLoading(false);
+      if (latestProductsRequestRef.current === requestId) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -116,8 +140,47 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
   // Initial data fetch
   useEffect(() => {
     fetchProducts();
-    fetchFilters();
   }, [currentPage, pageSize, sortBy, filters.search, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.isActive, filters.isFeatured, filters.inStock, filters.hasDiscount, filters.tags, filters.rating]);
+
+  useEffect(() => {
+    fetchFilters();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncCategoryFromQuery = async () => {
+      if (!categoryFromQuery) {
+        setActiveCategoryId('');
+        setFilters((prev) => (prev.category ? { ...prev, category: '' } : prev));
+        return;
+      }
+
+      setFilters((prev) => {
+        if (prev.category === categoryFromQuery) {
+          return prev;
+        }
+        return { ...prev, category: categoryFromQuery };
+      });
+
+      try {
+        const category = await CategoryService.getCategoryBySlug(categoryFromQuery);
+        if (!cancelled) {
+          setActiveCategoryId(category?.id ?? '');
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setActiveCategoryId('');
+        }
+      }
+    };
+
+    syncCategoryFromQuery();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [categoryFromQuery]);
 
   // Update pagination when filters change
   useEffect(() => {
@@ -142,10 +205,41 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
   };
 
   const handleFilterChange = (filterType: string, value: any) => {
+    if (filterType === 'category') {
+      setActiveCategoryId(typeof value === 'string' ? value : '');
+      const selectedCategoryId = typeof value === 'string' ? value.trim() : '';
+
+      if (!selectedCategoryId) {
+        const nextParams = new URLSearchParams(searchParams.toString());
+        nextParams.delete('category');
+        const nextQuery = nextParams.toString();
+        router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+      } else {
+        CategoryService.getCategoryById(selectedCategoryId)
+          .then((category) => {
+            const slug = category?.translations?.find((translation) => translation?.slug)?.slug
+              || selectedCategoryId;
+            const nextParams = new URLSearchParams(searchParams.toString());
+            nextParams.set('category', slug);
+            router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+          })
+          .catch(() => {
+            const nextParams = new URLSearchParams(searchParams.toString());
+            nextParams.set('category', selectedCategoryId);
+            router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+          });
+      }
+    }
     setFilters(prev => ({ ...prev, [filterType]: value }));
   };
 
   const clearFilters = () => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('category');
+    const nextQuery = nextParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+
+    setActiveCategoryId('');
     setFilters({
       search: '',
       category: '',
@@ -211,11 +305,11 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
               <div>
                 {hasHeading && (
                   <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {resolvedHeading}
+                    {computedHeading}
                   </h2>
                 )}
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  {hasSubheading ? resolvedSubheading : `Showing ${products.length} of ${pagination.total} products`}
+                  {hasSubheading ? computedSubheading : `Showing ${products.length} of ${pagination.total} products`}
                 </p>
               </div>
             )}
@@ -251,39 +345,14 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
 
         {/* Pagination */}
         {pagination.totalPages && pagination.totalPages > 1 && (
-          <div className="flex justify-center mt-8 space-x-2">
-            <Button
-              isDisabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-              variant="bordered"
-              size="sm"
-            >
-              Previous
-            </Button>
-            <div className="flex space-x-1">
-              {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
-                const page = i + 1;
-                return (
-                  <Button
-                    key={page}
-                    isDisabled={currentPage === page}
-                    onClick={() => setCurrentPage(page)}
-                    variant={currentPage === page ? 'solid' : 'bordered'}
-                    size="sm"
-                  >
-                    {page}
-                  </Button>
-                );
-              })}
-            </div>
-            <Button
-              isDisabled={currentPage === pagination.totalPages}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-              variant="bordered"
-              size="sm"
-            >
-              Next
-            </Button>
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              total={pagination.total}
+              limit={pagination.limit || pageSize}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </>
@@ -299,6 +368,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
             <ProductFilterSidebar
               filters={filters}
               availableFilters={availableFilters}
+              activeCategoryId={activeCategoryId}
               onFilterChange={handleFilterChange}
               onClearFilters={clearFilters}
             />

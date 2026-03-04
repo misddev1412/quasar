@@ -26,6 +26,9 @@ const LOCALE_STORAGE_KEY = 'admin-locale';
 const USER_LOCALE_KEY = 'admin-locale-source';
 const USER_LOCALE_VALUE = 'user';
 
+const getLanguageDisplayName = (language?: { nativeName?: string | null; name?: string | null; code?: string }): string =>
+  language?.nativeName?.trim() || language?.name?.trim() || language?.code?.toUpperCase() || 'EN';
+
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ 
   className = '',
   selectClassName = ''
@@ -102,7 +105,7 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
         <div className={selectClassName} style={{ minHeight: '40px', position: 'relative' }}>
           <span className="flex items-center justify-center h-full px-3">
             <span className="mr-2 text-base">{currentLanguage?.icon || '🌐'}</span>
-            <span className="hidden sm:inline text-sm font-medium">{currentLanguage?.name || 'EN'}</span>
+            <span className="hidden sm:inline text-sm font-medium">{getLanguageDisplayName(currentLanguage)}</span>
             <span className="sm:hidden text-sm font-medium">{currentLanguage?.code?.toUpperCase() || 'EN'}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 opacity-70" fill="none" viewBox="0 0 20 20" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 8l4 4 4-4" />
@@ -133,7 +136,7 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
                 color: isDarkMode ? '#ffffff' : '#1f2937'
               }}
             >
-              {language.icon || '🌐'} {language.name}
+              {language.icon || '🌐'} {getLanguageDisplayName(language)}
             </option>
           ))}
         </select>
@@ -184,9 +187,9 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
             }}
           >
             {isHeaderUsage ? (
-              `${language.icon || '🌐'} ${language.name}`
+              `${language.icon || '🌐'} ${getLanguageDisplayName(language)}`
             ) : (
-              `${language.icon || '🌐'} ${language.name}`
+              `${language.icon || '🌐'} ${getLanguageDisplayName(language)}`
             )}
           </option>
         ))}

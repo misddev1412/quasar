@@ -28,7 +28,14 @@ export class ClientCategoriesRouter {
         sortOrder: 'ASC',
       });
 
-      const formattedCategories = categories.items.map(category => this.formatCategoryForResponse(category));
+      const categoryIds = categories.items.map((category) => category.id);
+      const productCounts = await this.categoryRepository.getProductCountsByCategoryIds(categoryIds);
+      const formattedCategories = categories.items.map((category) =>
+        this.formatCategoryForResponse({
+          ...category,
+          productCount: productCounts.get(category.id) ?? 0,
+        }),
+      );
 
       return this.responseHandler.createTrpcSuccess(formattedCategories);
     } catch (error) {

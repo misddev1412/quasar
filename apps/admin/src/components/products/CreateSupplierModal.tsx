@@ -48,7 +48,7 @@ export const CreateSupplierModal: React.FC<CreateSupplierModalProps> = ({
     vi: {},
   });
 
-  const createMutation = trpc.adminProductSuppliers.create.useMutation({
+  const createMutation = trpc.adminSuppliers.create.useMutation({
     onSuccess: async (result: any) => {
       const supplierId = result?.data?.id;
 
@@ -89,7 +89,7 @@ export const CreateSupplierModal: React.FC<CreateSupplierModalProps> = ({
     },
   });
 
-  const createTranslationMutation = trpc.adminProductSuppliers.createSupplierTranslation.useMutation();
+  const createTranslationMutation = trpc.adminSuppliers.createSupplierTranslation.useMutation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

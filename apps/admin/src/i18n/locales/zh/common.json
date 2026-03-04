@@ -2,6 +2,7 @@
   "common": {
     "success": "成功",
     "error": "错误",
+    "add": "添加",
     "cancel": "取消",
     "show_full_url": "显示完整链接",
     "hide_full_url": "隐藏链接",

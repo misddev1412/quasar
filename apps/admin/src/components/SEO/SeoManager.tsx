@@ -1,23 +1,32 @@
 import React, { useMemo, useState } from 'react';
 import { useSeoManager, SeoData } from '@admin/hooks/useSeoManager';
 import { CreateSeoForm } from '@admin/components/SEO/CreateSeoForm';
-import cn from 'classnames';
 import { MediaManager } from '@admin/components/common/MediaManager';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { Toggle } from '@admin/components/common/Toggle';
 import { useToast } from '@admin/contexts/ToastContext';
 import type { UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
-import type { UseMutateAsyncFunction } from '@tanstack/react-query';
-import type { TRPCClientErrorLike } from '@trpc/client';
 import { Button } from '@admin/components/common/Button';
+import { Card, Select, StatisticsGrid } from '@admin/components/common';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@admin/components/common/Dialog';
 import { OG_META_FIELDS } from '@admin/components/SEO/ogMetaFields';
-import { FiImage } from 'react-icons/fi';
+import { FiCheckCircle, FiImage, FiLayers, FiList, FiXCircle } from 'react-icons/fi';
 import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import { Table } from '@admin/components/common/Table';
+import type { Column } from '@admin/components/common/Table';
+import type { StatisticData } from '@admin/components/common';
+import { SEO_GROUP_OPTIONS } from '@admin/types/seo';
+import { Input } from '@admin/components/common/Input';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
+
+type SeoRow = SeoData & { id: string };
 
 interface SeoItemProps {
-  seo: SeoData;
+  seo: SeoRow;
   onUpdate: (id: string, data: UpdateSeoDto) => Promise<any>;
   onDelete: (id: string) => Promise<any>;
+  defaultEditing?: boolean;
+  onClose?: () => void;
 }
 
 const parseAdditionalMetaTags = (value: SeoData['additionalMetaTags'] | string): Record<string, string> => {
@@ -47,8 +56,8 @@ const normalizeAdditionalMetaTags = (
   return parseAdditionalMetaTags(value);
 };
 
-const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
-  const [isEditing, setIsEditing] = useState(false);
+const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete, defaultEditing = false, onClose }) => {
+  const [isEditing, setIsEditing] = useState(defaultEditing);
   const [editedSeo, setEditedSeo] = useState<Partial<SeoData>>(seo);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslationWithBackend();
@@ -68,6 +77,7 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
       await onUpdate(seo.id, payload);
       addToast({ type: 'success', title: t('seo.update_success_title'), description: t('seo.update_success_desc') });
       setIsEditing(false);
+      onClose?.();
     } catch (error: any) {
       console.error('Failed to update SEO rule:', error);
       addToast({ type: 'error', title: t('seo.update_failed_title'), description: error.message || t('seo.update_failed_desc') });
@@ -77,7 +87,7 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm(t('seo.delete_confirm', 'Are you sure you want to delete this SEO rule?'))) {
+    if (window.confirm(t('seo.delete_confirm'))) {
       setIsLoading(true);
       try {
         await onDelete(seo.id);
@@ -124,6 +134,18 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
 
   const renderField = (name: keyof SeoData) => {
     const value = editedSeo[name] as any;
+    if (name === 'group') {
+      return (
+        <Select
+          value={value || 'general'}
+          onChange={(nextValue) => setEditedSeo(prev => ({ ...prev, group: nextValue }))}
+          options={SEO_GROUP_OPTIONS.map((option) => ({
+            value: option,
+            label: t(`seo.groups.${option}`, option),
+          }))}
+        />
+      );
+    }
     if (name === 'image') {
       return (
         <div className="space-y-2">
@@ -133,11 +155,11 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
                 className={`flex h-24 w-24 items-center justify-center rounded-xl border-2 ${value ? 'border-gray-200 bg-white' : 'border-dashed border-gray-300 bg-gray-50'} overflow-hidden`}
               >
                 {value ? (
-                  <img src={value} alt="Preview" className="h-full w-full object-cover" />
+                  <img src={value} alt={t('seo.image_preview_alt')} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center text-gray-400 text-xs">
                     <FiImage className="h-6 w-6 mb-1" />
-                    <span>{t('common.no_image', 'No image')}</span>
+                    <span>{t('common.no_image')}</span>
                   </div>
                 )}
               </div>
@@ -145,9 +167,9 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
             <ImageActionButtons
               className="flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"
               hasImage={Boolean(value)}
-              selectLabel={t('common.select_image', 'Select Image')}
-              changeLabel={t('common.change_image', 'Change Image')}
-              removeLabel={t('common.remove', 'Remove')}
+              selectLabel={t('common.select_image')}
+              changeLabel={t('common.change_image')}
+              removeLabel={t('common.remove')}
               onSelect={() => setIsMediaManagerOpen(true)}
               onRemove={() => handleChange({ target: { name: 'image', value: '' } } as any)}
             />
@@ -156,47 +178,135 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
       );
     }
     return (
-      <input
+      <Input
         type="text"
         name={String(name)}
         value={value || ''}
         onChange={handleChange}
-        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
       />
     );
   };
 
+  const renderFieldAIGenerator = (field: keyof SeoData) => {
+    const titleContext = String(editedSeo.title || seo.title || '');
+
+    if (field === 'title') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="title"
+          context={titleContext}
+          onGenerate={(content) => setEditedSeo(prev => ({ ...prev, title: content }))}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (field === 'description') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="description"
+          context={titleContext}
+          onGenerate={(content) => setEditedSeo(prev => ({ ...prev, description: content }))}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (field === 'keywords') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="keywords"
+          context={titleContext}
+          onGenerate={(content) => setEditedSeo(prev => ({ ...prev, keywords: content }))}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (field === 'image') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="image"
+          context={titleContext}
+          onGenerate={(content) => setEditedSeo(prev => ({ ...prev, image: content }))}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  const usePlainContainer = defaultEditing && isEditing;
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300">
+    <div className={usePlainContainer ? '' : 'bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300'}>
       {isEditing ? (
         <div className="space-y-3">
           {(['title', 'path', 'description', 'keywords', 'group', 'image'] as const).map(field => (
             <div key={field}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t(`seo.fields.${field}`)}</label>
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <label className="block text-sm font-medium text-gray-700">{t(`seo.fields.${field}`)}</label>
+                {renderFieldAIGenerator(field)}
+              </div>
               {renderField(field)}
             </div>
           ))}
           <div className="rounded-lg border border-gray-200 bg-gray-50/60 p-3 space-y-3">
             <div>
-              <h4 className="text-sm font-medium text-gray-900">{t('seo.sections.open_graph', 'Open Graph Tags')}</h4>
+              <h4 className="text-sm font-medium text-gray-900">{t('seo.sections.open_graph')}</h4>
               <p className="text-xs text-gray-500">
-                {t(
-                  'seo.placeholders.og_hint',
-                  'Control how this page previews when shared on social platforms.',
-                )}
+                {t('seo.placeholders.og_hint')}
               </p>
             </div>
             <div className="grid grid-cols-1 gap-3">
-              {OG_META_FIELDS.map(({ metaKey, labelKey, fallbackLabel }) => (
+              {OG_META_FIELDS.map(({ metaKey, labelKey }) => (
                 <div key={metaKey}>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    {t(`seo.fields.${labelKey}`, fallbackLabel)}
-                  </label>
-                  <input
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <label className="block text-xs font-medium text-gray-700">
+                      {t(`seo.fields.${labelKey}`)}
+                    </label>
+                    {(metaKey === 'og:title' || metaKey === 'og:description' || metaKey === 'og:image') && (
+                      <AIGenerateButton
+                        variant="icon"
+                        entityType="post"
+                        contentType={metaKey === 'og:image' ? 'image' : metaKey === 'og:title' ? 'title' : 'description'}
+                        context={String(editedSeo.title || seo.title || '')}
+                        onGenerate={(content) => handleOgFieldChange(metaKey, content)}
+                        allowImages={metaKey === 'og:image'}
+                        allowLengthOptions={false}
+                        allowProductLinks={false}
+                        allowStyleOptions={false}
+                        plainTextOutput={metaKey !== 'og:image'}
+                      />
+                    )}
+                  </div>
+                  <Input
                     type="text"
                     value={additionalMetaTags[metaKey] || ''}
                     onChange={(event) => handleOgFieldChange(metaKey, event.target.value)}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               ))}
@@ -246,68 +356,157 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
   );
 };
 
-const SeoGroupCard: React.FC<{
-  title: string;
-  seoList: any;
-  onUpdate: UseMutateAsyncFunction<unknown, TRPCClientErrorLike<any>, { id: string } & UpdateSeoDto, unknown>;
-  onDelete: UseMutateAsyncFunction<unknown, TRPCClientErrorLike<any>, { id: string }, unknown>;
-}> = ({ title, seoList, onUpdate, onDelete }) => {
-  const { t } = useTranslationWithBackend();
-  return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 mb-6">
-      <h2 className="text-lg font-medium text-gray-900 mb-4">{t(`seo.groups.${title}`, title)}</h2>
-      <div className="space-y-4">
-        {seoList.map((seo) => (
-          <SeoItem key={seo.id} seo={seo} onUpdate={(id, data) => onUpdate({ id, data } as any)} onDelete={(id) => onDelete({ id })} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const CategorySidebar: React.FC<{
-  groups: string[];
-  selectedGroup: string | null;
-  onSelectGroup: (group: string | null) => void;
-}> = ({ groups, selectedGroup, onSelectGroup }) => {
-  const { t } = useTranslationWithBackend();
-  return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 h-fit lg:sticky lg:top-20">
-      <h2 className="font-medium text-lg mb-4">{t('seo.categories', 'Categories')}</h2>
-      <nav className="space-y-2">
-        <button onClick={() => onSelectGroup(null)} className={cn("w-full text-left px-3 py-2 rounded-md text-sm font-medium", selectedGroup === null ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100")}>
-          {t('seo.all_rules', 'All Rules')}
-        </button>
-        {groups.map((group) => (
-          <button key={group} onClick={() => onSelectGroup(group)} className={cn("w-full text-left px-3 py-2 rounded-md text-sm font-medium", selectedGroup === group ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100")}>
-            {t(`seo.groups.${group}`, group)}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-};
-
 const EmptyState: React.FC<{ onCreateClick: () => void }> = ({ onCreateClick }) => {
   const { t } = useTranslationWithBackend();
   return (
     <div className="text-center p-8 bg-white rounded-lg shadow-md border">
       <h3 className="text-xl font-medium text-gray-900">{t('seo.no_rules')}</h3>
       <p className="text-gray-500 mt-2 mb-4">{t('seo.empty_state_message')}</p>
-      <Button variant="primary" onClick={onCreateClick}>
+      <Button variant="primary" onClick={onCreateClick} className="mx-auto">
         {t('seo.add_rule')}
       </Button>
     </div>
   );
 };
 
-export const SeoManager: React.FC = () => {
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const { groupedSeo, isLoading, updateSeo, deleteSeo } = useSeoManager();
+interface SeoManagerProps {
+  isCreateModalOpen?: boolean;
+  onCreateModalChange?: (open: boolean) => void;
+  showTopAction?: boolean;
+}
+
+export const SeoManager: React.FC<SeoManagerProps> = ({
+  isCreateModalOpen: controlledCreateModalOpen,
+  onCreateModalChange,
+  showTopAction = true,
+}) => {
+  const [internalCreateModalOpen, setInternalCreateModalOpen] = useState(false);
+  const [editingSeo, setEditingSeo] = useState<SeoRow | null>(null);
+  const [searchValue, setSearchValue] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [groupFilter, setGroupFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const isCreateModalOpen = controlledCreateModalOpen ?? internalCreateModalOpen;
+  const setCreateModalOpen = (open: boolean) => {
+    if (onCreateModalChange) {
+      onCreateModalChange(open);
+      return;
+    }
+    setInternalCreateModalOpen(open);
+  };
+
+  const activeFilter = statusFilter === 'all' ? undefined : statusFilter === 'active';
+  const seoQueryParams = useMemo(
+    () => ({
+      page,
+      limit,
+      search: searchValue || undefined,
+      active: activeFilter,
+      group: groupFilter === 'all' ? undefined : groupFilter,
+    }),
+    [activeFilter, groupFilter, limit, page, searchValue]
+  );
+  const { seoList, total, totalPages, stats: serverStats, isLoading, isStatsLoading, updateSeo, deleteSeo } = useSeoManager(seoQueryParams);
+  const seoRows = (seoList || []) as SeoRow[];
   const { t } = useTranslationWithBackend();
-  const groups = Object.keys(groupedSeo);
-  const isEmpty = !isLoading && (!groupedSeo || Object.keys(groupedSeo).length === 0);
+  const groups = useMemo(
+    () => Array.from(new Set(seoRows.map((item) => item.group || 'general'))).sort(),
+    [seoRows]
+  );
+  const stats: StatisticData[] = useMemo(() => ([
+    {
+      id: 'seo-total',
+      title: t('seo.stats.total'),
+      value: serverStats.total,
+      icon: <FiList className="w-5 h-5" />,
+      enableChart: false,
+    },
+    {
+      id: 'seo-active',
+      title: t('seo.stats.active'),
+      value: serverStats.active,
+      icon: <FiCheckCircle className="w-5 h-5" />,
+      enableChart: false,
+    },
+    {
+      id: 'seo-inactive',
+      title: t('seo.stats.inactive'),
+      value: serverStats.inactive,
+      icon: <FiXCircle className="w-5 h-5" />,
+      enableChart: false,
+    },
+    {
+      id: 'seo-groups',
+      title: t('seo.stats.groups'),
+      value: serverStats.groups,
+      icon: <FiLayers className="w-5 h-5" />,
+      enableChart: false,
+    },
+  ]), [serverStats.active, serverStats.groups, serverStats.inactive, serverStats.total, t]);
+
+  const columns: Column<SeoRow>[] = useMemo(() => [
+    {
+      id: 'title',
+      header: t('seo.fields.title'),
+      accessor: (seo) => (
+        <div>
+          <p className="text-sm font-medium text-gray-900">{seo.title}</p>
+          <p className="mt-1 text-xs text-gray-500 font-mono">{seo.path}</p>
+        </div>
+      ),
+      isSortable: true,
+      hideable: true,
+    },
+    {
+      id: 'group',
+      header: t('seo.fields.group'),
+      accessor: (seo) => (
+        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+          {t(`seo.groups.${seo.group || 'general'}`, seo.group || 'general')}
+        </span>
+      ),
+      isSortable: true,
+      hideable: true,
+    },
+    {
+      id: 'active',
+      header: t('seo.fields.active'),
+      accessor: (seo) => (
+        <Toggle
+          checked={seo.active}
+          onChange={() => updateSeo({ id: seo.id, data: { active: !seo.active } } as any)}
+          size="sm"
+        />
+      ),
+      isSortable: false,
+      hideable: true,
+    },
+    {
+      id: 'actions',
+      header: t('common.actions'),
+      accessor: (seo) => (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setEditingSeo(seo)}>
+            {t('common.edit')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-red-600 hover:text-red-700"
+            onClick={() => deleteSeo({ id: seo.id })}
+          >
+            {t('common.delete')}
+          </Button>
+        </div>
+      ),
+      isSortable: false,
+      hideable: false,
+      width: '180px',
+    },
+  ], [deleteSeo, t, updateSeo]);
+  const isEmpty = !isLoading && seoRows.length === 0 && total === 0;
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
@@ -315,41 +514,120 @@ export const SeoManager: React.FC = () => {
 
   return (
     <>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-1">
-          <CategorySidebar groups={groups} selectedGroup={selectedGroup} onSelectGroup={setSelectedGroup} />
-        </div>
-        <div className="lg:col-span-3">
-          {isEmpty ? (
-            <EmptyState onCreateClick={() => setCreateModalOpen(true)} />
-          ) : (
-            <>
-              {selectedGroup === null ? (
-                Object.entries(groupedSeo).map(([group, seoList]) => (
-                  <SeoGroupCard key={group} title={group} seoList={seoList} onUpdate={updateSeo} onDelete={deleteSeo} />
-                ))
-              ) : (
-                <SeoGroupCard title={selectedGroup} seoList={groupedSeo[selectedGroup] || []} onUpdate={updateSeo} onDelete={deleteSeo} />
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{t('seo.create_new_rule', 'Create New SEO Rule')}</h2>
-              <Button variant="ghost" onClick={() => setCreateModalOpen(false)} className="!p-1.5 text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </Button>
-            </div>
-            <CreateSeoForm onClose={() => setCreateModalOpen(false)} />
-          </div>
+      {showTopAction && (
+        <div className="mb-4 flex items-center justify-end">
+          <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
+            {t('seo.add_rule')}
+          </Button>
         </div>
       )}
+      <div className="space-y-6">
+        <StatisticsGrid statistics={stats} isLoading={isStatsLoading} skeletonCount={4} />
+        {showFilters && (
+          <Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Select
+                label={t('common.status')}
+                value={statusFilter}
+                onChange={(value) => {
+                  setStatusFilter(value as 'all' | 'active' | 'inactive');
+                  setPage(1);
+                }}
+                options={[
+                  { value: 'all', label: t('common.all') },
+                  { value: 'active', label: t('common.active') },
+                  { value: 'inactive', label: t('common.inactive') },
+                ]}
+              />
+              <Select
+                label={t('seo.fields.group')}
+                value={groupFilter}
+                onChange={(value) => {
+                  setGroupFilter(value);
+                  setPage(1);
+                }}
+                options={[
+                  { value: 'all', label: t('common.all') },
+                  ...groups.map((group) => ({
+                    value: group,
+                    label: t(`seo.groups.${group}`, group),
+                  })),
+                ]}
+              />
+            </div>
+            <div className="mt-4 flex flex-wrap justify-end gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setGroupFilter('all');
+                  setPage(1);
+                }}
+              >
+                {t('common.reset_filters')}
+              </Button>
+              <Button variant="ghost" onClick={() => setShowFilters(false)}>
+                {t('common.hide_filters')}
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+      {isEmpty ? (
+        <EmptyState onCreateClick={() => setCreateModalOpen(true)} />
+      ) : (
+        <Table<SeoRow>
+          tableId="seo-rules-table"
+          columns={columns}
+          data={seoRows}
+          isLoading={isLoading}
+          searchValue={searchValue}
+          onSearchChange={(value) => {
+            setSearchValue(value);
+            setPage(1);
+          }}
+          onFilterClick={() => setShowFilters((prev) => !prev)}
+          isFilterActive={showFilters}
+          searchPlaceholder={t('seo.search_placeholder')}
+          pagination={{
+            currentPage: page,
+            totalPages,
+            totalItems: total,
+            itemsPerPage: limit,
+            onPageChange: setPage,
+            onItemsPerPageChange: (itemsPerPage) => {
+              setLimit(itemsPerPage);
+              setPage(1);
+            },
+          }}
+        />
+      )}
+
+      <Dialog open={isCreateModalOpen} onOpenChange={setCreateModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('seo.create_new_rule')}</DialogTitle>
+          </DialogHeader>
+          <CreateSeoForm onClose={() => setCreateModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(editingSeo)} onOpenChange={(open) => !open && setEditingSeo(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('seo.edit_rule')}</DialogTitle>
+          </DialogHeader>
+          {editingSeo && (
+            <SeoItem
+              seo={editingSeo}
+              defaultEditing
+              onClose={() => setEditingSeo(null)}
+              onUpdate={(id, data) => updateSeo({ id, data } as any)}
+              onDelete={(id) => deleteSeo({ id })}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
-}; 
+};

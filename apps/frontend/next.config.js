@@ -162,6 +162,10 @@ const nextConfig = {
         destination: '/products/:slug*?locale=vi',
       },
       {
+        source: '/danh-muc/:slug*',
+        destination: '/categories/:slug*?locale=vi',
+      },
+      {
         source: '/gioi-thieu/:slug*',
         destination: '/about/:slug*?locale=vi',
       },

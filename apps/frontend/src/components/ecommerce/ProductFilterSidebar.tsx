@@ -23,6 +23,7 @@ interface FilterState {
 interface ProductFilterSidebarProps {
   filters: FilterState;
   availableFilters: ProductFilters;
+  activeCategoryId?: string;
   onFilterChange: (filterType: string, value: any) => void;
   onClearFilters: () => void;
   className?: string;
@@ -31,6 +32,7 @@ interface ProductFilterSidebarProps {
 const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   filters,
   availableFilters,
+  activeCategoryId,
   onFilterChange,
   onClearFilters,
   className = ''
@@ -149,7 +151,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             <FiFilter className="text-gray-600 dark:text-gray-400" />
           </span>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
-            Filters
+            {t('ecommerce.productFilterSidebar.title')}
           </h3>
           {hasActiveFilters() && (
             <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
@@ -163,7 +165,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
           >
             <FiX size={14} />
-            Clear
+            {t('ecommerce.productFilterSidebar.clear')}
           </button>
         )}
       </div>
@@ -198,7 +200,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
       {/* Categories Section */}
       <div className="mb-6">
         <SectionHeader
-          title="Categories"
+          title={t('ecommerce.productFilterSidebar.sections.categories')}
           section="categories"
           icon={<FiTag />}
           count={availableFilters.categories.length}
@@ -215,7 +217,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                     type="radio"
                     name="category"
                     className="rounded text-blue-600 focus:ring-blue-500"
-                    checked={filters.category === category.id}
+                    checked={filters.category === category.id || activeCategoryId === category.id}
                     onChange={(e) => onFilterChange('category', e.target.checked ? category.id : '')}
                   />
                   <span>{category.name}</span>
@@ -230,7 +232,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
       {/* Brands Section */}
       <div className="mb-6">
         <SectionHeader
-          title="Brands"
+          title={t('ecommerce.productFilterSidebar.sections.brands')}
           section="brands"
           icon={<FiTag />}
           count={availableFilters.brands.length}
@@ -261,29 +263,29 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
 
       {/* Price Range Section */}
       <div className="mb-6">
-        <SectionHeader title="Price Range" section="price" icon={<FiDollarSign />} />
+        <SectionHeader title={t('ecommerce.productFilterSidebar.sections.priceRange')} section="price" icon={<FiDollarSign />} />
         {expandedSections.price && (
           <div className="mt-2 space-y-3">
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Min</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">{t('ecommerce.productFilterSidebar.price.min')}</label>
                 <input
                   type="number"
                   min={availableFilters.priceRange.min}
                   max={availableFilters.priceRange.max}
-                  placeholder="0"
+                  placeholder={t('ecommerce.productFilterSidebar.price.minPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={priceRange.min || ''}
                   onChange={(e) => handlePriceChange('min', e.target.value)}
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Max</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400 mb-1 block">{t('ecommerce.productFilterSidebar.price.max')}</label>
                 <input
                   type="number"
                   min={availableFilters.priceRange.min}
                   max={availableFilters.priceRange.max}
-                  placeholder="Max"
+                  placeholder={t('ecommerce.productFilterSidebar.price.maxPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={priceRange.max || ''}
                   onChange={(e) => handlePriceChange('max', e.target.value)}
@@ -291,7 +293,10 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
               </div>
             </div>
             <div className="text-xs text-gray-500 text-center">
-              Range: ${availableFilters.priceRange.min} - ${availableFilters.priceRange.max}
+              {t('ecommerce.productFilterSidebar.price.range', {
+                min: availableFilters.priceRange.min,
+                max: availableFilters.priceRange.max,
+              })}
             </div>
           </div>
         )}
@@ -299,7 +304,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
 
       {/* Features Section */}
       <div className="mb-6">
-        <SectionHeader title="Features" section="features" />
+        <SectionHeader title={t('ecommerce.productFilterSidebar.sections.features')} section="features" />
         {expandedSections.features && (
           <div className="mt-2 space-y-3">
             <label className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
@@ -309,7 +314,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                 checked={filters.isFeatured === true}
                 onChange={(e) => onFilterChange('isFeatured', e.target.checked ? true : undefined)}
               />
-              <span className="ml-2">Featured Products</span>
+              <span className="ml-2">{t('ecommerce.productFilterSidebar.features.featuredProducts')}</span>
             </label>
             <label className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
               <input
@@ -318,7 +323,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                 checked={filters.inStock === true}
                 onChange={(e) => onFilterChange('inStock', e.target.checked ? true : undefined)}
               />
-              <span className="ml-2">In Stock Only</span>
+              <span className="ml-2">{t('ecommerce.productFilterSidebar.features.inStockOnly')}</span>
             </label>
             <label className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
               <input
@@ -327,7 +332,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                 checked={filters.hasDiscount === true}
                 onChange={(e) => onFilterChange('hasDiscount', e.target.checked ? true : undefined)}
               />
-              <span className="ml-2">On Sale</span>
+              <span className="ml-2">{t('ecommerce.productFilterSidebar.features.onSale')}</span>
             </label>
           </div>
         )}
@@ -335,7 +340,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
 
       {/* Rating Section */}
       <div className="mb-6">
-        <SectionHeader title="Rating" section="rating" icon={<FiStar />} />
+        <SectionHeader title={t('ecommerce.productFilterSidebar.sections.rating')} section="rating" icon={<FiStar />} />
         {expandedSections.rating && (
           <div className="mt-2 space-y-2">
             {[4, 3, 2].map((rating) => (
@@ -354,7 +359,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                   {Array.from({ length: rating }, (_, i) => (
                     <FiStar key={i} className="text-yellow-400 fill-current" size={14} />
                   ))}
-                  <span className="text-xs text-gray-500">& up</span>
+                  <span className="text-xs text-gray-500">{t('ecommerce.productFilterSidebar.rating.andUp')}</span>
                 </span>
               </label>
             ))}
@@ -371,7 +376,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
           onClick={onClearFilters}
           isDisabled={!hasActiveFilters()}
         >
-          Clear All Filters
+          {t('ecommerce.productFilterSidebar.clearAll')}
         </Button>
       </div>
     </div>

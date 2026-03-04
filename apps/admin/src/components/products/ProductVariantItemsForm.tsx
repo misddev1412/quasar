@@ -5,6 +5,7 @@ import { trpc } from '@admin/utils/trpc';
 import { Button } from '@admin/components/common/Button';
 import { Select } from '@admin/components/common/Select';
 import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
 import { FiPlus, FiX, FiMove } from 'react-icons/fi';
 import { Attribute, AttributeValue } from '@admin/types/product';
 
@@ -35,30 +36,22 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
 
   // State for attribute values for each attribute
   const [attributeValues, setAttributeValues] = useState<Record<string, AttributeValue[]>>({});
+  const [customValueByIndex, setCustomValueByIndex] = useState<Record<number, string>>({});
+  const [localValueNameById, setLocalValueNameById] = useState<Record<string, string>>({});
+  const utils = trpc.useUtils();
+  const createValueMutation = trpc.adminProductAttributes.createAttributeValue.useMutation();
 
-  // For now, we'll use a simpler approach and fetch all attribute values
-  // In a real implementation, you'd want to modify the backend to support filtering by attributeId
-  const { data: allAttributeValuesData } = trpc.adminProductAttributes.getAttributeValues.useQuery();
-  const allAttributeValues = (allAttributeValuesData as any)?.data || [];
-
-  // Group attribute values by attribute ID
+  // Group attribute values by attribute ID from select-attributes payload
   useEffect(() => {
     const valuesMap: Record<string, AttributeValue[]> = {};
 
-    // Initialize empty arrays for all attributes
-    attributes.forEach(attr => {
-      valuesMap[attr.id] = [];
-    });
-
-    // Group values by attributeId (assuming the API returns values with attributeId)
-    allAttributeValues.forEach((value: any) => {
-      if (value.attributeId && valuesMap[value.attributeId]) {
-        valuesMap[value.attributeId].push(value);
-      }
+    attributes.forEach((attr: any) => {
+      const attrValues = Array.isArray(attr?.values) ? attr.values : [];
+      valuesMap[attr.id] = attrValues;
     });
 
     setAttributeValues(valuesMap);
-  }, [attributes, allAttributeValues]);
+  }, [attributes]);
 
   const addVariantItem = () => {
     const newItem: VariantItem = {
@@ -89,6 +82,7 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
     // If attribute changed, reset attribute value
     if (field === 'attributeId') {
       newItems[index].attributeValueId = '';
+      setCustomValueByIndex(prev => ({ ...prev, [index]: '' }));
     }
 
     onVariantItemsChange(newItems);
@@ -119,6 +113,47 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
     return attributeValues[attributeId] || [];
   };
 
+  const isPredefinedOptionsType = (attributeId: string) => {
+    const attribute = attributes.find(attr => attr.id === attributeId);
+    const type = (attribute?.type || '').toUpperCase();
+    return type === 'SELECT' || type === 'MULTISELECT';
+  };
+
+  const createCustomValueForItem = async (index: number) => {
+    const item = variantItems[index];
+    const customValue = (customValueByIndex[index] || '').trim();
+
+    if (!item?.attributeId || !customValue || createValueMutation.isPending) {
+      return;
+    }
+
+    try {
+      const currentValues = getAttributeValues(item.attributeId);
+      const result = await createValueMutation.mutateAsync({
+        attributeId: item.attributeId,
+        value: customValue,
+        displayValue: customValue,
+        sortOrder: currentValues.length,
+        scope: 'LOCAL',
+      });
+
+      const createdValue = (result as any)?.data;
+      if (createdValue?.id) {
+        setLocalValueNameById(prev => ({ ...prev, [createdValue.id]: customValue }));
+        updateVariantItem(index, 'attributeValueId', createdValue.id);
+      }
+
+      setCustomValueByIndex(prev => ({ ...prev, [index]: '' }));
+      await utils.adminProductAttributes.getSelectAttributes.invalidate();
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('products.failed_to_create_attribute_value', 'Failed to create attribute value'),
+      });
+    }
+  };
+
   const getAttributeName = (attributeId: string) => {
     const attribute = attributes.find(attr => attr.id === attributeId);
     return attribute?.displayName || attribute?.name || 'Unknown Attribute';
@@ -127,7 +162,7 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
   const getAttributeValueName = (attributeId: string, valueId: string) => {
     const values = getAttributeValues(attributeId);
     const value = values.find(val => val.id === valueId);
-    return value?.displayValue || value?.value || 'Unknown Value';
+    return value?.displayValue || value?.value || localValueNameById[valueId] || 'Unknown Value';
   };
 
   if (attributesLoading) {
@@ -182,6 +217,7 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
             {variantItems.map((item, index) => {
               const availableAttributes = getAvailableAttributes(index);
               const availableValues = getAttributeValues(item.attributeId);
+              const shouldShowValueSelect = isPredefinedOptionsType(item.attributeId);
 
               return (
                 <div key={index} className="flex items-center space-x-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -220,16 +256,48 @@ export const ProductVariantItemsForm: React.FC<ProductVariantItemsFormProps> = (
 
                   {/* Value Selection */}
                   <div className="flex-1">
-                    <Select
-                      value={item.attributeValueId}
-                      onChange={(value) => updateVariantItem(index, 'attributeValueId', value)}
-                      placeholder={t('products.select_value', 'Select value...')}
-                      disabled={!item.attributeId}
-                      options={availableValues.map(value => ({
-                        value: value.id,
-                        label: value.displayValue || value.value,
-                      }))}
-                    />
+                    {shouldShowValueSelect ? (
+                      <Select
+                        value={item.attributeValueId}
+                        onChange={(value) => updateVariantItem(index, 'attributeValueId', value)}
+                        placeholder={t('products.select_value', 'Select value...')}
+                        disabled={!item.attributeId}
+                        options={availableValues.map(value => ({
+                          value: value.id,
+                          label: value.displayValue || value.value,
+                        }))}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <FormInput
+                          id={`variant-item-custom-value-${index}`}
+                          label=""
+                          type="text"
+                          value={customValueByIndex[index] || ''}
+                          onChange={(e) =>
+                            setCustomValueByIndex(prev => ({ ...prev, [index]: e.target.value }))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              void createCustomValueForItem(index);
+                            }
+                          }}
+                          placeholder={t('products.enter_attribute_value', 'Type a value and press Enter')}
+                          disabled={!item.attributeId || createValueMutation.isPending}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => void createCustomValueForItem(index)}
+                          disabled={!item.attributeId || !(customValueByIndex[index] || '').trim() || createValueMutation.isPending}
+                        >
+                          <FiPlus className="w-3 h-3 mr-1" />
+                          {t('common.add', 'Add')}
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Remove Button */}

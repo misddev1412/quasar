@@ -21,8 +21,7 @@ html, body {
 
 /* Force full width on all containers */
 .MuiContainer-root,
-.MuiGrid-root,
-.MuiBox-root {
+.MuiGrid-root {
   width: 100% !important;
   max-width: 100% !important;
   margin-left: 0 !important;

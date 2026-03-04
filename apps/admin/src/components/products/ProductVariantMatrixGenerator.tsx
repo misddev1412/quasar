@@ -111,6 +111,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
   // Get tRPC utils for imperative queries
   const utils = trpc.useUtils();
   const valueNamesCacheRef = useRef(new Map<string, Map<string, string>>());
+  const generationRequestIdRef = useRef(0);
 
   const getValueName = useCallback(
     async (attributeId: string, valueId: string): Promise<string> => {
@@ -137,14 +138,6 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     },
     [utils]
   );
-
-  const hasExistingVariantsWithData = useMemo(
-    () => variants.some(v => v.price > 0 || v.quantity > 0 || v.sku || v.isContactPrice),
-    [variants]
-  );
-
-  console.log('DEBUG: ProductVariantMatrixGenerator variants:', variants);
-  console.log('DEBUG: hasExistingVariantsWithData:', hasExistingVariantsWithData);
 
   const existingCombinationKey = useMemo(() => {
     const keys = variants
@@ -203,7 +196,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
   // Generate variant combinations when attribute selections change
   useEffect(() => {
-    if (!isInitialized || hasExistingVariantsWithData) {
+    if (!isInitialized) {
       return;
     }
 
@@ -262,6 +255,9 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
       return;
     }
 
+    const requestId = generationRequestIdRef.current + 1;
+    generationRequestIdRef.current = requestId;
+
     const createVariantsWithNames = async () => {
       const newVariants: VariantMatrixItem[] = [];
 
@@ -293,7 +289,10 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
         });
       }
 
-      onVariantsChange(newVariants);
+      // Ignore stale async generations and only apply the latest one.
+      if (generationRequestIdRef.current === requestId) {
+        onVariantsChange(newVariants);
+      }
     };
 
     createVariantsWithNames();
@@ -301,7 +300,6 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     attributes,
     existingCombinationKey,
     getValueName,
-    hasExistingVariantsWithData,
     isInitialized,
     onVariantsChange,
     selectedAttributes,
@@ -452,6 +450,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
             <div className="space-y-6">
               {selectedAttributes.map((attr, index) => {
                 const availableAttributes = getAvailableAttributes(index);
+                const selectedAttribute = attributes.find((a) => a.id === attr.attributeId);
 
                 return (
                   <div key={index} className="p-5 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -482,6 +481,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                         <div className="min-h-[40px]">
                           <AttributeValuesSelector
                             attributeId={attr.attributeId}
+                            attributeType={selectedAttribute?.type}
                             selectedValueIds={attr.valueIds}
                             onValueIdsChange={(valueIds) => updateAttributeSelection(index, 'valueIds', valueIds)}
                             disabled={!attr.attributeId}
@@ -677,7 +677,6 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <FormInput
-                          key={`price-${index}-${variant.id}-${variant.price}`}
                           id={`price-${index}`}
                           label=""
                           type="number"
@@ -695,7 +694,6 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <FormInput
-                          key={`quantity-${index}-${variant.id}-${variant.quantity}`}
                           id={`quantity-${index}`}
                           label=""
                           type="number"
@@ -753,9 +751,9 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <div className="flex flex-col space-y-2">
-                          <label className="inline-flex items-center space-x-2">
+                      <td className="px-6 py-5 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center">
+                          <label className="inline-flex items-center justify-center gap-2">
                             <input
                               type="checkbox"
                               checked={variant.isContactPrice}
@@ -765,13 +763,6 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                             />
                             <span className="text-sm text-gray-600 dark:text-gray-400">{t('products.enable', 'Enable')}</span>
                           </label>
-                          {/*
-                          {variant.isContactPrice && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Override the default "Contact Price" text with a custom label.
-                            </p>
-                          )}
-                          */}
                         </div>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-center">

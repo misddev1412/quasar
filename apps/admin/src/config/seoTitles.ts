@@ -162,6 +162,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cập nhật quyền hạn và cài đặt vai trò'
     }
   },
+  {
+    path: '/roles/:id/edit',
+    titles: {
+      en: 'Edit Role | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Vai Trò | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update role permissions and settings',
+      vi: 'Cập nhật quyền hạn và cài đặt vai trò'
+    }
+  },
 
   // Permission Management
   {
@@ -188,6 +199,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   },
   {
     path: '/permissions/:id',
+    titles: {
+      en: 'Edit Permission | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Quyền Hạn | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update permission settings',
+      vi: 'Cập nhật cài đặt quyền hạn'
+    }
+  },
+  {
+    path: '/permissions/:id/edit',
     titles: {
       en: 'Edit Permission | {{platformTitle}}',
       vi: 'Chỉnh Sửa Quyền Hạn | {{platformTitle}}'
@@ -388,6 +410,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/mail-templates/:id/edit',
+    titles: {
+      en: 'Edit Mail Template | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Mẫu Thư | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update email template content',
+      vi: 'Cập nhật nội dung mẫu email'
+    }
+  },
+  {
     path: '/mail-logs',
     titles: {
       en: 'Mail Logs | {{platformTitle}}',
@@ -501,6 +534,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   },
   {
     path: '/posts/:id',
+    titles: {
+      en: 'Edit Post | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Bài Viết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update post content and settings',
+      vi: 'Cập nhật nội dung và cài đặt bài viết'
+    }
+  },
+  {
+    path: '/posts/:id/edit',
     titles: {
       en: 'Edit Post | {{platformTitle}}',
       vi: 'Chỉnh Sửa Bài Viết | {{platformTitle}}'
@@ -747,6 +791,50 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cập nhật cấu hình Firebase'
     }
   },
+  {
+    path: '/firebase-configs/:id/edit',
+    titles: {
+      en: 'Edit Firebase Config | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Cấu Hình Firebase | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update Firebase configuration',
+      vi: 'Cập nhật cấu hình Firebase'
+    }
+  },
+  {
+    path: '/openai-configs',
+    titles: {
+      en: 'OpenAI Configurations | {{platformTitle}}',
+      vi: 'Cấu Hình OpenAI | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage OpenAI providers, models, and API credentials',
+      vi: 'Quản lý nhà cung cấp OpenAI, mô hình và thông tin API'
+    }
+  },
+  {
+    path: '/openai-configs/create',
+    titles: {
+      en: 'Create OpenAI Config | {{platformTitle}}',
+      vi: 'Tạo Cấu Hình OpenAI | {{platformTitle}}'
+    },
+    description: {
+      en: 'Create a new OpenAI integration configuration',
+      vi: 'Tạo cấu hình tích hợp OpenAI mới'
+    }
+  },
+  {
+    path: '/openai-configs/:id/edit',
+    titles: {
+      en: 'Edit OpenAI Config | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Cấu Hình OpenAI | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update model settings and credentials for OpenAI integration',
+      vi: 'Cập nhật cài đặt mô hình và thông tin đăng nhập tích hợp OpenAI'
+    }
+  },
 
   // Notifications
   {
@@ -892,6 +980,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Manage product brands',
       vi: 'Quản lý thương hiệu sản phẩm'
+    }
+  },
+  {
+    path: '/products/brands/exports',
+    titles: {
+      en: 'Brand Exports | {{platformTitle}}',
+      vi: 'Xuất Dữ Liệu Thương Hiệu | {{platformTitle}}'
+    },
+    description: {
+      en: 'Generate and download product brand export files',
+      vi: 'Tạo và tải xuống dữ liệu xuất thương hiệu sản phẩm'
     }
   },
   {
@@ -1059,6 +1158,28 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/sections/product_detail',
+    titles: {
+      en: 'Product Detail Sections | {{platformTitle}}',
+      vi: 'Section Trang Chi Tiết Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage sections displayed on the product detail page',
+      vi: 'Quản lý các section hiển thị ở trang chi tiết sản phẩm'
+    }
+  },
+  {
+    path: '/sections/news_detail',
+    titles: {
+      en: 'News Detail Sections | {{platformTitle}}',
+      vi: 'Section Trang Chi Tiết Tin Tức | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage sections displayed on the news detail page',
+      vi: 'Quản lý các section hiển thị ở trang chi tiết tin tức'
+    }
+  },
+  {
     path: '/sections/:page/create',
     titles: {
       en: 'Create Section | {{platformTitle}}',
@@ -1091,6 +1212,39 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Configure navigation menus',
       vi: 'Cấu hình menu điều hướng'
+    }
+  },
+  {
+    path: '/services',
+    titles: {
+      en: 'Services Management | {{platformTitle}}',
+      vi: 'Quản Lý Dịch Vụ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage storefront services and display settings',
+      vi: 'Quản lý dịch vụ storefront và cài đặt hiển thị'
+    }
+  },
+  {
+    path: '/services/create',
+    titles: {
+      en: 'Create Service | {{platformTitle}}',
+      vi: 'Tạo Dịch Vụ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Add a new service entry',
+      vi: 'Thêm một dịch vụ mới'
+    }
+  },
+  {
+    path: '/services/:id/edit',
+    titles: {
+      en: 'Edit Service | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Dịch Vụ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update service details and status',
+      vi: 'Cập nhật thông tin và trạng thái dịch vụ'
     }
   },
 
@@ -1559,6 +1713,61 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Create a new customer order with products and billing',
       vi: 'Tạo đơn hàng khách hàng mới với sản phẩm và thanh toán'
+    }
+  },
+  {
+    path: '/settings/ecommerce',
+    titles: {
+      en: 'Ecommerce Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Thương Mại Điện Tử | {{platformTitle}}'
+    },
+    description: {
+      en: 'Configure ecommerce and order processing behaviors',
+      vi: 'Cấu hình hành vi thương mại điện tử và xử lý đơn hàng'
+    }
+  },
+  {
+    path: '/pagespeed',
+    titles: {
+      en: 'PageSpeed Insights | {{platformTitle}}',
+      vi: 'Phân Tích PageSpeed | {{platformTitle}}'
+    },
+    description: {
+      en: 'Audit performance and optimization opportunities for storefront pages',
+      vi: 'Phân tích hiệu năng và cơ hội tối ưu cho các trang storefront'
+    }
+  },
+  {
+    path: '/product-bundles',
+    titles: {
+      en: 'Product Bundles | {{platformTitle}}',
+      vi: 'Combo Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage product bundle definitions and pricing',
+      vi: 'Quản lý định nghĩa combo sản phẩm và giá bán'
+    }
+  },
+  {
+    path: '/product-bundles/create',
+    titles: {
+      en: 'Create Product Bundle | {{platformTitle}}',
+      vi: 'Tạo Combo Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'Create a new product bundle',
+      vi: 'Tạo combo sản phẩm mới'
+    }
+  },
+  {
+    path: '/product-bundles/:id/edit',
+    titles: {
+      en: 'Edit Product Bundle | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Combo Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update bundle items, pricing, and active status',
+      vi: 'Cập nhật sản phẩm trong combo, giá và trạng thái hoạt động'
     }
   },
   {

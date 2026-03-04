@@ -7,6 +7,7 @@ import { AuthMiddleware } from '@backend/trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '@backend/trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import { AttributeType } from '@backend/modules/products/entities/attribute.entity';
+import { AttributeValueScope } from '@backend/modules/products/entities/attribute-value.entity';
 
 export const getAttributesQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -42,12 +43,14 @@ export const createAttributeValueSchema = z.object({
   value: z.string().min(1),
   displayValue: z.string().optional(),
   sortOrder: z.number().min(0).default(0),
+  scope: z.nativeEnum(AttributeValueScope).default(AttributeValueScope.GLOBAL),
 });
 
 export const updateAttributeValueSchema = z.object({
   value: z.string().min(1).optional(),
   displayValue: z.string().optional(),
   sortOrder: z.number().min(0).optional(),
+  scope: z.nativeEnum(AttributeValueScope).optional(),
 });
 
 export const createAttributeTranslationSchema = z.object({

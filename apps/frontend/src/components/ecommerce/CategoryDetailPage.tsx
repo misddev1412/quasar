@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import CategoryCard from './CategoryCard';
 import ProductCard from './ProductCard';
 import { Pagination } from '../common/Pagination';
@@ -17,6 +18,8 @@ interface CategoryDetailPageProps {
   initialProducts: Product[];
   subcategories: Category[];
 }
+
+const CATEGORY_PRODUCTS_PAGE_SIZE = 20;
 
 const layout = {
   wrapper: 'space-y-12',
@@ -36,7 +39,7 @@ const ensureNonNegativeInteger = (value: unknown, fallback: number): number => {
   return parsed >= 0 ? parsed : fallback;
 };
 
-const sanitizePaginationInfo = (pagination: PaginationInfo | undefined, fallbackLimit = 12): PaginationInfo => {
+const sanitizePaginationInfo = (pagination: PaginationInfo | undefined, fallbackLimit = CATEGORY_PRODUCTS_PAGE_SIZE): PaginationInfo => {
   const safeLimit = ensureNonNegativeInteger(pagination?.limit, fallbackLimit) || fallbackLimit;
   const safeTotal = ensureNonNegativeInteger(pagination?.total, 0);
   const safePage = ensureNonNegativeInteger(pagination?.page, 1) || 1;
@@ -69,8 +72,16 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   subcategories,
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialPageFromQuery = useMemo(() => {
+    const raw = searchParams.get('page');
+    const parsed = raw ? Number(raw) : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
+  }, [searchParams]);
   const [sortBy, setSortBy] = useState('createdAt');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPageFromQuery);
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
   const rawInitialTotal = category.productCount ?? initialProducts.length;
@@ -78,14 +89,16 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const [pagination, setPagination] = useState<PaginationInfo>(() =>
     sanitizePaginationInfo({
       page: 1,
-      limit: 12,
+      limit: CATEGORY_PRODUCTS_PAGE_SIZE,
       total: initialTotal,
-      totalPages: initialTotal > 0 ? Math.max(1, Math.ceil(initialTotal / 12)) : 0,
+      totalPages: initialTotal > 0 ? Math.max(1, Math.ceil(initialTotal / CATEGORY_PRODUCTS_PAGE_SIZE)) : 0,
     })
   );
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const productsListTopRef = useRef<HTMLDivElement | null>(null);
+  const previousPageRef = useRef<number>(currentPage);
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
   const totalKnownProducts = useMemo(() => {
@@ -107,13 +120,13 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
       const response = await CategoryService.getCategoryProducts({
         categoryRef: categorySlug?.trim() || category.id,
         page: currentPage,
-        limit: 12,
+        limit: CATEGORY_PRODUCTS_PAGE_SIZE,
         sortBy,
         sortOrder: sortBy === 'price_DESC' ? 'DESC' : 'ASC',
       });
 
       setProducts(response.items);
-      setPagination(sanitizePaginationInfo(response.pagination, 12));
+      setPagination(sanitizePaginationInfo(response.pagination, CATEGORY_PRODUCTS_PAGE_SIZE));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
@@ -125,6 +138,37 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    if (currentPage === initialPageFromQuery) {
+      return;
+    }
+    setCurrentPage(initialPageFromQuery);
+  }, [initialPageFromQuery]);
+
+  useEffect(() => {
+    if (previousPageRef.current === currentPage) {
+      return;
+    }
+
+    previousPageRef.current = currentPage;
+    productsListTopRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [currentPage]);
+
+  const updatePageQuery = useCallback((page: number) => {
+    const nextPage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextPage <= 1) {
+      params.delete('page');
+    } else {
+      params.set('page', String(nextPage));
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
+
   const handleAddToCart = (product: Product) => {
     // Implement add to cart logic
   };
@@ -132,6 +176,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const handleSortChange = (value: string) => {
     setSortBy(value);
     setCurrentPage(1);
+    updatePageQuery(1);
   };
 
   const isRefreshing = isLoading && currentPage === 1;
@@ -140,7 +185,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const showProductSkeleton = !error && isRefreshing && noProducts;
   const showEmptyState = !showProductSkeleton && noProducts && !error;
   const showPagination = !showProductSkeleton && !error && !showEmptyState;
-  const skeletonCount = 12;
+  const skeletonCount = CATEGORY_PRODUCTS_PAGE_SIZE;
 
   return (
     <div className={layout.wrapper}>
@@ -177,6 +222,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
       )}
 
       <section aria-labelledby="category-products-heading">
+        <div ref={productsListTopRef} />
         <div className={layout.sectionHeader}>
           <div>
             <h2 id="category-products-heading" className={layout.sectionTitle}>
@@ -270,7 +316,6 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
                   key={product.id}
                   product={product}
                   onAddToCart={handleAddToCart}
-                  priceLoadingMode="skeleton"
                   className="transition-transform duration-200 hover:-translate-y-1"
                 />
               ))}
@@ -293,7 +338,10 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
             totalPages={pagination.totalPages}
             total={pagination.total}
             limit={pagination.limit}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              updatePageQuery(page);
+            }}
             showSinglePage
             className="mt-10"
           />

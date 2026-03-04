@@ -52,6 +52,7 @@ const productVariantItemSchema = z.object({
     id: z.string(),
     value: z.string(),
     displayValue: z.string().nullable().optional(),
+    scope: z.enum(['LOCAL', 'GLOBAL']).optional(),
   }).optional(),
 });
 

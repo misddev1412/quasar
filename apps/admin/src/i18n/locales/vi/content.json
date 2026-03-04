@@ -304,10 +304,19 @@
     "manager_title": "Quản lý SEO",
     "add_rule": "Thêm luật SEO",
     "create_new_rule": "Tạo luật SEO mới",
+    "edit_rule": "Chỉnh sửa luật SEO",
     "categories": "Phân loại",
     "all_rules": "Tất cả các luật",
     "no_rules": "Không tìm thấy luật SEO nào",
     "empty_state_message": "Bạn chưa tạo luật SEO nào. Nhấp vào nút để thêm luật đầu tiên.",
+    "search_placeholder": "Tìm kiếm luật SEO...",
+    "image_preview_alt": "Xem trước ảnh SEO",
+    "stats": {
+      "total": "Tổng số luật",
+      "active": "Đang bật",
+      "inactive": "Đang tắt",
+      "groups": "Nhóm"
+    },
     "fields": {
       "title": "Tiêu đề",
       "path": "Đường dẫn",

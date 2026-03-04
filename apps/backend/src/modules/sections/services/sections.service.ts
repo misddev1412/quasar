@@ -3,7 +3,7 @@ import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-c
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { SectionRepository } from '@backend/modules/sections/repositories/section.repository';
 import { SectionTranslationRepository } from '@backend/modules/sections/repositories/section-translation.repository';
-import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '@backend/modules/sections/dto/section.dto';
+import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto, AdminListSectionsDto } from '@backend/modules/sections/dto/section.dto';
 import { SectionEntity } from '@backend/modules/sections/entities/section.entity';
 import { SectionTranslationEntity } from '@backend/modules/sections/entities/section-translation.entity';
 import { LanguageRepository } from '@backend/modules/language/repositories/language.repository';
@@ -311,11 +311,14 @@ export class SectionsService {
     }
   }
 
-  async adminList(page?: string) {
+  async adminList(filters?: AdminListSectionsDto) {
     try {
-      const sections = page
-        ? await this.sectionRepository.findAllByPage(page)
-        : await this.sectionRepository.findAll();
+      const sections = await this.sectionRepository.findAllWithFilters({
+        page: filters?.page ?? undefined,
+        search: filters?.search ?? undefined,
+        type: filters?.type ?? undefined,
+        isEnabled: filters?.isEnabled ?? undefined,
+      });
       return sections.map((section) => ({
         ...section,
         translations: section.translations ?? [],
@@ -326,6 +329,37 @@ export class SectionsService {
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
         error.message || 'Unable to load sections for admin',
+        error,
+      );
+    }
+  }
+
+  async adminStats(filters?: AdminListSectionsDto) {
+    try {
+      const sections = await this.sectionRepository.findAllWithFilters({
+        page: filters?.page ?? undefined,
+        search: filters?.search ?? undefined,
+        type: filters?.type ?? undefined,
+        isEnabled: filters?.isEnabled ?? undefined,
+      });
+
+      const totalSections = sections.length;
+      const enabledSections = sections.filter((section) => section.isEnabled).length;
+      const disabledSections = totalSections - enabledSections;
+      const totalTypes = new Set(sections.map((section) => section.type)).size;
+
+      return {
+        totalSections,
+        enabledSections,
+        disabledSections,
+        totalTypes,
+      };
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.CONFIG,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Unable to load section statistics for admin',
         error,
       );
     }

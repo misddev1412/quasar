@@ -16,6 +16,7 @@ import { useAddToCartButtonConfig } from '../../hooks/useAddToCartButtonConfig';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UnifiedIcon } from '../common/UnifiedIcon';
 import { useLocalePath } from '../../lib/routing';
+import { Search } from 'lucide-react';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -315,19 +316,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const available = variantOption.stockQuantity ?? 0;
 
     if (available > 0) {
-      return `${available} available`;
+      return t('ecommerce.productCard.stockAvailable', { count: available });
     }
 
     if (variantOption.allowBackorders) {
-      return 'Available for backorder';
+      return t('ecommerce.productCard.stockBackorder', 'Available for backorder');
     }
 
     if (!variantOption.trackInventory) {
-      return 'Available';
+      return t('ecommerce.productCard.stockInStock', 'Available');
     }
 
-    return 'Out of stock';
-  }, []);
+    return t('ecommerce.cart.outOfStock', 'Out of stock');
+  }, [t]);
 
   // Handle attribute selection
   const handleAttributeSelect = (attributeName: string, value: string) => {
@@ -411,12 +412,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }, [onQuickView, product]);
 
-  const handleImageClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onOpen();
-  };
-
   const TitleTag = (titleSettings.htmlTag || 'h3') as React.ElementType;
   const titleHoverClass = titleSettings.textColor ? '' : 'group-hover:text-blue-600 dark:group-hover:text-blue-400';
   const titleBaseColorClass = titleSettings.textColor ? '' : 'storefront-product-card-text';
@@ -469,11 +464,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
             className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${isImageHovered ? 'scale-110' : 'scale-100'
               }`}
             removeWrapper
-            onClick={handleImageClick}
             onMouseEnter={() => setIsImageHovered(true)}
             onMouseLeave={() => setIsImageHovered(false)}
           />
         </Link>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onOpen();
+          }}
+          className="absolute bottom-3 right-3 z-20 inline-flex items-center justify-center rounded-full bg-blue-600/95 p-2 text-white ring-2 ring-white/90 shadow-xl transition-all duration-200 hover:bg-blue-500 opacity-0 group-hover:opacity-100 group-hover:scale-105"
+          aria-label={t('common.view', 'View')}
+        >
+          <Search className="h-4 w-4" />
+        </button>
 
         {/* Featured Badge */}
         {isFeatured && (
@@ -658,18 +665,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <div className="space-y-6">
                 {/* Attribute Selection */}
                 {attributeGroups.map((attribute) => (
-                  <div key={attribute.name} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {attribute.name}
-                      </h3>
-                      {!selectedAttributes[attribute.name] && (
-                        <span className="text-sm text-red-500 font-medium">
-                          Required *
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
+                  <div
+                    key={attribute.name}
+                    className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6"
+                  >
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white md:w-44 md:shrink-0">
+                      {attribute.name}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2">
                       {attribute.values.map((value) => (
                         <button
                           key={value}
@@ -689,7 +692,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {/* Quantity Selection */}
                 <div className="space-y-3">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    Quantity
+                    {t('ecommerce.product.detail.common.quantity', 'Quantity')}
                   </h3>
                   <div className="flex items-center gap-3">
                     <button
@@ -719,7 +722,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {matchingVariant && (
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ecommerce.cart.item.price', 'Price')}:</span>
                       {isContactOnlyProduct ? (
                         <span className="text-lg font-bold text-gray-900 dark:text-white">
                           {contactPriceLabel || t('ecommerce.product.contactPriceLabel')}
@@ -823,14 +826,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         backdrop="blur"
         className="dark:bg-gray-900"
       >
-        <ModalContent className="p-0">
-          <ModalHeader className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <ModalContent className="overflow-hidden rounded-none p-0">
+          <ModalHeader className="p-4 border-b-0">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {name || t('ecommerce.productCard.imageAlt', 'Product Image')}
             </h2>
           </ModalHeader>
           <ModalBody className="p-0">
-            <div className="flex items-center justify-center bg-black min-h-[400px]">
+            <div className="flex items-center justify-center bg-white dark:bg-gray-900 min-h-[400px] px-4 pt-2 pb-6 md:px-6 md:pb-8">
               <Image
                 src={getPrimaryImage()}
                 alt={name || t('ecommerce.productCard.imageAlt', 'Product Image')}

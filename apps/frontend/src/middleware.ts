@@ -40,6 +40,7 @@ function shouldBypass(request: NextRequest): boolean {
   // Set locale based on path if it's localized
   const LOCALIZED_PREFIXES: Record<string, string> = {
     '/san-pham': 'vi',
+    '/danh-muc': 'vi',
     '/gioi-thieu': 'vi',
     '/lien-he': 'vi',
     '/tin-tuc': 'vi',
@@ -75,6 +76,7 @@ export async function middleware(request: NextRequest) {
   // Manual locale setting based on path
   const LOCALIZED_PREFIXES: Record<string, string> = {
     '/san-pham': 'vi',
+    '/danh-muc': 'vi',
     '/gioi-thieu': 'vi',
     '/lien-he': 'vi',
     '/tin-tuc': 'vi',

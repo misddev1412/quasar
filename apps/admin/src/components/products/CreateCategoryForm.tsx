@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { FolderPlus, Globe, Search, Image, Settings } from 'lucide-react';
+import { FolderPlus, Globe, Settings } from 'lucide-react';
 import { EntityForm } from '@admin/components/common/EntityForm';
-import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
-import { CategoryTranslationsSection, CategoryTranslationData } from '@admin/components/products/CategoryTranslationsSection';
+import { TranslationTabs } from '@admin/components/common/TranslationTabs';
 import { FormTabConfig } from '@admin/types/forms';
 import { CreateCategoryFormData } from '@admin/types/product';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '@admin/hooks/useLanguages';
 import { trpc } from '@admin/utils/trpc';
+import { generateSlug } from '@admin/utils/slugUtils';
 import { z } from 'zod';
 
 const createCategorySchema = z.object({
   name: z.string().min(1, 'Category name is required'),
-  slug: z.string().optional(),
   description: z.string().optional(),
   parentId: z.string().optional(),
   image: z.string().optional(),
@@ -28,19 +27,10 @@ const createCategorySchema = z.object({
   ctaUrl: z.string().optional(),
   isActive: z.boolean(),
   sortOrder: z.number().min(0, 'Sort order must be 0 or greater').max(999999, 'Sort order too large'),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
-  languageCode: z.string().min(1, 'Language is required'),
-  additionalTranslations: z.array(z.object({
-    locale: z.string().min(2).max(5),
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-  })).optional(),
 });
 
 interface CreateCategoryFormProps {
-  onSubmit: (data: CreateCategoryFormData & { additionalTranslations?: CategoryTranslationData[] }) => Promise<void>;
+  onSubmit: (data: CreateCategoryFormData & { translations?: Record<string, any> }) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
   activeTab?: number;
@@ -61,13 +51,36 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
   formId,
 }) => {
   const { t } = useTranslationWithBackend();
-  const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
-  
+  const { languageOptions } = useLanguageOptions();
+
   // State for managing translations
-  const [additionalTranslations, setAdditionalTranslations] = useState<CategoryTranslationData[]>([]);
-  
-  // Get primary language (default to first available language)
-  const primaryLanguage = languageOptions.length > 0 ? languageOptions[0].value : 'en';
+  const [translations, setTranslations] = useState<Record<string, any>>({
+    en: {},
+    vi: {},
+  });
+
+  const handleTranslationsChange = (nextTranslations: Record<string, any>) => {
+    const withAutoSlug = Object.entries(nextTranslations).reduce<Record<string, any>>((acc, [locale, value]) => {
+      const translation = value || {};
+      const name = typeof translation.name === 'string' ? translation.name.trim() : '';
+      const slug = typeof translation.slug === 'string' ? translation.slug.trim() : '';
+      const previousTranslation = translations[locale] || {};
+      const previousName = typeof previousTranslation.name === 'string' ? previousTranslation.name.trim() : '';
+      const previousSlug = typeof previousTranslation.slug === 'string' ? previousTranslation.slug.trim() : '';
+      const previousAutoSlug = previousName ? generateSlug(previousName) : '';
+      const wasAutoManaged = !previousSlug || (previousAutoSlug && previousSlug === previousAutoSlug);
+      const nextSlug = (name && (!slug || wasAutoManaged)) ? generateSlug(name) : translation.slug;
+
+      acc[locale] = {
+        ...translation,
+        slug: nextSlug,
+      };
+
+      return acc;
+    }, {});
+
+    setTranslations(withAutoSlug);
+  };
 
   const { data: categoriesData } = trpc.adminProductCategories.getTree.useQuery({
     includeInactive: false,
@@ -76,7 +89,7 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
 
   const renderCategoryOptions = (categories: any[], level = 0): { value: string; label: string }[] => {
     const result: { value: string; label: string }[] = [];
-    
+
     categories.forEach(category => {
       const indent = '—'.repeat(level);
       result.push({
@@ -88,7 +101,7 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
         result.push(...renderCategoryOptions(category.children, level + 1));
       }
     });
-    
+
     return result;
   };
 
@@ -120,15 +133,6 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               },
             },
             {
-              name: 'slug',
-              label: t('categories.slug', 'Slug'),
-              type: 'slug',
-              placeholder: t('categories.slug_placeholder', 'category-slug'),
-              required: false,
-              sourceField: 'name',
-              description: t('categories.slug_description', 'URL-friendly name (auto-generated from name if empty)'),
-            },
-            {
               name: 'description',
               label: t('categories.description', 'Description'),
               type: 'textarea',
@@ -151,15 +155,6 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               required: false,
               options: categoryOptions,
             }]),
-            {
-              name: 'languageCode',
-              label: t('categories.primary_language', 'Primary Language'),
-              type: 'select' as const,
-              placeholder: t('categories.select_language', 'Select language'),
-              required: true,
-              options: languageOptions,
-              description: t('categories.primary_language_description', 'The main language for this category'),
-            },
             {
               name: 'sortOrder',
               label: t('categories.sort_order', 'Sort Order'),
@@ -194,7 +189,7 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
         {
           title: t('categories.page_display', 'Category Page Display'),
           description: t('categories.page_display_description', 'Control the hero visuals and visibility on the category page.'),
-          icon: <Image className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          icon: <FolderPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
           fields: [
             {
               name: 'heroBackgroundImage',
@@ -280,119 +275,113 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
       sections: [
         {
           title: t('categories.translations', 'Category Translations'),
-          description: t('categories.translations_description', 'Manage category translations in different languages.'),
+          description: t('categories.translations_description', 'Manage category names and descriptions in different languages.'),
           icon: <Globe className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
-          fields: [
-            {
-              name: 'additionalTranslations',
-              label: '',
-              type: 'custom',
-              required: false,
-              component: (
-                <CategoryTranslationsSection
-                  translations={additionalTranslations}
-                  onTranslationsChange={setAdditionalTranslations}
-                  primaryLanguage={primaryLanguage}
-                />
-              ),
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'seo',
-      label: t('admin.seo',   'SEO'),
-      icon: <Search className="w-4 h-4" />,
-      sections: [
-        {
-          title: t('categories.seo_optimization', 'SEO Optimization'),
-          description: t('categories.seo_description', 'Optimize your category for search engines.'),
-          icon: <Search className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
-          fields: [
-            {
-              name: 'seoTitle',
-              label: t('categories.seo_title', 'SEO Title'),
-              type: 'text',
-              placeholder: t('categories.seo_title_placeholder', 'Enter SEO title'),
-              required: false,
-              validation: {
-                maxLength: 60,
-              },
-              rightElement: (
-                <FormAIGenerator
-                  targetFieldName="seoTitle"
-                  sourceFieldName="name"
-                  targetLabel={t('categories.seo_title', 'SEO Title')}
-                  sourceLabel={t('categories.name', 'Category Name')}
-                  entityType="product"
-                  contentType="title"
-                  tone="seo"
-                  allowImages={false}
-                />
-              ),
-              rightElementPosition: 'inside-input',
-              description: t('categories.seo_title_description', 'Recommended length: 50-60 characters'),
-            },
-            {
-              name: 'seoDescription',
-              label: t('categories.seo_description', 'SEO Description'),
-              type: 'textarea',
-              placeholder: t('categories.seo_description_placeholder', 'Enter SEO description'),
-              required: false,
-              rows: 3,
-              validation: {
-                maxLength: 160,
-              },
-              rightElement: (
-                <FormAIGenerator
-                  targetFieldName="seoDescription"
-                  sourceFieldName="description"
-                  targetLabel={t('categories.seo_description', 'SEO Description')}
-                  sourceLabel={t('categories.description', 'Description')}
-                  entityType="product"
-                  contentType="description"
-                  tone="seo"
-                  allowImages={false}
-                  stripHtmlOutput={true}
-                />
-              ),
-              description: t('categories.seo_description_desc', 'Recommended length: 150-160 characters'),
-            },
-            {
-              name: 'metaKeywords',
-              label: t('categories.meta_keywords', 'Meta Keywords'),
-              type: 'text',
-              placeholder: t('categories.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
-              required: false,
-              rightElement: (
-                <FormAIGenerator
-                  targetFieldName="metaKeywords"
-                  sourceFieldName="description"
-                  targetLabel={t('categories.meta_keywords', 'Meta Keywords')}
-                  sourceLabel={t('categories.description', 'Description')}
-                  entityType="product"
-                  contentType="keywords"
-                  tone="seo"
-                  allowImages={false}
-                  allowLengthOptions={false}
-                  allowProductLinks={false}
-                  allowStyleOptions={false}
-                  stripHtmlOutput={true}
-                />
-              ),
-              rightElementPosition: 'inside-input',
-              description: t('categories.meta_keywords_description', 'Separate keywords with commas'),
-            },
-          ],
+          fields: [],
+          customContent: (
+            <TranslationTabs
+              translations={translations}
+              onTranslationsChange={handleTranslationsChange}
+              fields={[
+                {
+                  name: 'name',
+                  label: t('categories.name', 'Name'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'text',
+                  placeholder: t('categories.name_placeholder', 'Enter category name'),
+                  required: false,
+                  aiGenerator: {
+                    entityType: 'product',
+                    contentType: 'title',
+                  }
+                },
+                {
+                  name: 'description',
+                  label: t('categories.description', 'Description'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'textarea',
+                  placeholder: t('categories.description_placeholder', 'Enter category description'),
+                  required: false,
+                  rows: 3,
+                  aiGenerator: {
+                    entityType: 'product',
+                    contentType: 'description',
+                  }
+                },
+                {
+                  name: 'slug',
+                  label: t('categories.slug', 'Slug'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'text',
+                  placeholder: t('categories.slug_placeholder', 'category-slug'),
+                  required: false,
+                  description: t('categories.slug_description', 'URL-friendly name (auto-generated from name if empty)'),
+                },
+                {
+                  name: 'seoTitle',
+                  label: t('categories.seo_title', 'SEO Title'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'text',
+                  placeholder: t('categories.seo_title_placeholder', 'Enter SEO title'),
+                  required: false,
+                  validation: { maxLength: 60 },
+                  description: t('categories.seo_title_description', 'Recommended length: 50-60 characters'),
+                  aiGenerator: {
+                    entityType: 'product',
+                    contentType: 'title',
+                    sourceFieldName: 'name',
+                    tone: 'seo',
+                  }
+                },
+                {
+                  name: 'seoDescription',
+                  label: t('categories.seo_description', 'SEO Description'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'textarea',
+                  placeholder: t('categories.seo_description_placeholder', 'Enter SEO description'),
+                  required: false,
+                  rows: 3,
+                  validation: { maxLength: 160 },
+                  description: t('categories.seo_description_desc', 'Recommended length: 150-160 characters'),
+                  aiGenerator: {
+                    entityType: 'product',
+                    contentType: 'description',
+                    sourceFieldName: 'description',
+                    tone: 'seo',
+                  }
+                },
+                {
+                  name: 'metaKeywords',
+                  label: t('categories.meta_keywords', 'Meta Keywords'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'text',
+                  placeholder: t('categories.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
+                  required: false,
+                  description: t('categories.meta_keywords_description', 'Separate keywords with commas'),
+                  aiGenerator: {
+                    entityType: 'product',
+                    contentType: 'keywords',
+                    sourceFieldName: 'description',
+                    tone: 'seo',
+                  }
+                },
+              ]}
+              supportedLocales={languageOptions.map(l => ({ code: l.value, name: l.label }))}
+            />
+          ),
         },
       ],
     },
   ];
 
-  const defaultValues: Partial<CreateCategoryFormData & { languageCode: string; additionalTranslations: CategoryTranslationData[] }> = {
+  const defaultValues: Partial<CreateCategoryFormData> = {
     name: '',
-    slug: '',
     description: '',
     parentId: defaultParentId || '',
     image: '',
@@ -408,23 +397,17 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
     ctaUrl: '',
     isActive: true,
     sortOrder: 0,
-    seoTitle: '',
-    seoDescription: '',
-    metaKeywords: '',
-    languageCode: primaryLanguage,
-    additionalTranslations: [],
   };
 
-  const handleSubmit = async (data: CreateCategoryFormData & { languageCode: string; additionalTranslations?: CategoryTranslationData[] }) => {
-    const formDataWithTranslations = {
+  const handleSubmit = async (data: CreateCategoryFormData) => {
+    await onSubmit({
       ...data,
-      additionalTranslations: additionalTranslations,
-    };
-    await onSubmit(formDataWithTranslations);
+      translations,
+    });
   };
 
   return (
-    <EntityForm<CreateCategoryFormData & { languageCode: string; additionalTranslations?: CategoryTranslationData[] }>
+    <EntityForm<CreateCategoryFormData>
       tabs={tabs}
       initialValues={defaultValues}
       onSubmit={handleSubmit}

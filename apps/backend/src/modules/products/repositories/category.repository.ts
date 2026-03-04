@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '@backend/modules/products/entities/category.entity';
 import { CategoryTranslation } from '@backend/modules/products/entities/category-translation.entity';
+import { ProductStatus } from '@backend/modules/products/entities/product.entity';
 import { SlugUtil } from '@backend/modules/shared/utils/slug.util';
 
 export interface CategoryFilters {
@@ -113,7 +114,7 @@ export class CategoryRepository {
     } = options;
 
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoin('category.translations', 'translations');
+      .leftJoinAndSelect('category.translations', 'translations');
 
     // Apply filters
     if (search) {
@@ -171,6 +172,32 @@ export class CategoryRepository {
     return this.categoryRepository.findOne({
       where: { name },
     });
+  }
+
+  async getProductCountsByCategoryIds(categoryIds: string[]): Promise<Map<string, number>> {
+    const normalizedIds = categoryIds.filter((id) => typeof id === 'string' && id.trim().length > 0);
+    if (normalizedIds.length === 0) {
+      return new Map();
+    }
+
+    const rawCounts = await this.categoryRepository.createQueryBuilder('category')
+      .leftJoin('category.productCategories', 'productCategories')
+      .leftJoin('productCategories.product', 'product')
+      .where('category.id IN (:...categoryIds)', { categoryIds: normalizedIds })
+      .andWhere('product.id IS NOT NULL')
+      .andWhere('product.is_active = :isActive', { isActive: true })
+      .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
+      .select('category.id', 'categoryId')
+      .addSelect('COUNT(DISTINCT product.id)', 'productCount')
+      .groupBy('category.id')
+      .getRawMany<{ categoryId: string; productCount: string }>();
+
+    const countMap = new Map<string, number>();
+    rawCounts.forEach((row) => {
+      const countValue = Number(row.productCount);
+      countMap.set(row.categoryId, Number.isFinite(countValue) ? countValue : 0);
+    });
+    return countMap;
   }
 
   async findByNameAndParent(name: string, parentId: string | null): Promise<Category[]> {

@@ -6,8 +6,8 @@ import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 import { useTranslation } from 'react-i18next';
 
 interface PriceDisplayProps {
-  price: number;
-  originalPrice?: number;
+  price: number | undefined | null;
+  originalPrice?: number | null;
   discountPercentage?: number;
   currency?: string;
   decimalPlaces?: number;

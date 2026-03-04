@@ -61,100 +61,6 @@ const normalizeVariantItem = (item: ProductVariantItem, index: number): VariantA
   return result;
 };
 
-const normalizeFromAttributesRecord = (
-  attributes: Record<string, unknown>,
-  fallbackOffset = 0
-): VariantAttributeEntry[] => {
-  return Object.entries(attributes).map(([rawAttributeId, rawValue], index) => {
-    const attributeId = rawAttributeId.trim().length > 0
-      ? rawAttributeId
-      : `attr-${fallbackOffset + index}`;
-
-    const label = String(rawValue ?? 'Value');
-    const valueId = ensureValueId(String(rawValue ?? ''), attributeId, label, index);
-
-    return {
-      attributeId,
-      name: rawAttributeId || `Option ${fallbackOffset + index + 1}`,
-      valueId,
-      label,
-      sortOrder: index,
-    };
-  });
-};
-
-const normalizeFromVariantName = (name: string, fallbackOffset = 0): VariantAttributeEntry[] => {
-  if (!name) {
-    return [];
-  }
-
-  const sanitized = name.replace(/[()]/g, ' ');
-  const separators = ['/', '|', ',', ';', '+'];
-
-  let parts = [sanitized];
-  for (const separator of separators) {
-    if (sanitized.includes(separator)) {
-      parts = sanitized.split(separator);
-      break;
-    }
-  }
-
-  const colonBasedEntries: VariantAttributeEntry[] = [];
-
-  parts.forEach((rawPart, index) => {
-    const part = rawPart.trim();
-    if (!part) {
-      return;
-    }
-
-    const colonIndex = part.indexOf(':');
-    if (colonIndex === -1) {
-      return;
-    }
-
-    const attributeName = part.slice(0, colonIndex).trim();
-    const valueLabel = part.slice(colonIndex + 1).trim();
-
-    if (!attributeName || !valueLabel) {
-      return;
-    }
-
-    const attributeId = `attr-${slugify(attributeName, `name-${fallbackOffset + index}`)}`;
-    const valueId = ensureValueId(undefined, attributeId, valueLabel, index);
-
-    colonBasedEntries.push({
-      attributeId,
-      name: attributeName,
-      valueId,
-      label: valueLabel,
-      sortOrder: index,
-    });
-  });
-
-  if (colonBasedEntries.length > 0) {
-    return colonBasedEntries;
-  }
-
-  if (parts.length === 1) {
-    return [];
-  }
-
-  return parts.map((rawPart, index) => {
-    const valueLabel = rawPart.trim();
-    const attributeId = `attr-option-${fallbackOffset + index}`;
-    const attributeName = `Option ${fallbackOffset + index + 1}`;
-    const valueId = ensureValueId(undefined, attributeId, valueLabel, index);
-
-    return {
-      attributeId,
-      name: attributeName,
-      valueId,
-      label: valueLabel,
-      sortOrder: index,
-    };
-  });
-};
-
 export const extractVariantAttributeEntries = (variant: ProductVariant): VariantAttributeEntry[] => {
   const entries: VariantAttributeEntry[] = [];
 
@@ -173,34 +79,7 @@ export const extractVariantAttributeEntries = (variant: ProductVariant): Variant
   if (entries.length > 0) {
     return entries;
   }
-
-  // Check for attributes object
-  if (variant.attributes && Object.keys(variant.attributes).length > 0) {
-    const attributeEntries = normalizeFromAttributesRecord(variant.attributes, entries.length);
-    return attributeEntries;
-  }
-
-  // Try to extract from variant name - handle common patterns better
-  const nameEntries = normalizeFromVariantName(variant.name || '', entries.length);
-
-  // If still no entries, try to parse from name with better logic
-  if (nameEntries.length === 0 && variant.name) {
-    // Try to extract size/color from common patterns like "M", "XL", "Blue", etc.
-    const parts = variant.name.split(/[\s,-]+/).filter(part => part.trim().length > 0);
-    if (parts.length === 1) {
-      // Single attribute like "M" or "XL" - treat as Size
-      const valueLabel = parts[0].trim();
-      return [{
-        attributeId: 'attr-size',
-        name: 'Size',
-        valueId: 'attr-size-val-' + valueLabel.toLowerCase(),
-        label: valueLabel,
-        sortOrder: 0
-      }];
-    }
-  }
-
-  return nameEntries;
+  return [];
 };
 
 export interface VariantAttributeValueOption {

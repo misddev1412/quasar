@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FolderPlus } from 'lucide-react';
-import { FiHome, FiPackage, FiFolderPlus } from 'react-icons/fi';
+import { FiFolder } from 'react-icons/fi';
 import { StandardFormPage } from '@admin/components/common';
 import { CreateCategoryForm } from '@admin/components/products';
 import { useToast } from '@admin/contexts/ToastContext';
@@ -18,11 +17,13 @@ const CategoryCreatePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const parentId = searchParams.get('parentId');
 
+  const utils = trpc.useContext();
+
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['general', 'translations', 'seo'] // Maps to CreateCategoryForm tab IDs
+    tabKeys: ['general', 'translations'] // Maps to CreateCategoryForm tab IDs
   });
 
   // tRPC mutation for creating category
@@ -30,16 +31,16 @@ const CategoryCreatePage: React.FC = () => {
     onSuccess: (data) => {
       addToast({
         type: 'success',
-        title: t('messages.category_created_successfully'),
-        description: t('messages.category_created_successfully_description'),
+        title: t('categories.createSuccess', 'Category created successfully'),
       });
+      utils.adminProductCategories.getTree.invalidate();
       navigate('/products/categories');
     },
     onError: (error) => {
       addToast({
         type: 'error',
-        title: t('messages.failed_to_create_category'),
-        description: error.message || t('messages.create_category_error_description'),
+        title: t('common.error', 'Error'),
+        description: error.message,
       });
     },
   });
@@ -47,17 +48,21 @@ const CategoryCreatePage: React.FC = () => {
   // Translation mutations
   const createTranslationMutation = trpc.adminProductCategories.createCategoryTranslation.useMutation();
 
-  const handleSubmit = async (formData: CreateCategoryFormData & { additionalTranslations?: any[] }) => {
+  const handleSubmit = async (formData: CreateCategoryFormData & { translations?: Record<string, any> }) => {
     try {
-      const providedSlug = typeof formData.slug === 'string' ? formData.slug.trim() : '';
+      // Primary data using 'en' translation or form name if missing
+      const enTranslation = formData.translations?.en || {};
+      const primaryName = enTranslation.name || formData.name;
+
+      const providedSlug = typeof enTranslation.slug === 'string' ? enTranslation.slug.trim() : '';
       const normalizedSlug = providedSlug
         ? cleanSlug(providedSlug)
-        : generateSlug(formData.name || '');
+        : generateSlug(primaryName || '');
 
       // Transform form data to match API expectations
       const categoryData = {
-        name: formData.name,
-        description: formData.description || undefined,
+        name: primaryName,
+        description: enTranslation.description || formData.description || undefined,
         slug: normalizedSlug || undefined,
         parentId: parentId || formData.parentId || undefined,
         isActive: formData.isActive ?? true,
@@ -73,38 +78,39 @@ const CategoryCreatePage: React.FC = () => {
         showCta: formData.showCta,
         ctaLabel: formData.ctaLabel || undefined,
         ctaUrl: formData.ctaUrl || undefined,
-        seoTitle: formData.seoTitle || undefined,
-        seoDescription: formData.seoDescription || undefined,
-        metaKeywords: formData.metaKeywords || undefined,
+        // SEO defaults from EN if applicable
+        seoTitle: enTranslation.seoTitle || undefined,
+        seoDescription: enTranslation.seoDescription || undefined,
+        metaKeywords: enTranslation.metaKeywords || undefined,
       };
 
       const createdCategory = await createCategoryMutation.mutateAsync(categoryData);
-      
-      // Handle additional translations after category creation
-      if (formData.additionalTranslations && formData.additionalTranslations.length > 0 && createdCategory) {
-        const categoryId = (createdCategory as any)?.data?.id;
-        if (categoryId) {
-          try {
-            for (const translation of formData.additionalTranslations) {
-              if (translation && (translation.name || translation.description)) {
-                const translationSlug = generateSlug(translation.name || '');
-                await createTranslationMutation.mutateAsync({
-                  categoryId,
-                  locale: translation.locale,
-                  name: translation.name,
-                  description: translation.description,
-                  slug: translationSlug || undefined,
-                });
-              }
+      const categoryId = (createdCategory as any)?.data?.id;
+
+      if (categoryId && formData.translations) {
+        // Handle all translations from the translations object
+        for (const [locale, translation] of Object.entries(formData.translations)) {
+          if (translation && (translation.name || translation.description || translation.seoTitle || translation.seoDescription || translation.metaKeywords)) {
+            try {
+              const translationSlug = translation.slug ? cleanSlug(translation.slug) : generateSlug(translation.name || '');
+
+              await createTranslationMutation.mutateAsync({
+                categoryId,
+                locale,
+                name: translation.name || '',
+                description: translation.description || '',
+                slug: translationSlug || undefined,
+                seoTitle: translation.seoTitle || undefined,
+                seoDescription: translation.seoDescription || undefined,
+                metaKeywords: translation.metaKeywords || undefined,
+              });
+            } catch (translationError) {
+              console.warn(`Failed to create ${locale} translation:`, translationError);
             }
-          } catch (translationError) {
-            console.warn('Failed to create some translations:', translationError);
-            // Don't fail the entire operation for translation errors
           }
         }
       }
     } catch (error) {
-      // Error handling is done in the mutation's onError callback
       console.error('Category creation error:', error);
     }
   };
@@ -117,9 +123,9 @@ const CategoryCreatePage: React.FC = () => {
 
   return (
     <StandardFormPage
-      title={t('admin.create_new_category', 'Create New Category')}
-      description={t('admin.create_category_description', 'Add a new category to organize your products')}
-      icon={<FolderPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      title={t('categories.createCategory', 'Create Category')}
+      description={t('categories.createDescription', 'Add a new category to organize your products')}
+      icon={<FiFolder className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
       entityName={t('common.category', 'Category')}
       entityNamePlural={t('common.categories', 'Categories')}
       backUrl="/products/categories"
@@ -128,11 +134,11 @@ const CategoryCreatePage: React.FC = () => {
       formId={formId}
       breadcrumbs={[
         {
-          label: 'Home',
+          label: t('navigation.home', 'Home'),
           href: '/'
         },
         {
-          label: 'Products',
+          label: t('products.title', 'Products'),
           href: '/products'
         },
         {
@@ -140,7 +146,7 @@ const CategoryCreatePage: React.FC = () => {
           href: '/products/categories'
         },
         {
-          label: t('admin.create_new_category', 'Create New Category')
+          label: t('categories.createCategory', 'Create Category')
         }
       ]}
     >

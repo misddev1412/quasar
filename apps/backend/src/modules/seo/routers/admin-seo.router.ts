@@ -5,6 +5,7 @@ import { SEOService } from '@backend/modules/seo/services/seo.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { apiResponseSchema } from '@backend/trpc/schemas/response.schemas';
 import {
+  adminSeoListQuerySchema,
   CreateSeoDto,
   UpdateSeoDto,
 } from '@backend/modules/seo/dto/seo.dto';
@@ -23,11 +24,32 @@ export class AdminSeoRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
+    input: adminSeoListQuerySchema.optional(),
     output: apiResponseSchema,
   })
-  async getAll(): Promise<z.infer<typeof apiResponseSchema>> {
-    const seos = await this.seoService.findAll();
+  async getAll(
+    @Input() input?: z.infer<typeof adminSeoListQuerySchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    const seos = await this.seoService.findAll(input ?? { page: 1, limit: 10 });
     return this.responseService.createReadResponse(14, 'seo', seos);
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    output: apiResponseSchema,
+  })
+  async getStats(): Promise<z.infer<typeof apiResponseSchema>> {
+    const stats = await this.seoService.findStats();
+    return this.responseService.createReadResponse(14, 'seo', stats);
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    output: apiResponseSchema,
+  })
+  async stats(): Promise<z.infer<typeof apiResponseSchema>> {
+    const stats = await this.seoService.findStats();
+    return this.responseService.createReadResponse(14, 'seo', stats);
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)

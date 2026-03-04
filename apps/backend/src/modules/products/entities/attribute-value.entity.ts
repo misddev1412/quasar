@@ -4,6 +4,11 @@ import { Expose } from 'class-transformer';
 import { Attribute } from '@backend/modules/products/entities/attribute.entity';
 import { ProductVariantItem } from '@backend/modules/products/entities/product-variant-item.entity';
 
+export enum AttributeValueScope {
+  LOCAL = 'LOCAL',
+  GLOBAL = 'GLOBAL',
+}
+
 @Entity('attribute_values')
 export class AttributeValue extends BaseEntity {
   @Expose()
@@ -36,6 +41,14 @@ export class AttributeValue extends BaseEntity {
     default: 0,
   })
   sortOrder: number;
+
+  @Expose()
+  @Column({
+    type: 'varchar',
+    length: 10,
+    default: AttributeValueScope.GLOBAL,
+  })
+  scope: AttributeValueScope;
 
   // Relations with lazy loading
   @ManyToOne(() => Attribute, (attribute) => attribute.values, { lazy: true })

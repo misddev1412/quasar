@@ -152,6 +152,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
         value: value.value,
         displayValue: value.displayValue || undefined,
         sortOrder: value.sortOrder,
+        scope: 'GLOBAL',
       });
     }
 

@@ -27,7 +27,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
   description,
   children,
   actions = [],
-  fullWidth = false,
+  fullWidth = true,
   containerClassName = '',
   breadcrumbs = []
 }) => {
@@ -37,7 +37,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         <Breadcrumb items={breadcrumbs} />
       )}
 
-      {}
+      { }
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold mb-1">{title}</h1>
@@ -65,7 +65,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         )}
       </div>
 
-      {}
+      { }
       <div className={containerClassName}>
         {children}
       </div>

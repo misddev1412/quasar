@@ -2053,7 +2053,42 @@ export class AdminProductService {
 
       // Create new variants only if there are any
       if (variantsData && variantsData.length > 0) {
+        const seenCombinationKeys = new Set<string>();
+
         for (const variantData of variantsData) {
+          const rawVariantItems = Array.isArray(variantData.variantItems) ? variantData.variantItems : [];
+          const normalizedVariantItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = rawVariantItems
+            .filter((item: any) => item?.attributeId && item?.attributeValueId)
+            .map((item: any, index: number) => ({
+              attributeId: String(item.attributeId),
+              attributeValueId: String(item.attributeValueId),
+              sortOrder: Number(item.sortOrder ?? index) || index,
+            }));
+
+          if (normalizedVariantItems.length === 0) {
+            throw new Error('Each variant must include at least one attribute selection');
+          }
+
+          const duplicateAttributeGuard = new Set<string>();
+          for (const item of normalizedVariantItems) {
+            if (duplicateAttributeGuard.has(item.attributeId)) {
+              throw new Error(`Variant contains duplicate attribute '${item.attributeId}'`);
+            }
+            duplicateAttributeGuard.add(item.attributeId);
+          }
+
+          const attributesMap: Record<string, string> = {};
+          for (const item of normalizedVariantItems) {
+            attributesMap[item.attributeId] = item.attributeValueId;
+          }
+
+          const combinationKey = JSON.stringify(
+            Object.entries(attributesMap).sort(([a], [b]) => a.localeCompare(b))
+          );
+          if (seenCombinationKeys.has(combinationKey)) {
+            throw new Error('Duplicate variant combination detected');
+          }
+          seenCombinationKeys.add(combinationKey);
 
           const createVariantData: CreateProductVariantDto = {
             productId,
@@ -2072,7 +2107,8 @@ export class AdminProductService {
             image: variantData.image || null,
             isActive: Boolean(variantData.isActive),
             sortOrder: Number(variantData.sortOrder) || 0,
-            variantItems: variantData.variantItems || [],
+            attributes: attributesMap,
+            variantItems: normalizedVariantItems,
           };
 
           await this.productVariantRepository.create(createVariantData);

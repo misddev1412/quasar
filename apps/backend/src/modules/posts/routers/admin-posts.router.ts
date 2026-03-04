@@ -282,6 +282,27 @@ export class AdminPostsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
+    input: z.object({ ids: z.array(z.string().uuid()).min(1) }),
+    output: apiResponseSchema,
+  })
+  async bulkDelete(
+    @Input() input: { ids: string[] }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const affected = await this.adminPostsService.bulkDeletePosts(input.ids);
+      return this.responseHandler.createTrpcSuccess({ affected });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        4,  // OperationCode.DELETE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to delete posts'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
     input: bulkUpdatePostStatusSchema,
     output: apiResponseSchema,
   })

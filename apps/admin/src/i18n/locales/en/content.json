@@ -298,10 +298,19 @@
     "manager_title": "SEO Management",
     "add_rule": "Add SEO Rule",
     "create_new_rule": "Create New SEO Rule",
+    "edit_rule": "Edit SEO Rule",
     "categories": "Categories",
     "all_rules": "All Rules",
     "no_rules": "No SEO Rules Found",
     "empty_state_message": "You haven't created any SEO rules yet. Click the button to add your first one.",
+    "search_placeholder": "Search SEO rules...",
+    "image_preview_alt": "SEO image preview",
+    "stats": {
+      "total": "Total Rules",
+      "active": "Active",
+      "inactive": "Inactive",
+      "groups": "Groups"
+    },
     "fields": {
       "title": "Title",
       "path": "Path",

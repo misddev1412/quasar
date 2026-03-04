@@ -10,6 +10,7 @@ import {
   createSectionSchema,
   updateSectionSchema,
   reorderSectionsSchema,
+  adminListSectionsSchema,
 } from '@backend/modules/sections/dto/section.dto';
 import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '@backend/modules/sections/dto/section.dto';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
@@ -18,10 +19,6 @@ import { AuthenticatedContext } from '@backend/trpc/context';
 const listInputSchema = z.object({
   page: z.string().min(1),
   locale: z.string().min(2).max(10),
-});
-
-const adminListInputSchema = z.object({
-  page: z.string().min(1).optional().nullable(),
 });
 
 const updateInputSchema = z.object({
@@ -64,12 +61,12 @@ export class SectionsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: adminListInputSchema,
+    input: adminListSectionsSchema,
     output: apiResponseSchema,
   })
-  async listAll(@Input() input: z.infer<typeof adminListInputSchema>) {
+  async listAll(@Input() input: z.infer<typeof adminListSectionsSchema>) {
     try {
-      const sections = await this.sectionsService.adminList(input?.page ?? undefined);
+      const sections = await this.sectionsService.adminList(input);
       return this.responseService.createReadResponse(ModuleCode.CONFIG, 'sections', sections);
     } catch (error) {
       throw this.responseService.createTRPCError(
@@ -77,6 +74,26 @@ export class SectionsRouter {
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
         error.message || 'Failed to load sections for admin',
+        error,
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: adminListSectionsSchema,
+    output: apiResponseSchema,
+  })
+  async stats(@Input() input: z.infer<typeof adminListSectionsSchema>) {
+    try {
+      const statistics = await this.sectionsService.adminStats(input);
+      return this.responseService.createReadResponse(ModuleCode.CONFIG, 'sections_statistics', statistics);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.CONFIG,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Failed to load sections statistics for admin',
         error,
       );
     }

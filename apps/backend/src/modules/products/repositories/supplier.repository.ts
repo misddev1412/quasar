@@ -34,7 +34,7 @@ export class SupplierRepository {
     private readonly supplierRepository: Repository<Supplier>,
     @InjectRepository(SupplierTranslation)
     private readonly supplierTranslationRepo: Repository<SupplierTranslation>,
-  ) {}
+  ) { }
 
   async findAll(options: SupplierQueryOptions = {}) {
     const { page = 1, limit = 20, filters = {}, relations = [] } = options;
@@ -235,6 +235,16 @@ export class SupplierRepository {
   async delete(id: string): Promise<boolean> {
     const result = await this.supplierRepository.delete(id);
     return result.affected > 0;
+  }
+
+  async bulkDelete(ids: string[]): Promise<number> {
+    const result = await this.supplierRepository.delete(ids);
+    return result.affected || 0;
+  }
+
+  async bulkUpdateStatus(ids: string[], isActive: boolean): Promise<number> {
+    const result = await this.supplierRepository.update(ids, { isActive } as any);
+    return result.affected || 0;
   }
 
   async getStats() {

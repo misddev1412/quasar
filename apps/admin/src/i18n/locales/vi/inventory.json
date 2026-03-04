@@ -128,7 +128,18 @@
     "deleteSuccess": "Xóa nhà cung cấp thành công",
     "deleteError": "Xóa nhà cung cấp thất bại",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà cung cấp này không?",
-    "noSuppliers": "Không tìm thấy nhà cung cấp"
+    "noSuppliers": "Không tìm thấy nhà cung cấp",
+    "bulkActions": {
+      "activateSelected": "Kích hoạt đã chọn",
+      "deactivateSelected": "Vô hiệu hóa đã chọn",
+      "deleteSelected": "Xóa đã chọn",
+      "activateSuccess": "Đã kích hoạt {count} nhà cung cấp",
+      "deactivateSuccess": "Đã vô hiệu hóa {count} nhà cung cấp",
+      "deleteSuccess": "Đã xóa {count} nhà cung cấp",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa {count} nhà cung cấp đã chọn? Hành động này không thể hoàn tác.",
+      "noSelection": "Chưa chọn nhà cung cấp nào",
+      "selectHint": "Vui lòng chọn ít nhất một nhà cung cấp để thực hiện hành động."
+    }
   },
   "inventory": {
     "stockLevel": "Mức tồn kho",

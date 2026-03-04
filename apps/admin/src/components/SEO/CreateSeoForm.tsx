@@ -12,6 +12,10 @@ import { OG_META_FIELDS } from '@admin/components/SEO/ogMetaFields';
 import { Button } from '@admin/components/common/Button';
 import { FiImage } from 'react-icons/fi';
 import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import { SEO_GROUP_OPTIONS } from '@admin/types/seo';
+import { Select } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
 
 interface CreateSeoFormProps {
   onClose: () => void;
@@ -28,6 +32,7 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<CreateSeoDto>({
     resolver: zodResolver(CreateSeoDto),
@@ -86,13 +91,88 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
     'image',
   ];
 
+  const titleValue = watch('title') || '';
+
+  const renderFieldAIGenerator = (fieldName: keyof CreateSeoDto) => {
+    if (fieldName === 'title') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="title"
+          context={titleValue}
+          onGenerate={(content) => setValue('title', content, { shouldDirty: true, shouldValidate: true })}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (fieldName === 'description') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="description"
+          context={titleValue}
+          onGenerate={(content) => setValue('description', content, { shouldDirty: true, shouldValidate: true })}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (fieldName === 'keywords') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="keywords"
+          context={titleValue}
+          onGenerate={(content) => setValue('keywords', content, { shouldDirty: true, shouldValidate: true })}
+          allowImages={false}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+          plainTextOutput
+        />
+      );
+    }
+
+    if (fieldName === 'image') {
+      return (
+        <AIGenerateButton
+          variant="icon"
+          entityType="post"
+          contentType="image"
+          context={titleValue}
+          onGenerate={(content) => setValue('image', content, { shouldDirty: true, shouldValidate: true })}
+          allowLengthOptions={false}
+          allowProductLinks={false}
+          allowStyleOptions={false}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {formFields.map((fieldName) => (
         <div key={fieldName}>
-          <label htmlFor={fieldName} className="block text-sm font-medium text-gray-700 mb-1">
-            {t(`seo.fields.${fieldName}`, fieldName.charAt(0).toUpperCase() + fieldName.slice(1))}
-          </label>
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <label htmlFor={fieldName} className="block text-sm font-medium text-gray-700">
+              {t(`seo.fields.${fieldName}`, fieldName.charAt(0).toUpperCase() + fieldName.slice(1))}
+            </label>
+            {renderFieldAIGenerator(fieldName)}
+          </div>
           <Controller
             name={fieldName}
             control={control}
@@ -128,12 +208,21 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
                   </div>
                   <input type="hidden" {...field} value={field.value as string || ''} />
                 </div>
+              ) : fieldName === 'group' ? (
+                <Select
+                  id={fieldName}
+                  value={(field.value as string) || 'general'}
+                  onChange={field.onChange}
+                  options={SEO_GROUP_OPTIONS.map((option) => ({
+                    value: option,
+                    label: t(`seo.groups.${option}`, option),
+                  }))}
+                />
               ) : (
-                <input
+                <Input
                   {...field}
                   id={fieldName}
                   type="text"
-                  className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={field.value as string}
                 />
               )
@@ -160,14 +249,29 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
         <div className="grid grid-cols-1 gap-3">
           {OG_META_FIELDS.map(({ metaKey, labelKey, fallbackLabel }) => (
             <div key={metaKey}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t(`seo.fields.${labelKey}`, fallbackLabel)}
-              </label>
-              <input
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t(`seo.fields.${labelKey}`, fallbackLabel)}
+                </label>
+                {(metaKey === 'og:title' || metaKey === 'og:description' || metaKey === 'og:image') && (
+                  <AIGenerateButton
+                    variant="icon"
+                    entityType="post"
+                    contentType={metaKey === 'og:image' ? 'image' : metaKey === 'og:title' ? 'title' : 'description'}
+                    context={titleValue}
+                    onGenerate={(content) => handleOgFieldChange(metaKey, content)}
+                    allowImages={metaKey === 'og:image'}
+                    allowLengthOptions={false}
+                    allowProductLinks={false}
+                    allowStyleOptions={false}
+                    plainTextOutput={metaKey !== 'og:image'}
+                  />
+                )}
+              </div>
+              <Input
                 type="text"
                 value={ogMetaFields[metaKey] || ''}
                 onChange={(event) => handleOgFieldChange(metaKey, event.target.value)}
-                className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder={
                   metaKey === 'og:type'
                     ? t('seo.placeholders.og_type', 'e.g. website, article')

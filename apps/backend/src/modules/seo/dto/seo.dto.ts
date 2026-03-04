@@ -41,4 +41,23 @@ export const seoResponseSchema = z.object({
   image: z.string().nullish(),
 });
 
-export type SeoResponseDto = z.infer<typeof seoResponseSchema>; 
+export type SeoResponseDto = z.infer<typeof seoResponseSchema>;
+
+export const adminSeoListQuerySchema = z.object({
+  page: z.number().int().positive().optional().default(1),
+  limit: z.number().int().positive().max(100).optional().default(10),
+  search: z.string().trim().optional(),
+  active: z.boolean().optional(),
+  group: z.string().trim().optional(),
+});
+
+export type AdminSeoListQueryDto = z.infer<typeof adminSeoListQuerySchema>;
+
+export const adminSeoStatsSchema = z.object({
+  total: z.number(),
+  active: z.number(),
+  inactive: z.number(),
+  groups: z.number(),
+});
+
+export type AdminSeoStatsDto = z.infer<typeof adminSeoStatsSchema>;

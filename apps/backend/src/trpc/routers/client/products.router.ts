@@ -119,6 +119,7 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
+          'productCategories.category.translations',
           'specifications',
           'translations',
         ],
@@ -172,6 +173,7 @@ export class ClientProductsRouter {
         'tags',
         'productCategories',
         'productCategories.category',
+        'productCategories.category.translations',
         'specifications',
         'translations',
       ]);
@@ -220,6 +222,7 @@ export class ClientProductsRouter {
         'tags',
         'productCategories',
         'productCategories.category',
+        'productCategories.category.translations',
         'specifications',
         'translations',
       ];
@@ -281,6 +284,7 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
+          'productCategories.category.translations',
           'specifications',
           'translations',
         ],
@@ -338,6 +342,7 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
+          'productCategories.category.translations',
           'specifications',
           'translations',
         ],
@@ -410,15 +415,24 @@ export class ClientProductsRouter {
     input: z.object({
       categoryId: z.string().optional(),
       strategy: z.enum(['latest', 'featured', 'bestsellers', 'custom']).optional(),
+      page: z.number().int().positive().optional(),
+      limit: z.number().int().positive().max(500).optional(),
     }),
     output: apiResponseSchema,
   })
   async getProductsByCategory(
     @Ctx() ctx: AuthenticatedContext,
-    @Input() params: { categoryId?: string; strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' }
+    @Input() params: {
+      categoryId?: string;
+      strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom';
+      page?: number;
+      limit?: number;
+    }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const { categoryId, strategy } = params;
+      const page = params.page ?? 1;
+      const limit = params.limit ?? 20;
       const resolvedCategoryId = await this.resolveCategoryId(categoryId);
 
       const filters: any = {
@@ -430,8 +444,8 @@ export class ClientProductsRouter {
         return this.responseHandler.createTrpcSuccess({
           items: [],
           pagination: {
-            page: 1,
-            limit: 50,
+            page,
+            limit,
             total: 0,
             totalPages: 0,
           },
@@ -446,8 +460,8 @@ export class ClientProductsRouter {
         return this.responseHandler.createTrpcSuccess({
           items: [],
           pagination: {
-            page: 1,
-            limit: 50,
+            page,
+            limit,
             total: 0,
             totalPages: 0,
           },
@@ -459,8 +473,8 @@ export class ClientProductsRouter {
       }
 
       const result = await this.productRepository.findAll({
-        page: 1,
-        limit: 50,
+        page,
+        limit,
         filters,
         relations: [
           'brand',
@@ -474,6 +488,7 @@ export class ClientProductsRouter {
           // 'tags', // Not needed for list view
           'productCategories',
           'productCategories.category',
+          'productCategories.category.translations',
           // 'specifications', // Not needed for list view
           'translations',
         ],
@@ -516,7 +531,7 @@ export class ClientProductsRouter {
           isActive: true,
           status: ProductStatus.ACTIVE,
         },
-        relations: ['brand', 'variants', 'productCategories', 'productCategories.category', 'specifications'],
+        relations: ['brand', 'variants', 'productCategories', 'productCategories.category', 'productCategories.category.translations', 'specifications'],
       });
 
       const categories = new Map<string, { id: string; name: string; count: number }>();
@@ -753,13 +768,23 @@ export class ClientProductsRouter {
     }
 
     const categories = Array.isArray(product.productCategories)
-      ? product.productCategories.map((pc: any) => ({
-        id: pc.category.id,
-        name: pc.category.name,
-        slug: pc.category.slug,
-        description: pc.category.description,
-        parentId: pc.category.parentId,
-      }))
+      ? product.productCategories.map((pc: any) => {
+        const category = pc?.category;
+        const categoryTranslations = Array.isArray(category?.translations) ? category.translations : [];
+        const resolvedCategoryTranslation = this.resolveProductTranslation(
+          categoryTranslations,
+          locale,
+          fallbackLocale,
+        );
+
+        return {
+          id: category?.id,
+          name: resolvedCategoryTranslation?.name ?? category?.name,
+          slug: resolvedCategoryTranslation?.slug ?? null,
+          description: resolvedCategoryTranslation?.description ?? category?.description,
+          parentId: category?.parentId,
+        };
+      })
       : [];
 
     const specifications = Array.isArray(product.specifications)

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SEORepository } from '@backend/modules/seo/repositories/seo.repository';
-import { CreateSeoDto, UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
+import { AdminSeoListQueryDto, AdminSeoStatsDto, CreateSeoDto, UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
 import { SEOEntity } from '@backend/modules/seo/entities/seo.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ErrorLevelCode,  ModuleCode, OperationCode} from '@shared/enums/error-codes.enums';
@@ -34,8 +34,18 @@ export class SEOService {
   /**
    * Get all SEO data
    */
-  async findAll(): Promise<SEOEntity[]> {
-    return this.seoRepository.findAll();
+  async findAll(query: AdminSeoListQueryDto): Promise<{
+    items: SEOEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    return this.seoRepository.findAllPaginated(query);
+  }
+
+  async findStats(): Promise<AdminSeoStatsDto> {
+    return this.seoRepository.findStats();
   }
 
   /**
