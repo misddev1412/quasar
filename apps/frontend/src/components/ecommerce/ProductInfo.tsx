@@ -67,6 +67,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   const t = useTranslations('product.detail');
   const tProduct = useTranslations('product');
   const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
   const { isOpen: isContactModalOpen, onOpen: onOpenContactModal, onClose: onCloseContactModal } = useDisclosure();
   const { name, brand, sku, status, isActive, variants, tags, isContactPrice, contactPriceLabel } = product;
   const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
@@ -352,8 +353,13 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           message: tCommon('message'),
           cancel: tCommon('cancel'),
           submit: tCommon('submit'),
-          requiredError: 'Please fill in all required fields',
-          submitSuccess: 'Your inquiry has been submitted successfully',
+          requiredError: tValidation('required'),
+          nameRequiredError: tValidation('required'),
+          phoneRequiredError: tValidation('required'),
+          emailRequiredError: tValidation('required'),
+          invalidEmailError: tValidation('email'),
+          invalidPhoneError: tValidation('invalid_phone_by_country'),
+          submitSuccess: tProduct('contactSuccess'),
           submitError: 'An error occurred while submitting your inquiry',
           sku: t('sku'),
           variants: 'Variants',

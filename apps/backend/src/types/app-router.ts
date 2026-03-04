@@ -3137,8 +3137,9 @@ export const appRouter = router({
 
     bulkAction: procedure
       .input(z.object({
-        ids: z.array(z.string().uuid()).min(1),
-        action: z.enum(['activate', 'deactivate', 'delete', 'contact_price']),
+        ids: z.array(z.string()).min(1),
+        action: z.enum(['activate', 'deactivate', 'delete', 'contact_price', 'update_quantity']),
+        value: z.any().optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {

@@ -362,6 +362,34 @@ export class ProductRepository {
     return result.affected ?? 0;
   }
 
+  async bulkUpdateQuantity(ids: string[], stockQuantity: number): Promise<number> {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return 0;
+    }
+
+    const sanitizedIds = ids
+      .map(id => (typeof id === 'string' ? id.trim() : ''))
+      .filter(id => id && ProductRepository.UUID_REGEX.test(id));
+
+    if (sanitizedIds.length === 0) {
+      return 0;
+    }
+
+    const productResult = await this.productRepository.createQueryBuilder()
+      .update(Product)
+      .set({ stockQuantity })
+      .where('id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    await this.productRepository.manager.createQueryBuilder()
+      .update(ProductVariant)
+      .set({ stockQuantity })
+      .where('product_id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    return productResult.affected ?? 0;
+  }
+
   async bulkDelete(ids: string[]): Promise<number> {
     if (!Array.isArray(ids) || ids.length === 0) {
       return 0;

@@ -1607,6 +1607,7 @@
     "product": {
       "contactPrice": "Contact Price",
       "contactPriceLabel": "Contact Price",
+      "contactSuccess": "Your inquiry has been sent successfully. We will contact you soon.",
       "skuLabel": "SKU",
       "variantsLabel": "Variants",
       "categoryLabel": "Category"
@@ -1658,6 +1659,7 @@
     "outOfStock": "Out of Stock",
     "priceUpdating": "Price being updated",
     "contactPrice": "Contact Price",
+    "contactSuccess": "Your inquiry has been sent successfully. We will contact you soon.",
     "detail": {
       "breadcrumb": {
         "home": "Home",
@@ -1909,6 +1911,7 @@
     "invalid_url": "Invalid URL format",
     "invalid_number": "Please enter a valid number",
     "invalid_phone": "Please enter a valid phone number",
+    "invalid_phone_by_country": "Please enter a valid phone number for the selected country",
     "invalid_date": "Please enter a valid date",
     "file_too_large": "File size must be less than {{size}}",
     "invalid_file_type": "Invalid file type",

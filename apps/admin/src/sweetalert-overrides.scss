@@ -1,0 +1,56 @@
+/* SweetAlert2 overrides loaded after sweetalert2.min.css */
+
+.swal2-popup.bulk-action-swal .swal2-actions {
+  display: flex !important;
+  gap: 0.75rem !important;
+  margin-top: 1.5rem !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-confirm.swal2-styled,
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-cancel.swal2-styled {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 8.5rem !important;
+  min-height: 2.75rem !important;
+  border-radius: 0.5rem !important;
+  border: 0 !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+  margin: 0 !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-deny {
+  display: none !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-input {
+  width: calc(100% - 3rem) !important;
+  max-width: calc(100% - 3rem) !important;
+  margin: 1rem auto 0.5rem !important;
+  box-sizing: border-box !important;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.75rem !important;
+  min-height: 3.25rem !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-confirm.swal2-styled {
+  background: #4f46e5 !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-cancel.swal2-styled {
+  background: #6b7280 !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-confirm.swal2-styled:hover {
+  background: #4338ca !important;
+}
+
+.swal2-popup.bulk-action-swal .swal2-actions .swal2-cancel.swal2-styled:hover {
+  background: #4b5563 !important;
+}

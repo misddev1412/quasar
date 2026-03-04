@@ -1,10 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const createNextIntlPlugin = require('next-intl/plugin');
-const repoRoot = path.join(__dirname, '..', '..');
-
-// Load environment variables from the project root
-require('dotenv').config({ path: path.join(repoRoot, '.env') });
 
 const ensureEnv = (key, value) => {
   if (!process.env[key]) {
@@ -18,6 +14,7 @@ ensureEnv('CHOKIDAR_USEPOLLING', 'true');
 ensureEnv('CHOKIDAR_INTERVAL', '1000');
 
 const withNextIntl = createNextIntlPlugin();
+const repoRoot = path.join(__dirname, '..', '..');
 
 /** @type {import('next').NextConfig} */
 const ensureStandaloneServerEntry = () => {

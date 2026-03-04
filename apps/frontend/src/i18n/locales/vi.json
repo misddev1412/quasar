@@ -1577,6 +1577,7 @@
     "product": {
       "contactPrice": "Liên hệ báo giá",
       "contactPriceLabel": "Giá liên hệ",
+      "contactSuccess": "Đã gửi liên hệ thành công. Chúng tôi sẽ sớm liên hệ lại.",
       "skuLabel": "SKU",
       "variantsLabel": "Biến thể",
       "categoryLabel": "Danh mục"
@@ -1628,6 +1629,7 @@
     "outOfStock": "Hết hàng",
     "priceUpdating": "Giá đang cập nhật",
     "contactPrice": "Liên hệ báo giá",
+    "contactSuccess": "Đã gửi liên hệ thành công. Chúng tôi sẽ sớm liên hệ lại.",
     "detail": {
       "breadcrumb": {
         "home": "Trang chủ",
@@ -1882,6 +1884,7 @@
     "invalid_url": "Định dạng URL không hợp lệ",
     "invalid_number": "Vui lòng nhập số hợp lệ",
     "invalid_phone": "Vui lòng nhập số điện thoại hợp lệ",
+    "invalid_phone_by_country": "Vui lòng nhập số điện thoại hợp lệ theo quốc gia đã chọn",
     "invalid_date": "Vui lòng nhập ngày hợp lệ",
     "file_too_large": "Kích thước tệp phải nhỏ hơn {{size}}",
     "invalid_file_type": "Loại tệp không hợp lệ",

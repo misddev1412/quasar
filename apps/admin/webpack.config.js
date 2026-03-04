@@ -10,10 +10,10 @@ process.env.WATCHPACK_POLLING = process.env.WATCHPACK_POLLING || 'true';
 process.env.CHOKIDAR_USEPOLLING = process.env.CHOKIDAR_USEPOLLING || 'true';
 process.env.CHOKIDAR_INTERVAL = process.env.CHOKIDAR_INTERVAL || '1000';
 
-const repoRoot = join(__dirname, '..', '..');
+// Load project-specific environment variables for the admin app
+dotenv.config({ path: join(__dirname, '.env') });
 
-// Load environment variables from the project root
-dotenv.config({ path: join(repoRoot, '.env') });
+const repoRoot = join(__dirname, '..', '..');
 
 const largeStaticDirs = [
   join(__dirname, 'public/tinymce'),

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { Image, Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/react';
 import { usePathname } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { parsePhoneNumber } from 'react-phone-number-input';
 import Button from '../common/Button';
 import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
 import type { Product } from '../../types/product';
@@ -19,6 +20,11 @@ interface ContactPriceModalLabels {
   cancel: string;
   submit: string;
   requiredError: string;
+  nameRequiredError: string;
+  phoneRequiredError: string;
+  invalidPhoneError: string;
+  emailRequiredError: string;
+  invalidEmailError: string;
   submitSuccess: string;
   submitError: string;
   sku: string;
@@ -43,6 +49,11 @@ const defaultLabels: ContactPriceModalLabels = {
   cancel: 'Cancel',
   submit: 'Submit',
   requiredError: 'Please fill in all required fields',
+  nameRequiredError: 'Please enter your name',
+  phoneRequiredError: 'Please enter your phone number',
+  invalidPhoneError: 'Please enter a valid phone number for the selected country',
+  emailRequiredError: 'Please enter your email',
+  invalidEmailError: 'Please enter a valid email address',
   submitSuccess: 'Your inquiry has been submitted successfully',
   submitError: 'An error occurred while submitting your inquiry',
   sku: 'SKU',
@@ -62,6 +73,8 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
   const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
   const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
+  const [selectedPhoneCountry, setSelectedPhoneCountry] = useState<string>('VN');
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
 
   const submitInquiry = trpc.inquiry.submit.useMutation();
   const contactCountriesQuery = trpc.clientAddressBook.getCountries.useQuery(undefined, {
@@ -127,11 +140,18 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
     return vietnam?.code ?? phoneCountryOptions[0]?.code;
   }, [phoneCountryOptions]);
 
+  useEffect(() => {
+    if (defaultPhoneCountry) {
+      setSelectedPhoneCountry(defaultPhoneCountry);
+    }
+  }, [defaultPhoneCountry]);
+
   const resetForm = useCallback(() => {
     setContactName('');
     setContactEmail('');
     setContactMessage('');
     setContactPhone(undefined);
+    setFieldErrors({});
   }, []);
 
   const handleClose = useCallback(() => {
@@ -139,15 +159,50 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
   }, [onClose]);
 
   const handleInquirySubmit = useCallback(async () => {
-    if (!contactName || !contactEmail || !contactPhone) {
-      toast.error(mergedLabels.requiredError);
+    const trimmedName = contactName.trim();
+    const trimmedEmail = contactEmail.trim();
+    const nextErrors: { name?: string; phone?: string; email?: string } = {};
+
+    if (!trimmedName) {
+      nextErrors.name = mergedLabels.nameRequiredError;
+    }
+    if (!contactPhone) {
+      nextErrors.phone = mergedLabels.phoneRequiredError;
+    } else {
+      try {
+        const parsed = parsePhoneNumber(contactPhone);
+        const isValid = parsed?.isValid?.() ?? false;
+        const normalizedSelectedCountry = selectedPhoneCountry.toUpperCase();
+        const phoneCountry = parsed?.country ? String(parsed.country).toUpperCase() : '';
+        const countryMatches = !normalizedSelectedCountry || !phoneCountry || phoneCountry === normalizedSelectedCountry;
+
+        if (!isValid || !countryMatches) {
+          nextErrors.phone = mergedLabels.invalidPhoneError;
+        }
+      } catch {
+        nextErrors.phone = mergedLabels.invalidPhoneError;
+      }
+    }
+    if (!trimmedEmail) {
+      nextErrors.email = mergedLabels.emailRequiredError;
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        nextErrors.email = mergedLabels.invalidEmailError;
+      }
+    }
+
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      const firstError = Object.values(nextErrors)[0] || mergedLabels.requiredError;
+      toast.error(firstError);
       return;
     }
 
     try {
       await submitInquiry.mutateAsync({
-        name: contactName,
-        email: contactEmail,
+        name: trimmedName,
+        email: trimmedEmail,
         phone: contactPhone,
         message: contactMessage,
         productId: product.id,
@@ -159,6 +214,14 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
       onClose();
       resetForm();
     } catch (error: any) {
+      const fieldViolations = error?.data?.errors?.[0]?.fieldViolations;
+      const hasEmailViolation = Array.isArray(fieldViolations)
+        && fieldViolations.some((violation: any) => violation?.field === 'email');
+      if (hasEmailViolation) {
+        setFieldErrors((prev) => ({ ...prev, email: mergedLabels.invalidEmailError }));
+        toast.error(mergedLabels.invalidEmailError);
+        return;
+      }
       toast.error(error?.message || mergedLabels.submitError);
     }
   }, [
@@ -167,6 +230,11 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
     contactName,
     contactPhone,
     displayName,
+    mergedLabels.emailRequiredError,
+    mergedLabels.invalidEmailError,
+    mergedLabels.invalidPhoneError,
+    mergedLabels.nameRequiredError,
+    mergedLabels.phoneRequiredError,
     mergedLabels.requiredError,
     mergedLabels.submitError,
     mergedLabels.submitSuccess,
@@ -174,6 +242,7 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
     pathname,
     product.id,
     resetForm,
+    selectedPhoneCountry,
     submitInquiry,
   ]);
 
@@ -254,27 +323,52 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
                   <input
                     type="text"
                     value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
+                    onChange={(e) => {
+                      setContactName(e.target.value);
+                      if (fieldErrors.name) {
+                        setFieldErrors((prev) => ({ ...prev, name: undefined }));
+                      }
+                    }}
                     className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
                   />
+                  {fieldErrors.name ? (
+                    <span className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.name}</span>
+                  ) : null}
                 </label>
                 <PhoneInputField
                   id={`contact-phone-${product.id}`}
                   label={mergedLabels.phone}
                   value={contactPhone}
-                  onChange={setContactPhone}
+                  onChange={(value) => {
+                    setContactPhone(value);
+                    if (fieldErrors.phone) {
+                      setFieldErrors((prev) => ({ ...prev, phone: undefined }));
+                    }
+                  }}
+                  onCountryChange={setSelectedPhoneCountry}
                   countryOptions={phoneCountryOptions}
                   defaultCountry={defaultPhoneCountry}
                 />
+                {fieldErrors.phone ? (
+                  <span className="-mt-2 text-xs text-red-600 dark:text-red-400">{fieldErrors.phone}</span>
+                ) : null}
               </div>
               <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
                 <span className="font-medium">{mergedLabels.email}</span>
                 <input
                   type="email"
                   value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
+                  onChange={(e) => {
+                    setContactEmail(e.target.value);
+                    if (fieldErrors.email) {
+                      setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                    }
+                  }}
                   className="mt-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900"
                 />
+                {fieldErrors.email ? (
+                  <span className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.email}</span>
+                ) : null}
               </label>
               <label className="flex flex-col text-sm text-gray-700 dark:text-gray-200">
                 <span className="font-medium">{mergedLabels.message}</span>

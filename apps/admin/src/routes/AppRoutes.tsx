@@ -109,6 +109,7 @@ const DeliveryMethodsPage = lazy(() => import(/* webpackChunkName: "admin-fulfil
 const TransactionsPage = lazy(() => import(/* webpackChunkName: "admin-transactions" */ '@admin/pages/transactions'));
 const TransactionDetailPage = lazy(() => import(/* webpackChunkName: "admin-transactions" */ '@admin/pages/transactions/[id]'));
 const SupportClientsPage = lazy(() => import(/* webpackChunkName: "admin-customers" */ '@admin/pages/support-clients'));
+const MessagesPage = lazy(() => import(/* webpackChunkName: "admin-customers" */ '@admin/pages/messages'));
 const ProductDetailSectionsPage = lazy(() => import(/* webpackChunkName: "admin-content" */ '@admin/pages/sections/product_detail'));
 const NewsDetailSectionsPage = lazy(() => import(/* webpackChunkName: "admin-content" */ '@admin/pages/sections/news_detail'));
 const SectionsPage = lazy(() => import(/* webpackChunkName: "admin-content" */ '@admin/pages/sections'));
@@ -324,6 +325,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/transactions/:id" element={<ProtectedRoute><TransactionDetailPage /></ProtectedRoute>} />
         <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
         <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
         <Route path="/visitor-analytics" element={<ProtectedRoute><VisitorAnalyticsPageWrapper /></ProtectedRoute>} />
         <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
         <Route path="/sections/product_detail" element={<ProtectedRoute><ProductDetailSectionsPage /></ProtectedRoute>} />

@@ -29,4 +29,13 @@ export class InquiryService {
     async findInquiryById(id: string): Promise<Inquiry | null> {
         return this.inquiryRepository.findById(id);
     }
+
+    async findPaginated(params: {
+        page: number;
+        limit: number;
+        search?: string;
+        status?: InquiryStatus;
+    }): Promise<{ items: Inquiry[]; total: number; page: number; limit: number; totalPages: number }> {
+        return this.inquiryRepository.findPaginated(params);
+    }
 }

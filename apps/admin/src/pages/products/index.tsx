@@ -722,7 +722,7 @@ export const ProductsPage: React.FC = () => {
   // Handle bulk actions
 
   // Handle bulk actions
-  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete' | 'contact_price') => {
+  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete' | 'contact_price' | 'update_quantity' | 'disable_contact_price') => {
     if (!selectedProductIds || selectedProductIds.size === 0) {
       addToast({
         type: 'info',
@@ -741,18 +741,24 @@ export const ProductsPage: React.FC = () => {
       }
     }
 
-    if (action === 'contact_price') {
+    if (action === 'contact_price' || action === 'disable_contact_price') {
+      const isEnabling = action === 'contact_price';
       const confirmResult = await Swal.fire({
-        title: t('products.bulk_contact_price_confirm_title', 'Switch selected products to Contact Price?'),
-        text: t(
-          'products.bulk_contact_price_confirm_text',
-          'This will hide prices for {{count}} products and their variants.',
-          { count: selectedProductIds.size }
-        ),
+        customClass: {
+          popup: 'bulk-action-swal',
+        },
+        title: isEnabling
+          ? t('products.bulk_contact_price_confirm_title', 'Switch selected products to Contact Price?')
+          : t('products.bulk_disable_contact_price_confirm_title', 'Disable Contact Price for selected products?'),
+        text: isEnabling
+          ? t('products.bulk_contact_price_confirm_text', 'This will hide prices for {{count}} products and their variants.').replace('{{count}}', String(selectedProductIds.size))
+          : t('products.bulk_disable_contact_price_confirm_text', 'This will show prices for {{count}} products and their variants.').replace('{{count}}', String(selectedProductIds.size)),
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: t('common.confirm', 'Confirm'),
         cancelButtonText: t('common.cancel', 'Cancel'),
+        confirmButtonColor: '#4f46e5',
+        cancelButtonColor: '#6b7280',
         reverseButtons: true,
       });
 
@@ -763,14 +769,68 @@ export const ProductsPage: React.FC = () => {
 
     try {
       const ids = Array.from(selectedProductIds).map(String);
-      const response = await bulkActionMutation.mutateAsync({ ids, action });
+      let value: any = undefined;
+
+      if (action === 'update_quantity') {
+        const { value: quantityInput, isConfirmed } = await Swal.fire({
+          customClass: {
+            popup: 'bulk-action-swal',
+          },
+          title: t('products.bulk_update_quantity_title', 'Update Quantity'),
+          text: t('products.bulk_update_quantity_text', 'Enter the new total stock quantity for selected products (applies to all variants).'),
+          input: 'number',
+          inputAttributes: {
+            min: '0',
+            step: '1'
+          },
+          showCancelButton: true,
+          confirmButtonText: t('common.update', 'Update'),
+          cancelButtonText: t('common.cancel', 'Cancel'),
+          confirmButtonColor: '#4f46e5',
+          cancelButtonColor: '#6b7280',
+          inputValidator: (val) => {
+            if (!val || isNaN(Number(val)) || Number(val) < 0) {
+              return t('products.quantity_required_error', 'Please enter a valid positive number');
+            }
+            return null;
+          }
+        });
+
+        if (!isConfirmed) return;
+        value = Number(quantityInput);
+      }
+
+      if (action === 'contact_price' || action === 'disable_contact_price') {
+        value = action === 'contact_price';
+        // Reuse contact_price backend action
+        const contactPricePayload = { ids, action: 'contact_price', value } as any;
+        const response = await bulkActionMutation.mutateAsync(contactPricePayload);
+        const result = getEnvelopeData<BulkActionPayload>(response) || {};
+        const affected = result.updated ?? ids.length;
+
+        addToast({
+          type: 'success',
+          title: t('common.success', 'Success'),
+          description: value
+            ? t('products.bulk_contact_price_success', 'Updated {{count}} products to Contact Price').replace('{{count}}', String(affected))
+            : t('products.bulk_disable_contact_price_success', 'Disabled Contact Price for {{count}} products').replace('{{count}}', String(affected)),
+        });
+
+        setSelectedProductIds(new Set<string | number>());
+        await trpcContext.adminProducts.list.invalidate();
+        refetch();
+        return;
+      }
+
+      const bulkPayload = { ids, action, value } as any;
+      const response = await bulkActionMutation.mutateAsync(bulkPayload);
       const result = getEnvelopeData<BulkActionPayload>(response) || {};
       const affected = result.updated ?? result.deleted ?? ids.length;
 
-      const successMessages = {
+      const successMessages: Record<string, string> = {
         activate: t('products.bulk_activate_success', 'Activated {{count}} products').replace('{{count}}', String(affected)),
         deactivate: t('products.bulk_deactivate_success', 'Deactivated {{count}} products').replace('{{count}}', String(affected)),
-        contact_price: t('products.bulk_contact_price_success', 'Updated {{count}} products to Contact Price').replace('{{count}}', String(affected)),
+        update_quantity: t('products.bulk_update_quantity_success', 'Updated quantity for {{count}} products').replace('{{count}}', String(affected)),
         delete: t('products.bulk_delete_success', 'Deleted {{count}} products').replace('{{count}}', String(affected)),
       };
 
@@ -1040,11 +1100,25 @@ export const ProductsPage: React.FC = () => {
       icon: <FiPauseCircle className="w-4 h-4" />,
     },
     {
-      label: t('products.bulk_contact_price', 'Switch to Contact Price'),
+      label: t('products.bulk_enable_contact_price', 'Enable Contact Price'),
       value: 'contact_price',
       variant: 'outline' as const,
       disabled: bulkActionMutation.isPending,
       icon: <FiPhoneCall className="w-4 h-4" />,
+    },
+    {
+      label: t('products.bulk_disable_contact_price', 'Disable Contact Price'),
+      value: 'disable_contact_price',
+      variant: 'outline' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiActivity className="w-4 h-4" />,
+    },
+    {
+      label: t('products.bulk_update_quantity', 'Update Quantity'),
+      value: 'update_quantity',
+      variant: 'outline' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiActivity className="w-4 h-4" />,
     },
     {
       label: t('products.delete_selected', 'Delete Selected'),

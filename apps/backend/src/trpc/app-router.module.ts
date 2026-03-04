@@ -52,6 +52,7 @@ import { AdminVisitorStatisticsRouter } from '@backend/modules/visitor/routers/a
 import { ClientVisitorStatsRouter } from '@backend/modules/visitor/routers/client-visitor-stats.router';
 import { AdminNotificationTelegramConfigsRouter } from '@backend/modules/notifications/routers/admin-notification-telegram-configs.router';
 import { AdminSupportClientsRouter } from '@backend/modules/support/routers/admin-support-clients.router';
+import { AdminInquiryRouter } from '@backend/modules/support/routers/admin-inquiry.router';
 import { ComponentConfigsModule } from '@backend/modules/component-configs/component-configs.module';
 import { AdminComponentConfigsRouter } from '@backend/modules/component-configs/routers/admin-component-configs.router';
 import { ClientComponentConfigsRouter } from '@backend/modules/component-configs/routers/client-component-configs.router';
@@ -69,6 +70,7 @@ import { AdminImportRouter } from '@backend/modules/import/routers/admin-import.
 import { NewsletterModule } from '@backend/modules/newsletter/newsletter.module';
 
 import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.router';
+import { ClientInquiryRouter } from '@backend/trpc/routers/client/inquiry.router';
 
 @Module({
   imports: [
@@ -128,6 +130,7 @@ import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.
     ClientVisitorStatsRouter,
     AdminNotificationTelegramConfigsRouter,
     AdminSupportClientsRouter,
+    AdminInquiryRouter,
     AdminImpersonationRouter,
     AdminComponentConfigsRouter,
     ClientComponentConfigsRouter,
@@ -146,6 +149,7 @@ import { ClientNewsletterRouter } from '@backend/trpc/routers/client/newsletter.
     AdminImportRouter,
     AdminProductSuppliersRouter,
     ClientNewsletterRouter,
+    ClientInquiryRouter,
   ],
 })
 export class AppRouterModule { }

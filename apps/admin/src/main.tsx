@@ -9,6 +9,7 @@ import '@shared/styles/css/index.css';
 // Import admin-specific styles, including Tailwind
 import '@admin/styles.scss';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import '@admin/sweetalert-overrides.scss';
 
 // Legacy locale bootstrap (does not force a default)
 import '@admin/setDefaultLocale';

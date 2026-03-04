@@ -81,8 +81,6 @@ const defaultSlides: HeroSlideConfig[] = [
 
 const DEFAULT_BACKGROUND = 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #0f172a 100%)';
 const DEFAULT_OVERLAY_COLOR = 'rgba(15, 23, 42, 0.55)';
-const HERO_ASPECT_RATIO = '31 / 9';
-
 type ParsedColor = { r: number; g: number; b: number; a: number };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -192,6 +190,9 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const containerPaddingY = containerPaddingYRaw;
   const containerBorderRadiusRaw = typeof config.containerBorderRadius === 'string' ? config.containerBorderRadius.trim() : '';
   const containerBorderRadius = containerBorderRadiusRaw;
+  const resolvedHeight = typeof config.height === 'number' && Number.isFinite(config.height)
+    ? Math.min(1200, Math.max(200, config.height))
+    : 650;
 
   const overlaySettings = config.overlay ?? {};
   const overlayEnabled = overlaySettings.enabled ?? true;
@@ -306,14 +307,15 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : undefined;
   const constrainedWrapperClass = isFullWidth ? '' : 'w-full';
 
-  // Mobile: square aspect ratio, no radius/shadow/border. Desktop: wide aspect ratio, radius/shadow/border enabled.
+  // Keep a fixed pixel height from section config across breakpoints.
   const heroShellClass = isFullWidth
-    ? 'relative overflow-hidden text-white aspect-[5/4] sm:aspect-[31/9]'
-    : 'relative overflow-hidden text-white aspect-[5/4] lg:aspect-[31/9] rounded-none lg:rounded-[var(--hero-radius)] shadow-none lg:shadow-2xl border-none lg:border lg:border-white/10 dark:lg:border-white/5';
+    ? 'relative overflow-hidden text-white'
+    : 'relative overflow-hidden text-white rounded-none lg:rounded-[var(--hero-radius)] shadow-none lg:shadow-2xl border-none lg:border lg:border-white/10 dark:lg:border-white/5';
 
   const heroShellStyle: CSSProperties = {
     ...containerStyle,
     width: '100%',
+    height: `${resolvedHeight}px`,
     '--hero-radius': containerBorderRadius || '1.5rem',
   } as CSSProperties;
 

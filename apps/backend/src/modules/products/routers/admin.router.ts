@@ -512,6 +512,53 @@ export class AdminProductsRouter {
     }
   }
 
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      ids: z.array(z.string().uuid()),
+    }),
+    output: apiResponseSchema,
+  })
+  async bulkDeleteProducts(
+    @Input() input: { ids: string[] }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.productService.bulkDelete(input.ids);
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        4,
+        30,
+        error.message || 'Failed to bulk delete products'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      ids: z.array(z.string().uuid()),
+      quantity: z.number().min(0),
+    }),
+    output: apiResponseSchema,
+  })
+  async bulkUpdateProductQuantity(
+    @Input() input: { ids: string[]; quantity: number }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.productService.bulkUpdateQuantity(input.ids, input.quantity);
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        3,
+        30,
+        error.message || 'Failed to bulk update product quantity'
+      );
+    }
+  }
+
   // @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware) // Temporarily commented for debugging
   @Mutation({
     input: z.object({
@@ -909,15 +956,16 @@ export class AdminProductsRouter {
   @Mutation({
     input: z.object({
       ids: z.array(z.string()).min(1),
-      action: z.enum(['activate', 'deactivate', 'delete', 'contact_price']),
+      action: z.enum(['activate', 'deactivate', 'delete', 'contact_price', 'update_quantity']),
+      value: z.any().optional(),
     }),
     output: apiResponseSchema,
   })
   async bulkAction(
-    @Input() input: { ids: string[]; action: 'activate' | 'deactivate' | 'delete' | 'contact_price' }
+    @Input() input: { ids: string[]; action: 'activate' | 'deactivate' | 'delete' | 'contact_price' | 'update_quantity'; value?: any }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      let result: { updated?: number; deleted?: number };
+      let result: any;
 
       switch (input.action) {
         case 'activate':
@@ -927,7 +975,13 @@ export class AdminProductsRouter {
           result = await this.productService.bulkUpdateStatus(input.ids, ProductStatus.INACTIVE);
           break;
         case 'contact_price':
-          result = await this.productService.bulkSetContactPrice(input.ids, true);
+          result = await this.productService.bulkSetContactPrice(input.ids, input.value !== undefined ? !!input.value : true);
+          break;
+        case 'update_quantity':
+          if (input.value === undefined || typeof input.value !== 'number') {
+            throw new Error('Quantity value is required and must be a number');
+          }
+          result = await this.productService.bulkUpdateQuantity(input.ids, input.value);
           break;
         case 'delete':
           result = await this.productService.bulkDelete(input.ids);
