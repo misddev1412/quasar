@@ -10339,51 +10339,60 @@ The slider will automatically adapt to dark mode when the `dark` class is applie
 
 The implementation examples above provide a solid foundation for creating range sliders that meet all your requirements: min/max values, step control, dark mode support, Tailwind styling, and TypeScript compatibility.
 
-## 🚀 Deploying on DigitalOcean App Platform
+## 🚀 Production Deployment (GHCR)
 
-The repository already ships with a production-ready `Dockerfile` and `/deploy/start.sh` entrypoint. DigitalOcean App Platform can build and run the image without extra commands.
+The project ships with a production-ready `Dockerfile` and `/start.sh` entrypoint. Build and push images to GitHub Container Registry (`ghcr.io`), then deploy with one command using `deploy/run-prod.sh`.
 
-### 1. Prepare the repository
+### 1. Build and push image (CI)
 
-1. Commit all changes and push to the branch you want to deploy.
-2. Ensure the root `.env` file is **not** committed (it is ignored) and that `.env.example` reflects the variables you plan to supply.
+1. Push to `main` or run `.github/workflows/docker-build-push.yml` manually.
+2. The workflow pushes:
+   - `ghcr.io/<owner>/<image>:<short-sha>`
+   - `ghcr.io/<owner>/<image>:latest`
+3. Required GitHub Actions secret:
+   - `IMAGE_NAME` (example: `misddev1412/quasar`)
 
-### 2. Create the App Platform service
+The workflow no longer requires `REACT_APP_API_URL` / `NEXT_PUBLIC_API_URL` at build time.
+Frontend/admin default to same-origin API (`/api`), so API host is resolved at runtime by your reverse proxy/container networking.
 
-1. In the DigitalOcean control panel choose **Apps → Create App**.
-2. Select this GitHub repo and branch, then pick the root `Dockerfile` as the source.
-3. Leave the build and run commands empty (App Platform uses the Dockerfile `CMD /start.sh`).
-4. Expose HTTP on port 80. App Platform injects its own `PORT` environment variable; the startup script respects it.
+### 2. Prepare server environment
 
-### 3. Configure environment variables / secrets
+1. Install Docker on the target host.
+2. Create a `.env` file on the server (do not commit it).
+3. Include at least:
+   - `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`
+   - `JWT_SECRET`, `JWT_REFRESH_SECRET`
+   - any other app secrets from `.env.example`
 
-Add the following variables under **Settings → Environment Variables**. Mark sensitive values (passwords, tokens, keys) as **Encrypt at rest**.
+### 3. One-command deploy
 
-| Variable | Purpose | Example |
+Run:
+
+```bash
+sh deploy/run-prod.sh
+```
+
+Required environment variables for the deploy command:
+
+| Variable | Purpose |
+| --- | --- |
+| `GITHUB_USERNAME` | GitHub owner/username that owns the package |
+| `GITHUB_TOKEN` | PAT with at least `read:packages` |
+
+Optional variables:
+
+| Variable | Default | Purpose |
 | --- | --- | --- |
-| `PORT` | External HTTP port. Usually `${PORT}` provided by App Platform. | `${PORT}` |
-| `BACKEND_PORT` | Internal NestJS listener used by nginx (`/api`). | `3000` |
-| `ADMIN_PORT` | Internal admin static server (`/admin`). | `4000` |
-| `FRONTEND_PORT` | Internal Next.js server behind nginx (`/`). | `3000` |
-| `REACT_APP_API_URL` / `NEXT_PUBLIC_API_URL` | Public API base so frontend fetches the right host. | `https://api.example.com/api` |
-| `NEXT_PUBLIC_SITE_URL` | Canonical storefront URL for SEO + metadata. | `https://shop.example.com` |
-| `NEXT_PUBLIC_SITE_NAME` | Text label used in SEO + social tags. | `Quasar` |
-| `DB_HOST` / `DB_PORT` / `DB_DATABASE` / `DB_SCHEMA` | Managed PostgreSQL connection. | `db-postgresql-nyc3-12345-do-user-1.db.ondigitalocean.com`, `25060`, `quasar_prod`, `public` |
-| `DB_USERNAME` / `DB_PASSWORD` | Database credentials. | `doadmin`, `••••` |
-| `JWT_SECRET` / `JWT_REFRESH_SECRET` | Secrets for access/refresh tokens. | long random strings |
-| `AWS_*` (if S3 uploads) | AWS credentials + bucket settings. | See `.env.example` |
-| `SMTP_*` / `EMAIL_FROM` | Outgoing email service (optional). |  |
-| `REDIS_*` | Cache/session backend (optional). |  |
-| `SKIP_RUNTIME_BUILD`, `SKIP_RUNTIME_SERVERS` | Leave at `0` unless you only need build artifacts. | `0` |
+| `IMAGE_NAME` | `quasar` | GHCR image name |
+| `IMAGE_TAG` | `latest` | Tag to deploy |
+| `CONTAINER_NAME` | `quasar` | Local Docker container name |
+| `HOST_PORT` | `80` | Host port |
+| `CONTAINER_PORT` | `80` | Container port |
+| `ENV_FILE` | `.env` | Env file passed to `docker run --env-file` |
 
-Copy any additional variables you rely on (maintenance tokens, analytics IDs, etc.) from `.env.example`. Avoid storing secrets in Git—App Platform’s dashboard keeps them encrypted.
+What the script does:
 
-### 4. Deploy
-
-After the first deployment succeeds, App Platform will rebuild automatically when you push to the tracked branch. The startup script will:
-
-1. Install dependencies and rebuild backend/admin/frontend artifacts.
-2. Spin up backend/admin/frontends plus nginx on the provided `PORT`.
-3. Stream logs via the App Platform UI (backend, frontend, and nginx logs show up under Components → Logs).
-
-If you ever need to update environment variables, change them in App Platform, hit **Save**, and trigger a redeploy. No code changes are required.
+1. Login to `ghcr.io`.
+2. Pull selected image tag.
+3. Replace existing container (same name).
+4. Start new container with `--restart unless-stopped` and your env file.

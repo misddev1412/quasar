@@ -12,16 +12,6 @@ ENV CI=1 \
 
 RUN corepack enable
 
-# ---- Build args (runtime-safe defaults) ----
-ARG REACT_APP_API_URL="http://localhost:3000/api"
-ARG NEXT_PUBLIC_API_URL="http://localhost:3000/api"
-ARG NEXT_PUBLIC_SITE_URL="http://localhost:3001"
-
-ENV \
-  REACT_APP_API_URL="${REACT_APP_API_URL}" \
-  NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL}" \
-  NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL}"
-
 # ---- Install deps with BuildKit cache mount ----
 # Copy only package files first for better layer caching
 COPY package.json yarn.lock ./

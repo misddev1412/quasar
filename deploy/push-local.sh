@@ -6,14 +6,16 @@ usage() {
 Usage: deploy/push-local.sh <local-image-tag> [remote-tag]
 
 Example:
-  DOCR_REGISTRY=myregistry IMAGE_NAME=quasar \
-  DIGITALOCEAN_ACCESS_TOKEN=do******** \
+  DOCKER_REGISTRY=ghcr.io GITHUB_USERNAME=my-org GITHUB_REPO=quasar \
+  GITHUB_TOKEN=ghp_xxx \
     deploy/push-local.sh quasar:local 1a2b3c4
 
 Environment:
-  DOCR_REGISTRY                Registry slug (without domain).
-  IMAGE_NAME or DOCR_IMAGE     Remote repository name.
-  DIGITALOCEAN_ACCESS_TOKEN    Required for doctl login.
+  DOCKER_REGISTRY              Container registry domain (default: ghcr.io).
+  IMAGE_NAME or DOCR_IMAGE     Remote repository name (e.g. owner/repo or repo).
+  GITHUB_USERNAME              Registry username/owner.
+  GITHUB_REPO                  Repository name (used when IMAGE_NAME is not set).
+  GITHUB_TOKEN                 Required for registry login.
   PUSH_LATEST=1                Also tag/push :latest.
 EOF
   exit 1
@@ -71,23 +73,27 @@ cd "${REPO_ROOT}"
 
 LOCAL_IMAGE="$1"
 REMOTE_TAG="${2:-$(git rev-parse --short HEAD 2>/dev/null || date +%s)}"
-REGISTRY_SLUG="${DOCR_REGISTRY:-}"
 REMOTE_IMAGE="${DOCR_IMAGE:-${IMAGE_NAME:-}}"
-ACCESS_TOKEN="${DIGITALOCEAN_ACCESS_TOKEN:-}"
+REGISTRY="${DOCKER_REGISTRY:-ghcr.io}"
+USERNAME="${GITHUB_USERNAME:-${GITHUB_ACTOR:-}}"
+ACCESS_TOKEN="${GITHUB_TOKEN:-${CR_PAT:-}}"
+GITHUB_REPO_NAME="${GITHUB_REPO:-}"
 
-if [[ -z "${REGISTRY_SLUG}" ]]; then
-  echo "Error: DOCR_REGISTRY env var is required." >&2
-  exit 1
+if [[ -z "${REMOTE_IMAGE}" && -n "${USERNAME}" && -n "${GITHUB_REPO_NAME}" ]]; then
+  REMOTE_IMAGE="${USERNAME}/${GITHUB_REPO_NAME}"
 fi
 
 if [[ -z "${REMOTE_IMAGE}" ]]; then
-  echo "Error: set IMAGE_NAME or DOCR_IMAGE for the remote repository name." >&2
+  echo "Error: set IMAGE_NAME/DOCR_IMAGE or provide GITHUB_USERNAME + GITHUB_REPO." >&2
   exit 1
 fi
 
-if [[ -z "${ACCESS_TOKEN}" ]]; then
-  echo "Error: DIGITALOCEAN_ACCESS_TOKEN env var is required for registry login." >&2
-  exit 1
+if [[ "${REMOTE_IMAGE}" != */* ]]; then
+  if [[ -z "${USERNAME}" ]]; then
+    echo "Error: GITHUB_USERNAME is required when IMAGE_NAME has no owner prefix." >&2
+    exit 1
+  fi
+  REMOTE_IMAGE="${USERNAME}/${REMOTE_IMAGE}"
 fi
 
 if ! command -v docker >/dev/null 2>&1; then
@@ -95,8 +101,8 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v doctl >/dev/null 2>&1; then
-  echo "Error: doctl CLI not found. Install it from https://docs.digitalocean.com/reference/doctl/how-to/install/." >&2
+if [[ -z "${ACCESS_TOKEN}" ]]; then
+  echo "Error: GITHUB_TOKEN (or CR_PAT) env var is required for registry login." >&2
   exit 1
 fi
 
@@ -114,11 +120,11 @@ if ! docker image inspect "${LOCAL_IMAGE}" >/dev/null 2>&1; then
   exit 1
 fi
 
-export DIGITALOCEAN_ACCESS_TOKEN="${ACCESS_TOKEN}"
-echo "Logging into registry.digitalocean.com/${REGISTRY_SLUG}..."
-doctl registry login --expiry-seconds 600 >/dev/null
+echo "Logging into ${REGISTRY}..."
+echo "${ACCESS_TOKEN}" | docker login "${REGISTRY}" --username "${USERNAME}" --password-stdin >/dev/null
 
-REMOTE_REF="registry.digitalocean.com/${REGISTRY_SLUG}/${REMOTE_IMAGE}:${REMOTE_TAG}"
+remote_image_lc="${REMOTE_IMAGE,,}"
+REMOTE_REF="${REGISTRY}/${remote_image_lc}:${REMOTE_TAG}"
 echo "Tagging ${LOCAL_IMAGE} → ${REMOTE_REF}"
 docker tag "${LOCAL_IMAGE}" "${REMOTE_REF}"
 
@@ -126,7 +132,7 @@ echo "Pushing ${REMOTE_REF}..."
 docker push "${REMOTE_REF}"
 
 if [[ "${PUSH_LATEST:-0}" == "1" ]]; then
-  LATEST_REF="registry.digitalocean.com/${REGISTRY_SLUG}/${REMOTE_IMAGE}:latest"
+  LATEST_REF="${REGISTRY}/${remote_image_lc}:latest"
   echo "Tagging ${LOCAL_IMAGE} → ${LATEST_REF}"
   docker tag "${LOCAL_IMAGE}" "${LATEST_REF}"
   echo "Pushing ${LATEST_REF}..."
