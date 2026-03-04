@@ -26,7 +26,6 @@ jobs:
       packages: write
     env:
       REGISTRY: ghcr.io
-      IMAGE: ${{ secrets.IMAGE_NAME }}
       TAG: ${{ needs.metadata.outputs.tag }}
     steps:
       - name: Checkout
@@ -43,7 +42,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push image
         run: |
-          image_name="${IMAGE:-${GITHUB_REPOSITORY}}"
+          image_name="${GITHUB_REPOSITORY}"
           image_name="${image_name,,}"
           image_ref="${REGISTRY}/${image_name}"
 
