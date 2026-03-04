@@ -9,6 +9,7 @@ import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { OrderTransactionModal } from '@admin/components/orders';
 import type { OrderTransactionContext } from '@admin/components/orders';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 interface Order {
   id: string;
@@ -128,6 +129,7 @@ const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
+  const { formatCurrency, defaultCurrency } = useAdminCurrencyFormatter();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Table preferences with persistence
@@ -361,7 +363,7 @@ const OrdersPage: React.FC = () => {
       {
         id: 'totalRevenue',
         title: t('orders.statistics.total_revenue'),
-        value: `$${stats.totalRevenue?.toLocaleString() || '0'}`,
+        value: formatCurrency(stats.totalRevenue || 0, { decimalPlaces: 0 }),
         icon: React.createElement(FiDollarSign),
         trend: {
           value: stats.recentRevenue || 0,
@@ -372,7 +374,7 @@ const OrdersPage: React.FC = () => {
       {
         id: 'averageOrderValue',
         title: t('orders.statistics.avg_order_value'),
-        value: `$${stats.averageOrderValue?.toFixed(2) || '0.00'}`,
+        value: formatCurrency(stats.averageOrderValue || 0),
         icon: React.createElement(FiActivity),
       },
       {
@@ -382,7 +384,7 @@ const OrdersPage: React.FC = () => {
         icon: React.createElement(FiClock),
       },
     ];
-  }, [statsData, t]);
+  }, [statsData, t, formatCurrency]);
 
   // Define table columns
   const compactActionButtonClasses = 'group/action-btn gap-1 h-9 px-2 text-xs font-medium rounded-full border border-slate-200/70 dark:border-slate-700/70 !justify-start overflow-hidden';
@@ -430,10 +432,16 @@ const OrdersPage: React.FC = () => {
             </Badge>
           </div>
           <div className="font-medium text-gray-900">
-            {order.currency} {formatAmount(order.amountPaid ?? 0)}
+            {formatCurrency(Number(order.amountPaid ?? 0), {
+              currency: order.currency || defaultCurrency.code,
+              symbol: order.currency || defaultCurrency.symbol,
+            })}
             <span className="text-xs text-gray-500">
               {' / '}
-              {formatAmount(order.totalAmount)}
+              {formatCurrency(Number(order.totalAmount), {
+                currency: order.currency || defaultCurrency.code,
+                symbol: order.currency || defaultCurrency.symbol,
+              })}
             </span>
           </div>
         </div>

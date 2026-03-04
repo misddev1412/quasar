@@ -402,10 +402,10 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
   const [activeLocale, setActiveLocale] = useState<string>(() => {
     const defaultLanguage = languages.find((language) => language.isDefault);
-    return defaultLanguage?.code || languages[0]?.code || 'en';
+    return defaultLanguage?.code || languages[0]?.code || 'vi';
   });
 
-  const translationLocales = languages.length > 0 ? languages.map((language) => language.code) : ['en'];
+  const translationLocales = languages.length > 0 ? languages.map((language) => language.code) : ['vi'];
 
   const ensureTranslation = (locale: string) => {
     if (!formData.translations[locale]) {

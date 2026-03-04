@@ -110,7 +110,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
   }[]>([]);
 
   // Get primary language for filtering
-  const primaryLanguage = languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'en';
+  const primaryLanguage = languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'vi';
 
   // Define form tabs configuration
   const tabs: FormTabConfig[] = [
@@ -441,7 +441,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
 
   // Default values for the form
   const defaultValues: Partial<CreatePostFormData> = {
-    languageCode: languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'en',
+    languageCode: primaryLanguage,
     status: 'draft',
     type: 'post',
     isFeatured: false,

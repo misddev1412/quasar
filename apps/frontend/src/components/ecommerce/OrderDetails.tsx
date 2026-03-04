@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, Card, Divider, Chip, Image } from '@heroui/react';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { formatLocalizedDate } from '@shared/utils/date-time';
 import { PriceDisplay } from './PriceDisplay';
 import { Order, OrderItem } from './OrderHistory';
 
@@ -23,13 +25,10 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   className = '',
   showActions = true,
 }) => {
+  const locale = useLocale();
+
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return formatLocalizedDate(dateString, { locale, dateStyle: 'long' });
   };
 
   const getStatusColor = (status: Order['status']) => {

@@ -15,12 +15,14 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import type { PurchaseOrder, PurchaseOrderItem } from '@admin/types/purchase-order';
 import { PurchaseOrderStatus } from '@admin/types/purchase-order';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 const PurchaseOrderDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
+    const { formatCurrency } = useAdminCurrencyFormatter();
 
     const { data: response, isLoading, refetch } = trpc.adminPurchaseOrders.detail.useQuery({ id: id! });
     const order = (response as any)?.data as PurchaseOrder;
@@ -67,6 +69,8 @@ const PurchaseOrderDetailPage: React.FC = () => {
             default: return 'bg-gray-100 text-gray-800';
         }
     };
+
+    const formatMoney = (amount: number) => formatCurrency(amount);
 
     return (
         <StandardListPage
@@ -117,15 +121,15 @@ const PurchaseOrderDetailPage: React.FC = () => {
                                                 <div className="text-xs text-gray-500">SKU: {item.productVariant?.sku || '-'}</div>
                                             </td>
                                             <td className="py-3 text-right">{item.quantityOrdered}</td>
-                                            <td className="py-3 text-right">${Number(item.unitCost).toLocaleString()}</td>
-                                            <td className="py-3 text-right font-medium">${(item.quantityOrdered * item.unitCost).toLocaleString()}</td>
+                                            <td className="py-3 text-right">{formatMoney(Number(item.unitCost))}</td>
+                                            <td className="py-3 text-right font-medium">{formatMoney(item.quantityOrdered * item.unitCost)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
                                     <tr className="border-t">
                                         <td colSpan={3} className="py-4 text-right font-bold text-lg">{t('common.total', 'Total')}</td>
-                                        <td className="py-4 text-right font-bold text-lg text-blue-600">${Number(order.totalAmount).toLocaleString()}</td>
+                                        <td className="py-4 text-right font-bold text-lg text-blue-600">{formatMoney(Number(order.totalAmount))}</td>
                                     </tr>
                                 </tfoot>
                             </table>

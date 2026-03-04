@@ -585,7 +585,7 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
         }
     }, [searchQuery, selectedType, selectedStatus, searchParams, setSearchParams]);
 
-    const defaultLanguage = useMemo(() => languages.find((language) => language.isDefault)?.code || languages[0]?.code || 'en', [languages]);
+    const defaultLanguage = useMemo(() => languages.find((language) => language.isDefault)?.code || languages[0]?.code || 'vi', [languages]);
     const hasActiveFilters = selectedType !== 'all' || selectedStatus !== 'all' || searchQuery.trim().length > 0;
     const activeFilterCount = (selectedType !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0);
 

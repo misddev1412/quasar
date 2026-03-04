@@ -6,6 +6,7 @@ interface DefaultCurrencyInfo {
   code: string;
   symbol: string;
   decimalPlaces: number;
+  format?: string;
   raw?: Currency;
 }
 
@@ -13,6 +14,7 @@ const FALLBACK_CURRENCY: DefaultCurrencyInfo = {
   code: 'USD',
   symbol: '$',
   decimalPlaces: 2,
+  format: '{symbol}{amount}',
 };
 
 export const useDefaultCurrency = () => {
@@ -47,6 +49,7 @@ export const useDefaultCurrency = () => {
       code: resolvedCurrency.code || FALLBACK_CURRENCY.code,
       symbol: resolvedCurrency.symbol || resolvedCurrency.code || FALLBACK_CURRENCY.symbol,
       decimalPlaces,
+      format: resolvedCurrency.format || FALLBACK_CURRENCY.format,
       raw: resolvedCurrency,
     };
   }, [data]);

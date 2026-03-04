@@ -10,6 +10,7 @@ import { trpc } from '@admin/utils/trpc';
 import { FormSubmitOptions, FormSubmitAction } from '@admin/types/forms';
 import { useAuth } from '@admin/hooks/useAuth';
 import { canEditRouteResource } from '@admin/utils/permission-access';
+import { useLanguages } from '@admin/hooks/useLanguages';
 
 interface UpdatePostPayload {
   status: 'draft' | 'published' | 'archived' | 'scheduled';
@@ -59,6 +60,7 @@ const EditPostPage: React.FC = () => {
   const lastSubmitActionRef = useRef<FormSubmitAction>('save');
   const { user } = useAuth();
   const location = useLocation();
+  const { defaultLanguage } = useLanguages();
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -124,7 +126,7 @@ const EditPostPage: React.FC = () => {
       slug: post?.translations?.[0]?.slug || '',
       content: post?.translations?.[0]?.content || '',
       excerpt: post?.translations?.[0]?.excerpt || '',
-      languageCode: post?.translations?.[0]?.locale || 'en',
+      languageCode: post?.translations?.[0]?.locale || defaultLanguage?.code || 'vi',
       status: post?.status,
       type: post?.type,
       featuredImage: post?.featured_image || post?.featuredImage || '',
@@ -180,7 +182,7 @@ const EditPostPage: React.FC = () => {
           metaKeywords: formData.metaKeywords || undefined,
           translations: [
             {
-              locale: formData.languageCode || 'en', // Use the selected language code
+              locale: formData.languageCode || defaultLanguage?.code || 'vi',
               title: formData.title,
               slug: formData.slug,
               content: formData.content,

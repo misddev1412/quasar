@@ -250,35 +250,41 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const mapProductVariantsToMatrixItems = React.useCallback((sourceProduct?: Product | null): VariantMatrixItem[] => {
     if (!sourceProduct?.variants) return [];
 
-    const mapped = sourceProduct.variants.map(v => {
-      // Build attribute combination from variantItems
-      const attributeCombination: Record<string, string> = {};
-      let combinationDisplay = v.name;
-
-      if (v.variantItems && v.variantItems.length > 0) {
-        const displayParts: string[] = [];
-        v.variantItems.forEach(item => {
-          attributeCombination[item.attributeId] = item.attributeValueId;
-          const attrName = item.attribute?.displayName || item.attribute?.name || 'Unknown';
-          const valueName = item.attributeValue?.displayValue || item.attributeValue?.value || 'Unknown';
-          displayParts.push(`${attrName}: ${valueName}`);
-        });
-        if (displayParts.length > 0) {
-          combinationDisplay = displayParts.join(', ');
-        }
+    const mapped = sourceProduct.variants.flatMap(v => {
+      // Ignore legacy variants that do not have any attribute mapping.
+      if (!Array.isArray(v.variantItems) || v.variantItems.length === 0) {
+        return [];
       }
 
-      return {
+      const attributeCombination: Record<string, string> = {};
+      const displayParts: string[] = [];
+
+      v.variantItems.forEach(item => {
+        if (!item.attributeId || !item.attributeValueId) {
+          return;
+        }
+
+        attributeCombination[item.attributeId] = item.attributeValueId;
+        const attrName = item.attribute?.displayName || item.attribute?.name || 'Unknown';
+        const valueName = item.attributeValue?.displayValue || item.attributeValue?.value || 'Unknown';
+        displayParts.push(`${attrName}: ${valueName}`);
+      });
+
+      if (Object.keys(attributeCombination).length === 0) {
+        return [];
+      }
+
+      return [{
         id: v.id,
         attributeCombination,
-        combinationDisplay,
+        combinationDisplay: displayParts.length > 0 ? displayParts.join(', ') : v.name,
         price: typeof v.price === 'string' ? parseFloat(v.price) || 0 : (v.price || 0),
         quantity: typeof v.stockQuantity === 'string' ? parseInt(v.stockQuantity) || 0 : (v.stockQuantity || 0),
         sku: v.sku,
         image: v.image,
         isEnabled: Boolean(v.isActive),
         isContactPrice: Boolean((v as any).isContactPrice),
-      };
+      }];
     });
 
     return mapped;
@@ -1308,6 +1314,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         warehouseQuantities: warehouseQuantities,
         isContactPrice: isContactPrice,
       };
+
+      // Never forward stale form-state variants when the local matrix state is empty.
+      if (!variants || variants.length === 0) {
+        submitData.variants = [];
+      }
 
       // Only include variants if there are any to avoid validation issues
       if (variants && variants.length > 0) {

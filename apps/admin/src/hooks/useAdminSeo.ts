@@ -40,7 +40,7 @@ interface UseAdminSeoProps {
 export function useAdminSeo(props?: UseAdminSeoProps) {
   const location = useLocation();
   const { i18n } = useTranslation();
-  const currentLocale = i18n.language as 'en' | 'vi' || 'en';
+  const currentLocale = (i18n.language as 'en' | 'vi') || 'vi';
 
   const { config: brandingConfig } = useBrandingSetting(
     ADMIN_LOGIN_BRANDING_KEY,

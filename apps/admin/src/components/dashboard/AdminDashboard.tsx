@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -12,37 +12,16 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import BaseLayout from '@admin/components/layout/BaseLayout';
 import { trpc } from '@admin/utils/trpc';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { useDefaultCurrency } from '@admin/hooks/useDefaultCurrency';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 export const AdminDashboard: React.FC = () => {
     const { t } = useTranslationWithBackend();
     const { data: orderStatsResponse, isLoading: orderStatsLoading } = trpc.adminOrders.stats.useQuery();
     const orderStats = (orderStatsResponse as any)?.data;
-    const { defaultCurrency } = useDefaultCurrency();
+    const { formatCurrency } = useAdminCurrencyFormatter();
 
     // Chart colors
     const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
-
-    const displayCurrencyCode = defaultCurrency.code;
-    const preciseFractionDigits = Math.max(0, defaultCurrency.decimalPlaces);
-
-    const currencyFormatter = useMemo(() => new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: displayCurrencyCode,
-        maximumFractionDigits: 0,
-    }), [displayCurrencyCode]);
-
-    const preciseCurrencyFormatter = useMemo(() => new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: displayCurrencyCode,
-        minimumFractionDigits: preciseFractionDigits,
-        maximumFractionDigits: preciseFractionDigits,
-    }), [displayCurrencyCode, preciseFractionDigits]);
-
-    const formatCurrencyValue = useCallback((value?: number | null, precise = false) => {
-        const formatter = precise ? preciseCurrencyFormatter : currencyFormatter;
-        return formatter.format(value ?? 0);
-    }, [currencyFormatter, preciseCurrencyFormatter]);
 
     const statsCards = useMemo(() => {
         const hasStats = Boolean(orderStats);
@@ -53,9 +32,9 @@ export const AdminDashboard: React.FC = () => {
         return [
             {
                 title: t('dashboard.stats.total_revenue'),
-                value: hasStats ? formatCurrencyValue(orderStats?.totalRevenue ?? 0) : '—',
+                value: hasStats ? formatCurrency(orderStats?.totalRevenue ?? 0, { decimalPlaces: 0 }) : '—',
                 helper: hasStats
-                    ? t('dashboard.stats.last_30_days_revenue', { value: formatCurrencyValue(orderStats?.recentRevenue ?? 0) })
+                    ? t('dashboard.stats.last_30_days_revenue', { value: formatCurrency(orderStats?.recentRevenue ?? 0, { decimalPlaces: 0 }) })
                     : t('common.loading', 'Loading...'),
                 icon: <MonetizationOnIcon />,
                 bgColor: 'bg-emerald-500/90',
@@ -71,7 +50,7 @@ export const AdminDashboard: React.FC = () => {
             },
             {
                 title: t('dashboard.stats.avg_order_value'),
-                value: hasStats ? formatCurrencyValue(orderStats?.averageOrderValue ?? 0, true) : '—',
+                value: hasStats ? formatCurrency(orderStats?.averageOrderValue ?? 0) : '—',
                 helper: t('dashboard.stats.avg_order_value_helper'),
                 icon: <ShowChartIcon />,
                 bgColor: 'bg-indigo-500/90',
@@ -86,7 +65,7 @@ export const AdminDashboard: React.FC = () => {
                 bgColor: 'bg-amber-500/90',
             },
         ];
-    }, [orderStats, t, formatCurrencyValue]);
+    }, [orderStats, t, formatCurrency]);
 
     const salesTrendData = useMemo(() => {
         if (!orderStats?.recentOrdersList?.length) return [];
@@ -250,7 +229,7 @@ export const AdminDashboard: React.FC = () => {
                                     <Tooltip
                                         formatter={(value: number, name: string) => {
                                             if (name === 'revenue') {
-                                                return [formatCurrencyValue(value, true), t('dashboard.stats.total_revenue')];
+                                                return [formatCurrency(value), t('dashboard.stats.total_revenue')];
                                             }
                                             return [value, t('orders.orders')];
                                         }}
@@ -372,7 +351,7 @@ export const AdminDashboard: React.FC = () => {
                                             <p className="text-sm text-gray-500">{customer.email}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-semibold">{formatCurrencyValue(customer.totalSpent ?? 0, true)}</p>
+                                            <p className="font-semibold">{formatCurrency(customer.totalSpent ?? 0)}</p>
                                             <p className="text-sm text-gray-500">{t('orders.orders')}: {customer.orderCount || 0}</p>
                                         </div>
                                     </div>
@@ -400,7 +379,7 @@ export const AdminDashboard: React.FC = () => {
                                             <p className="text-xs text-gray-400">{order.orderDate ? new Date(order.orderDate).toLocaleDateString() : ''}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-semibold text-gray-900">{formatCurrencyValue(Number(order.totalAmount) || 0, true)}</p>
+                                            <p className="font-semibold text-gray-900">{formatCurrency(Number(order.totalAmount) || 0)}</p>
                                             <span className={`inline-flex mt-1 px-2 py-1 rounded-full text-xs font-medium ${renderStatusBadgeClasses(order.status)}`}>
                                                 {t(`orders.status_types.${order.status}`, order.status)}
                                             </span>

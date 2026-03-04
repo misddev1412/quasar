@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { CurrencyFormatOptions, formatCurrencyValue } from '../utils/currency';
+import { formatCurrencyValue, type CurrencyFormatOptions } from '@shared/utils/currency';
 
 interface FormatterOverrides extends CurrencyFormatOptions {}
 

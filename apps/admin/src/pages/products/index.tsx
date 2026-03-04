@@ -65,6 +65,28 @@ const getEnvelopeData = <T,>(value: unknown): T | undefined => {
   return (value as ApiEnvelope<T> | undefined)?.data;
 };
 
+const formatProductPriceLabel = (
+  product: Product,
+  t: (key: string, fallback?: string) => string
+): string => {
+  const variantPrices = Array.isArray(product.variants)
+    ? product.variants
+      .map((variant) => Number(variant?.price))
+      .filter((price) => Number.isFinite(price) && price >= 0)
+    : [];
+
+  if (variantPrices.length > 0) {
+    const lowestVariantPrice = Math.min(...variantPrices);
+    return `${t('common.from', 'From')} ${lowestVariantPrice.toLocaleString('vi-VN')} VND`;
+  }
+
+  if (typeof product.price === 'number' && Number.isFinite(product.price)) {
+    return `${product.price.toLocaleString('vi-VN')} VND`;
+  }
+
+  return '-';
+};
+
 interface ProductVariantInlineListProps {
   product: Product;
   emptyMessage: string;
@@ -909,6 +931,13 @@ export const ProductsPage: React.FC = () => {
         }
         return typeof product.category === 'string' ? product.category : product.category?.name || '-';
       },
+      isSortable: false,
+      hideable: true,
+    },
+    {
+      id: 'price',
+      header: t('products.price', 'Price'),
+      accessor: (product) => formatProductPriceLabel(product, t),
       isSortable: false,
       hideable: true,
     },

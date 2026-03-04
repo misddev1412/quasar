@@ -6,85 +6,16 @@ import { Dropdown } from '@admin/components/common/Dropdown';
 import { Select } from '@admin/components/common/Select';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '@admin/config/table.config';
-
-/**
- * Utility function to format datetime values for table display
- * Supports multiple languages including Vietnamese
- */
-const formatDateTime = (
-  value: any,
-  locale: string = 'en',
-  t?: (key: string, options?: any) => string
-): { formatted: string; raw: string } | null => {
-  if (!value) return null;
-
-  try {
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return null;
-
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    let formatted: string;
-    const isVietnamese = locale === 'vi';
-
-    if (diffInDays === 0) {
-      // Today - show relative time
-      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-
-      if (diffInHours === 0) {
-        if (diffInMinutes <= 0) {
-          formatted = isVietnamese ? 'Vừa xong' : 'Just now';
-        } else if (diffInMinutes === 1) {
-          formatted = isVietnamese ? '1 phút trước' : '1 minute ago';
-        } else {
-          formatted = isVietnamese ? `${diffInMinutes} phút trước` : `${diffInMinutes} minutes ago`;
-        }
-      } else if (diffInHours === 1) {
-        formatted = isVietnamese ? '1 giờ trước' : '1 hour ago';
-      } else {
-        formatted = isVietnamese ? `${diffInHours} giờ trước` : `${diffInHours} hours ago`;
-      }
-    } else if (diffInDays === 1) {
-      formatted = isVietnamese ? 'Hôm qua' : 'Yesterday';
-    } else if (diffInDays <= 7) {
-      formatted = isVietnamese ? `${diffInDays} ngày trước` : `${diffInDays} days ago`;
-    } else {
-      // More than a week - show formatted date with proper locale
-      if (isVietnamese) {
-        // Vietnamese date format: "15 tháng 1, 2024"
-        formatted = date.toLocaleDateString('vi-VN', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-      } else {
-        // English date format: "Jan 15, 2024"
-        formatted = date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-      }
-    }
-
-    const raw = date.toISOString();
-    return { formatted, raw };
-  } catch {
-    return null;
-  }
-};
+import { formatRelativeDateTime } from '@shared';
 
 /**
  * Component for displaying formatted datetime with raw value
  * Automatically detects current language and formats accordingly
  */
 const DateTimeDisplay = memo(({ value }: { value: any }) => {
-  const { i18n, t } = useTranslationWithBackend();
-  const currentLocale = i18n.resolvedLanguage || 'en';
-  const dateInfo = formatDateTime(value, currentLocale, t);
+  const { i18n } = useTranslationWithBackend();
+  const currentLocale = i18n.resolvedLanguage || 'vi';
+  const dateInfo = formatRelativeDateTime(value, { locale: currentLocale, dateStyle: 'long' });
 
   if (!dateInfo) {
     return <span className="text-gray-400 dark:text-gray-500">—</span>;
@@ -1530,8 +1461,8 @@ export function Table<T extends { id: string | number }>({
 // Export the component with display name for better debugging
 Table.displayName = 'Table';
 
-// Export utility functions and components
-export { formatDateTime, DateTimeDisplay };
+// Export utility components
+export { DateTimeDisplay };
 
 // Export default for convenience
 export default Table;

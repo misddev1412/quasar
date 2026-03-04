@@ -8,6 +8,7 @@ import { StandardFormPage, Loading } from '@admin/components/common';
 import { FileText } from 'lucide-react';
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { FormSubmitAction } from '@admin/types/forms';
+import { useLanguages } from '@admin/hooks/useLanguages';
 import type { ServiceEntity, ServiceSubmitPayload, ServiceTranslation } from '@admin/types/service';
 
 const EditServicePage = () => {
@@ -17,6 +18,7 @@ const EditServicePage = () => {
     const { addToast } = useToast();
     const trpcContext = trpc.useContext();
     const lastSubmitActionRef = useRef<FormSubmitAction>('save');
+    const { defaultLanguage } = useLanguages();
 
     const extractValidationMessage = (error: any): string | undefined => {
         const fieldErrors = error?.data?.zodError?.fieldErrors;
@@ -69,7 +71,7 @@ const EditServicePage = () => {
     if (isLoading) return <Loading />;
     if (error || !service) return <div>{t('common.error', 'Error loading service')}</div>;
 
-    const defaultLocale = 'en';
+    const defaultLocale = defaultLanguage?.code || 'vi';
     const mainTrans: ServiceTranslation =
         service.translations?.find((tr) => tr.locale === defaultLocale) ??
         service.translations?.[0] ??

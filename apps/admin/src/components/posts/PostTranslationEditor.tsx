@@ -34,7 +34,7 @@ export const PostTranslationEditor: React.FC<PostTranslationEditorProps> = ({
   errors,
   setValue,
   watch,
-  defaultLocale = 'en',
+  defaultLocale = 'vi',
 }) => {
   const { t } = useTranslationWithBackend();
   const [activeTab, setActiveTab] = useState(0);

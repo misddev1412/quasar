@@ -30,13 +30,14 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
+  const defaultLanguage = languageOptions.find((option) => option.isDefault)?.value || languageOptions[0]?.value || 'vi';
 
   // Get form context to watch the primary language field
   const { watch } = useFormContext();
   const formLanguageCode = watch('languageCode');
 
   // Use the form's selected language if available, otherwise fall back to prop or default
-  const activePrimaryLanguage = formLanguageCode || primaryLanguage || 'en';
+  const activePrimaryLanguage = formLanguageCode || primaryLanguage || defaultLanguage;
 
   // Filter available languages to exclude primary language
   // This logic is critical for isolating "additional" (translated) languages from the main language
@@ -46,7 +47,8 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
       .map(lang => ({
         code: lang.value,
         name: lang.label,
-        flag: undefined // Flags are handled by TranslationTabs internal logic or can be added if available
+        flag: undefined, // Flags are handled by TranslationTabs internal logic or can be added if available
+        isDefault: lang.isDefault,
       }));
   }, [languageOptions, activePrimaryLanguage]);
 

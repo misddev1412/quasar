@@ -55,14 +55,14 @@ export const SectionForm: React.FC<SectionFormProps> = ({
     const [formState, setFormState] = useState<SectionFormState>(initialState);
     const [activeLocale, setActiveLocale] = useState<string>(() => {
         const defaultLanguage = languages.find((language) => language.isDefault);
-        return defaultLanguage?.code || languages[0]?.code || 'en';
+        return defaultLanguage?.code || languages[0]?.code || 'vi';
     });
 
     useEffect(() => {
         setFormState(initialState);
     }, [initialState]);
 
-    const translationLocales = languages.length > 0 ? languages.map((language) => language.code) : ['en'];
+    const translationLocales = languages.length > 0 ? languages.map((language) => language.code) : ['vi'];
 
     const ensureTranslation = (locale: string) => {
         if (!formState.translations[locale]) {

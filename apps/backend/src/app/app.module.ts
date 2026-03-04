@@ -106,7 +106,7 @@ import { NewsletterSubscription } from '@backend/modules/newsletter/entities/new
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../../.env', '.env'], // Priority: Root env, then local
+      envFilePath: ['../../.env'], // Priority: Root env only
       load: [databaseConfig],
     }),
     TypeOrmModule.forRootAsync({

@@ -99,7 +99,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   togglingMenuIds = new Set(),
 }) => {
   const { i18n } = useTranslationWithBackend();
-  const currentLocale = i18n.resolvedLanguage || 'en';
+  const currentLocale = i18n.resolvedLanguage || 'vi';
 
   const columns: ReorderableColumn<AdminMenu & { level: number; children: MenuTreeNode[] }>[] = useMemo(() => [
     {

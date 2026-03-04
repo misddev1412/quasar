@@ -23,12 +23,14 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import type { PurchaseOrder, PurchaseOrderFiltersType } from '@admin/types/purchase-order';
 import { PurchaseOrderStatus } from '@admin/types/purchase-order';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 const PurchaseOrdersPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
+    const { formatCurrency } = useAdminCurrencyFormatter();
 
     const [filters, setFilters] = useState<PurchaseOrderFiltersType>({});
 
@@ -83,7 +85,7 @@ const PurchaseOrdersPage: React.FC = () => {
             id: 'totalAmount',
             header: t('purchase_orders.total_amount', 'Total'),
             accessor: 'totalAmount',
-            render: (value) => `$${Number(value).toLocaleString()}`,
+            render: (value) => formatCurrency(Number(value)),
             align: 'right',
         },
         {
@@ -122,7 +124,7 @@ const PurchaseOrdersPage: React.FC = () => {
                 />
             ),
         },
-    ], [t, navigate]);
+    ], [t, navigate, formatCurrency]);
 
     return (
         <StandardListPage

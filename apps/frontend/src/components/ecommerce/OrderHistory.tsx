@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Button, Card, Divider, Chip } from '@heroui/react';
 import Modal from '../common/Modal';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { formatLocalizedDate } from '@shared/utils/date-time';
 import { OrderDetails } from './OrderDetails';
 
 export interface OrderItem {
@@ -75,6 +77,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
+  const locale = useLocale();
 
   // Calculate pagination
   const totalPages = Math.ceil(orders.length / ordersPerPage);
@@ -109,12 +112,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatLocalizedDate(dateString, { locale, dateStyle: 'medium' });
   };
 
   const getStatusColor = (status: Order['status']) => {

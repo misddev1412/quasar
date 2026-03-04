@@ -48,7 +48,7 @@ const parseLocalizedNumber = (value: unknown): number => {
 };
 
 const serviceSchema = z.object({
-    // General (EN default)
+    // General (system default)
     name: z.string().min(1, 'Name is required'),
     slug: z.string().optional(),
     description: z.string().optional(),
@@ -110,7 +110,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     // State for items
     const [items, setItems] = useState<any[]>(initialValues?.items || []);
 
-    const primaryLanguage = languageOptions.find(option => option.isDefault)?.value || 'en';
+    const primaryLanguage = languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'vi';
 
     const tabs: FormTabConfig[] = [
         {
@@ -325,7 +325,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             // Prepare translations for backend
             translations: [
                 {
-                    locale: data.languageCode || 'en',
+                    locale: data.languageCode || primaryLanguage,
                     name: data.name,
                     slug: typeof data.slug === 'string' && data.slug.trim().length > 0 ? data.slug.trim() : undefined,
                     description: data.description,
@@ -345,7 +345,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         isActive: true,
         items: [],
         additionalTranslations: [],
-        languageCode: 'en',
+        languageCode: primaryLanguage,
         ...initialValues
     };
 

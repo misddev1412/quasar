@@ -28,7 +28,7 @@ import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button } from '@ad
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { trpc } from '@admin/utils/trpc';
 import { Product, ProductMedia, ProductVariant, ProductSpecification } from '@admin/types/product';
-import { useDefaultCurrency } from '@admin/hooks/useDefaultCurrency';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 const formatDate = (date: Date | string | null | undefined) => {
   if (!date) return '-';
@@ -56,23 +56,12 @@ const ProductDetailPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [purchaseHistoryPage, setPurchaseHistoryPage] = useState(1);
   const purchaseHistoryLimit = 10;
-  const { defaultCurrency } = useDefaultCurrency();
+  const { formatCurrency } = useAdminCurrencyFormatter();
 
   const formatCurrencyValue = useCallback((amount: number | null | undefined, currencyCode?: string) => {
     if (amount === null || amount === undefined) return '-';
-
-    const resolvedCurrency = (currencyCode || defaultCurrency.code || 'USD').toUpperCase();
-
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: resolvedCurrency,
-      }).format(amount);
-    } catch {
-      const fractionDigits = Math.max(0, defaultCurrency.decimalPlaces ?? 2);
-      return `${resolvedCurrency} ${Number(amount).toFixed(fractionDigits)}`;
-    }
-  }, [defaultCurrency.code, defaultCurrency.decimalPlaces]);
+    return formatCurrency(amount, currencyCode ? { currency: currencyCode, symbol: currencyCode } : undefined);
+  }, [formatCurrency]);
 
   const {
     data: productData,

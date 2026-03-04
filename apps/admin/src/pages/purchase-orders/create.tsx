@@ -12,11 +12,13 @@ import {
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
+import { useAdminCurrencyFormatter } from '@admin/hooks/useAdminCurrencyFormatter';
 
 const CreatePurchaseOrderPage: React.FC = () => {
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
     const navigate = useNavigate();
+    const { formatCurrency } = useAdminCurrencyFormatter();
 
     const [supplierId, setSupplierId] = useState('');
     const [warehouseId, setWarehouseId] = useState('');
@@ -188,7 +190,7 @@ const CreatePurchaseOrderPage: React.FC = () => {
                                 </div>
                                 <div className="w-32">
                                     <label className="block text-xs text-gray-500 mb-1">{t('common.total', 'Total')}</label>
-                                    <div className="py-2 font-medium">${(item.quantityOrdered * item.unitCost).toLocaleString()}</div>
+                                    <div className="py-2 font-medium">{formatCurrency(item.quantityOrdered * item.unitCost)}</div>
                                 </div>
                                 <Button type="button" onClick={() => handleRemoveItem(index)} variant="ghost" className="text-red-500">
                                     <FiTrash2 />
@@ -202,7 +204,7 @@ const CreatePurchaseOrderPage: React.FC = () => {
 
                     {items.length > 0 && (
                         <div className="mt-6 flex justify-end text-xl font-bold">
-                            {t('common.grand_total', 'Grand Total')}: ${items.reduce((sum, item) => sum + (item.quantityOrdered * item.unitCost), 0).toLocaleString()}
+                            {t('common.grand_total', 'Grand Total')}: {formatCurrency(items.reduce((sum, item) => sum + (item.quantityOrdered * item.unitCost), 0))}
                         </div>
                     )}
                 </Card>

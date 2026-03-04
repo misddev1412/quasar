@@ -134,7 +134,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
   }, [initialData]);
 
   // Get primary language for filtering  
-  const primaryLanguage = initialData?.languageCode || languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'en';
+  const primaryLanguage = initialData?.languageCode || languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'vi';
 
   // Define form tabs configuration
   const tabs: FormTabConfig[] = [
@@ -502,7 +502,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
 
   // Default values for the form
   const defaultValues: Partial<EditPostFormData> = {
-    languageCode: initialData?.languageCode || languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'en',
+    languageCode: initialData?.languageCode || primaryLanguage,
     status: initialData?.status || 'draft',
     type: initialData?.type || 'post',
     isFeatured: initialData?.isFeatured || false,

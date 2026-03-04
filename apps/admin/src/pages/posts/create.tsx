@@ -7,6 +7,7 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FormSubmitOptions, FormSubmitAction } from '@admin/types/forms';
+import { useLanguages } from '@admin/hooks/useLanguages';
 
 // Transform the form data to match API expectations
 interface CreatePostAPIData {
@@ -48,6 +49,7 @@ const CreatePostPage: React.FC = () => {
   const [showMediaManager, setShowMediaManager] = useState(false);
   const trpcContext = trpc.useContext();
   const lastSubmitActionRef = useRef<FormSubmitAction>('save');
+  const { defaultLanguage } = useLanguages();
 
   // tRPC mutation for creating post
   const createPostMutation = trpc.adminPosts.createPost.useMutation({
@@ -102,7 +104,7 @@ const CreatePostPage: React.FC = () => {
         metaKeywords: formData.metaKeywords || undefined,
         translations: [
           {
-            locale: formData.languageCode || 'en', // Use the selected language code
+            locale: formData.languageCode || defaultLanguage?.code || 'vi',
             title: formData.title,
             slug: formData.slug,
             content: formData.content,

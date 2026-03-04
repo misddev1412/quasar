@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@admin/components/common/Button';
 import { Input } from '@admin/components/common/Input';
 import { Card } from '@admin/components/common/Card';
@@ -50,12 +50,13 @@ interface TranslationTabsProps {
     code: string;
     name: string;
     flag?: string;
+    isDefault?: boolean;
   }>;
 }
 
 const DEFAULT_LOCALES = [
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳', isDefault: true },
   { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
 ];
 
 export const TranslationTabs: React.FC<TranslationTabsProps> = ({
@@ -66,7 +67,14 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
   supportedLocales = DEFAULT_LOCALES,
 }) => {
   const { t } = useTranslationWithBackend();
-  const [activeLocale, setActiveLocale] = useState(supportedLocales[0].code);
+  const defaultLocale = supportedLocales.find((locale) => locale.isDefault)?.code || supportedLocales[0]?.code || 'vi';
+  const [activeLocale, setActiveLocale] = useState(defaultLocale);
+
+  useEffect(() => {
+    if (!supportedLocales.some((locale) => locale.code === activeLocale)) {
+      setActiveLocale(defaultLocale);
+    }
+  }, [activeLocale, defaultLocale, supportedLocales]);
 
   const handleTranslationChange = (locale: string, field: string, value: string) => {
     const localeTranslations = translations[locale] || {};
@@ -156,7 +164,7 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                         return sourceInCurrent;
                       }
 
-                      const defaultLocale = supportedLocales[0]?.code;
+                      const defaultLocale = supportedLocales.find((locale) => locale.isDefault)?.code || supportedLocales[0]?.code || 'vi';
                       const sourceInDefault = translations[defaultLocale]?.[sourceFieldName];
 
                       return sourceInDefault || '';

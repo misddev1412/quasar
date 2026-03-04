@@ -123,6 +123,9 @@
       "@shared/constants/*": [
         "libs/shared/src/constants/*"
       ],
+      "@shared/utils/*": [
+        "libs/shared/src/utils/*"
+      ],
       "@shared/queues/*": [
         "libs/shared/src/queues/*"
       ],
