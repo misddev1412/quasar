@@ -96,9 +96,9 @@ build_host_block() {
   local label="$3"
   local extra_locations=""
 
-  if [[ "${label}" == "storefront" ]]; then
+  if [[ "${label}" == "storefront" || "${label}" == "admin" ]]; then
     extra_locations=$(cat <<'EOF'
-    # Keep API and admin paths on their dedicated upstreams even on storefront host.
+    # Keep API paths on backend even on non-API host blocks.
     location = /api {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
@@ -113,6 +113,13 @@ build_host_block() {
       proxy_pass http://127.0.0.1:__BACKEND_PORT__/;
     }
 
+EOF
+)
+    extra_locations="${extra_locations//__BACKEND_PORT__/${INTERNAL_BACKEND_PORT}}"
+  fi
+
+  if [[ "${label}" == "storefront" ]]; then
+    extra_locations+=$(cat <<'EOF'
     location = /admin {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
@@ -129,7 +136,6 @@ build_host_block() {
 
 EOF
 )
-    extra_locations="${extra_locations//__BACKEND_PORT__/${INTERNAL_BACKEND_PORT}}"
     extra_locations="${extra_locations//__ADMIN_PORT__/${INTERNAL_ADMIN_PORT}}"
   fi
 
