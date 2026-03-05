@@ -8,6 +8,9 @@ export const getConfiguredApiUrl = () =>
 
 export const getApiOrigin = () => {
   const apiUrl = getConfiguredApiUrl();
+  if (apiUrl.startsWith('/')) {
+    return apiUrl;
+  }
   if (/\/api$/i.test(apiUrl)) {
     return normalizeUrl(apiUrl.replace(/\/api$/i, ''));
   }

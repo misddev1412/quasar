@@ -2,6 +2,11 @@ const DEFAULT_API_URL = '/api';
 
 const normalizeApiBaseUrl = (value: string): string => {
   const trimmed = value.replace(/\/+$/, '');
+  // Keep relative same-origin base (e.g. "/api") intact so client calls
+  // become "/api/trpc" instead of "/trpc".
+  if (trimmed.startsWith('/')) {
+    return trimmed || DEFAULT_API_URL;
+  }
   return trimmed.replace(/\/api$/i, '');
 };
 

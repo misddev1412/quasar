@@ -94,6 +94,45 @@ build_host_block() {
   local host="$1"
   local upstream="$2"
   local label="$3"
+  local extra_locations=""
+
+  if [[ "${label}" == "storefront" ]]; then
+    extra_locations=$(cat <<'EOF'
+    # Keep API and admin paths on their dedicated upstreams even on storefront host.
+    location = /api {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade    $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass http://127.0.0.1:__BACKEND_PORT__/;
+    }
+
+    location ^~ /api/ {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade    $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass http://127.0.0.1:__BACKEND_PORT__/;
+    }
+
+    location = /admin {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade    $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass http://127.0.0.1:__ADMIN_PORT__/;
+    }
+
+    location ^~ /admin/ {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade    $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass http://127.0.0.1:__ADMIN_PORT__;
+    }
+
+EOF
+)
+    extra_locations="${extra_locations//__BACKEND_PORT__/${INTERNAL_BACKEND_PORT}}"
+    extra_locations="${extra_locations//__ADMIN_PORT__/${INTERNAL_ADMIN_PORT}}"
+  fi
+
   local block
   block=$(cat <<'EOF'
   server {
@@ -105,6 +144,8 @@ build_host_block() {
     proxy_set_header X-Real-IP         $remote_addr;
     proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
+
+__EXTRA_LOCATIONS__
 
     location / {
       proxy_http_version 1.1;
@@ -120,6 +161,7 @@ EOF
   block="${block//__HOST__/${host}}"
   block="${block//__UPSTREAM__/${upstream}}"
   block="${block//__LABEL__/${label}}"
+  block="${block//__EXTRA_LOCATIONS__/${extra_locations}}"
   printf '%s' "${block}"
 }
 
