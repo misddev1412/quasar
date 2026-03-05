@@ -21,6 +21,32 @@ HOST_PORT="${HOST_PORT:-80}"
 CONTAINER_PORT="${CONTAINER_PORT:-80}"
 ENV_FILE="${ENV_FILE:-.env}"
 
+# Load deploy/runtime variables from ENV_FILE when present.
+# This allows colocating .env next to the script and running it directly.
+ENV_FILE_PATH="${ENV_FILE}"
+case "${ENV_FILE_PATH}" in
+  /*) ;;
+  *) ENV_FILE_PATH="./${ENV_FILE_PATH}" ;;
+esac
+
+if [ -f "${ENV_FILE_PATH}" ]; then
+  # Parse dotenv entries without shell expansion to avoid failures when values
+  # contain '$' or other shell-special characters.
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      ''|'#'*) continue ;;
+    esac
+
+    key="${line%%=*}"
+    value="${line#*=}"
+
+    # Trim trailing carriage return (CRLF compatibility).
+    value="${value%}"
+
+    export "${key}=${value}"
+  done < "${ENV_FILE_PATH}"
+fi
+
 if [ -z "${GITHUB_USERNAME:-}" ]; then
   echo "Error: GITHUB_USERNAME is required." >&2
   exit 1
@@ -32,7 +58,7 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
 fi
 
 if [ ! -f "${ENV_FILE}" ]; then
-  echo "Error: env file not found: ${ENV_FILE}" >&2
+  echo "Error: env file not found: ${ENV_FILE_PATH}" >&2
   exit 1
 fi
 
@@ -52,7 +78,7 @@ docker run -d \
   --name "${CONTAINER_NAME}" \
   --restart unless-stopped \
   -p "${HOST_PORT}:${CONTAINER_PORT}" \
-  --env-file "${ENV_FILE}" \
+  --env-file "${ENV_FILE_PATH}" \
   "${IMAGE_REF_LC}"
 
 echo "Deploy complete: ${CONTAINER_NAME} -> ${IMAGE_REF_LC}"
