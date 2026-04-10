@@ -420,6 +420,7 @@ const Footer: React.FC<FooterProps> = ({
   const brandTitleColor = footerConfig.brandTitleColor?.trim();
   const copyrightTextValue = footerConfig.copyrightText?.trim();
   const copyrightColorValue = footerConfig.copyrightColor?.trim();
+  const copyrightBackgroundColorValue = footerConfig.copyrightBackgroundColor?.trim();
   const getTextStyle = (opacity = 1): React.CSSProperties | undefined =>
     customTextColor ? { color: customTextColor, opacity } : undefined;
   const brandDescriptionStyle = brandDescriptionColor ? { color: brandDescriptionColor } : getTextStyle(0.8);
@@ -433,7 +434,10 @@ const Footer: React.FC<FooterProps> = ({
   const isFullWidthLogo = footerConfig.logoFullWidth === true;
   const copyrightText =
     copyrightTextValue || propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
-  const copyrightStyle = copyrightColorValue ? { color: copyrightColorValue } : getTextStyle(0.75);
+  const copyrightStyle: React.CSSProperties | undefined = {
+    ...(copyrightColorValue ? { color: copyrightColorValue } : (getTextStyle(0.75) || {})),
+    ...(copyrightBackgroundColorValue ? { backgroundColor: copyrightBackgroundColorValue } : {}),
+  };
   const linkStyle = customTextColor ? { color: customTextColor } : undefined;
   const rootStyle =
     customBackgroundColor || customTextColor
@@ -864,7 +868,11 @@ const Footer: React.FC<FooterProps> = ({
       style={footerBottomDividerStyle}
     >
       <p
-        className={clsx('text-sm', !(copyrightColorValue || customTextColor) && themeClasses.subtle)}
+        className={clsx(
+          'text-sm',
+          !(copyrightColorValue || customTextColor) && themeClasses.subtle,
+          copyrightBackgroundColorValue && 'inline-block rounded-md px-3 py-1'
+        )}
         style={copyrightStyle}
       >
         {copyrightText}
@@ -1141,7 +1149,11 @@ const Footer: React.FC<FooterProps> = ({
           <div className="flex items-center gap-3">
             {footerLogoNode && <div className="w-10 h-10 shrink-0">{footerLogoNode}</div>}
             <p
-              className={clsx('text-sm', !(copyrightColorValue || customTextColor) && themeClasses.subtle)}
+              className={clsx(
+                'text-sm',
+                !(copyrightColorValue || customTextColor) && themeClasses.subtle,
+                copyrightBackgroundColorValue && 'inline-block rounded-md px-3 py-1'
+              )}
               style={copyrightStyle}
             >
               {copyrightText}

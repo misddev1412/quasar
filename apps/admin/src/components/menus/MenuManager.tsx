@@ -64,6 +64,7 @@ const TOP_MARQUEE_ITEMS_KEY = 'topMarqueeItems' as const;
 const TOP_MARQUEE_SPEED_KEY = 'topMarqueeSpeed' as const;
 const TOP_MENU_STRING_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat', TOP_MARQUEE_WIDTH_KEY, TOP_MARQUEE_SPEED_KEY] as const;
 const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME, MenuType.TOP_MARQUEE] as const;
+const CALL_BUTTON_ONLY_CONFIG_KEYS = ['callButtonNumber', 'paddingY', 'iconEffect'] as const;
 
 const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type: MenuType) => {
   const nextConfig: Record<string, unknown> = { ...(config || {}) };
@@ -93,6 +94,14 @@ const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type
     if (TOP_MARQUEE_SPEED_KEY in nextConfig) {
       delete nextConfig[TOP_MARQUEE_SPEED_KEY];
     }
+  }
+
+  if (type !== MenuType.CALL_BUTTON) {
+    CALL_BUTTON_ONLY_CONFIG_KEYS.forEach((key) => {
+      if (key in nextConfig) {
+        delete nextConfig[key];
+      }
+    });
   }
 
   return nextConfig;

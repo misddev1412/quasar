@@ -254,7 +254,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ config, transl
   };
 
   return (
-    <section className="py-4 lg:py-16" style={getSectionStyle()}>
+    <section className="py-2 lg:py-10" style={getSectionStyle()}>
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {eyebrow && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">{eyebrow}</p>}

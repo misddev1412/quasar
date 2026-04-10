@@ -162,7 +162,7 @@ const DesktopNavigationItem: React.FC<{
       >
         <span className="flex items-center gap-2">
           <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} />
-          <span>{item.name}</span>
+          <span className="whitespace-nowrap">{item.name}</span>
         </span>
         {hasChildren && <ChevronDownIcon />}
       </Link>
@@ -356,7 +356,7 @@ const DesktopNavigation: React.FC<{
             >
               <span className={`flex items-center ${itemSizeStyle.desktopGap}`}>
                 <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} color={!isActive ? (item.textColor || iconColor) : undefined} />
-                <span>{item.name}</span>
+                <span className="whitespace-nowrap">{item.name}</span>
               </span>
               {hasChildren && <ChevronDownIcon />}
             </Link>

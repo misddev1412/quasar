@@ -215,7 +215,7 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLoca
   // Priority: 
   // 1. logoItem.config.image (if LINK/BRAND type)
   // 2. logoItem.config.brandAssetKey (if LOGO type) -> getSetting
-  // 3. NO FALLBACK (matches BrandMenuBar logic)
+  // 3. fallback to site.logo
   const logoImage = useMemo(() => {
     if (logoItem) {
       if (logoItem.type === MenuType.LOGO) {
@@ -226,8 +226,8 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLoca
         return logoItem.config.image as string;
       }
     }
-    return ''; // No fallback to getSiteLogo()
-  }, [logoItem, getSetting]);
+    return getSiteLogo();
+  }, [logoItem, getSetting, getSiteLogo]);
 
   const siteLogo = logoImage;
   const siteName = getSetting('site.name');
@@ -275,8 +275,8 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLoca
           }}
         />
       )}
-      {/* Default Logo - Show when logo is enabled AND logoItem exists but no siteLogo uploaded */}
-      {showLogoImage && !siteLogo && logoItem && (
+      {/* Default Logo - Show when logo is enabled but no logo image is configured */}
+      {showLogoImage && !siteLogo && (
         <div className="w-11 h-11 min-w-[44px] min-h-[44px] bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow default-logo flex-shrink-0">
           <span className="text-white font-bold text-xl">Q</span>
         </div>
@@ -618,20 +618,12 @@ const Header: React.FC = () => {
     );
   }, [normalizedCategories, categorySearch]);
 
-  const navigationItemsConverted = [
-    ...convertToNavigationItems(navigationItems.filter((item) =>
+  const navigationItemsConverted = convertToNavigationItems(
+    navigationItems.filter((item) =>
       // Filter out the item used as logo so it doesn't appear in nav
       item.id !== logoItem?.id
-    )),
-    {
-      id: 'services-link',
-      type: MenuType.LINK,
-      name: t('layout.header.services'),
-      href: createLocalUrl('/services'),
-      target: '_self',
-      children: [],
-    } as NavigationItem
-  ];
+    )
+  );
 
   // Filter and convert top menu items for mobile
   const topNavigationItemsConverted = convertToNavigationItems(
@@ -990,14 +982,12 @@ const Header: React.FC = () => {
               </div>
             </NavbarContent>
 
-            {/* Desktop: Logo (Left) - Only render if configured */}
-            {logoItem && (
-              <NavbarContent justify="start" className="flex-grow-0 shrink-0 hidden lg:flex mr-4">
-                <NavbarBrand>
-                  <Logo currentLocale={currentLocale} logoItem={logoItem} />
-                </NavbarBrand>
-              </NavbarContent>
-            )}
+            {/* Desktop: Logo (Left) */}
+            <NavbarContent justify="start" className="flex-grow-0 shrink-0 hidden lg:flex mr-6">
+              <NavbarBrand className="flex-grow-0 w-auto p-0">
+                <Logo currentLocale={currentLocale} logoItem={logoItem} />
+              </NavbarBrand>
+            </NavbarContent>
 
             {/* Right Section: Navigation + Actions - Flexible width */}
             <NavbarContent justify="start" className="flex-grow gap-2 hidden lg:flex">

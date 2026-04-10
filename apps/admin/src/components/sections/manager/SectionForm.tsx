@@ -184,6 +184,40 @@ export const SectionForm: React.FC<SectionFormProps> = ({
         formState.type === SectionType.NEWS
         || formState.type === SectionType.PRODUCTS_BY_CATEGORY;
 
+    const sectionSpacing = useMemo(() => {
+        const rawValue = (formState.config as Record<string, unknown> | undefined)?.sectionSpacing;
+        if (typeof rawValue === 'number' && Number.isFinite(rawValue) && rawValue >= 0) {
+            return String(rawValue);
+        }
+        if (typeof rawValue === 'string' && rawValue.trim().length > 0) {
+            const parsed = Number.parseInt(rawValue, 10);
+            if (Number.isFinite(parsed) && parsed >= 0) {
+                return String(parsed);
+            }
+        }
+        return '';
+    }, [formState.config]);
+
+    const handleSectionSpacingChange = (value: string) => {
+        setFormState((prev) => {
+            const nextConfig = { ...(prev.config || {}) } as Record<string, unknown>;
+            const trimmed = value.trim();
+
+            if (!trimmed) {
+                delete nextConfig.sectionSpacing;
+                return { ...prev, config: nextConfig };
+            }
+
+            const parsed = Number.parseInt(trimmed, 10);
+            if (!Number.isFinite(parsed) || parsed < 0) {
+                return prev;
+            }
+
+            nextConfig.sectionSpacing = parsed;
+            return { ...prev, config: nextConfig };
+        });
+    };
+
     const searchParams = new URLSearchParams(window.location.search);
     const isConfigOverrideVisible = searchParams.get('showConfig') === 'true';
 
@@ -311,6 +345,20 @@ export const SectionForm: React.FC<SectionFormProps> = ({
                         inputSize="md"
                     />
                 </label>
+                <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-gray-700">
+                        {t('sections.manager.form.sectionSpacing', 'Khoảng cách sau section (px)')}
+                    </span>
+                    <Input
+                        type="number"
+                        min={0}
+                        value={sectionSpacing}
+                        onChange={(e) => handleSectionSpacingChange(e.target.value)}
+                        placeholder={t('sections.manager.form.sectionSpacingPlaceholder', 'Để trống để không thêm spacing')}
+                        className="text-sm w-48"
+                        inputSize="md"
+                    />
+                </label>
                 <div className="flex flex-col justify-end">
                     <Toggle
                         checked={formState.isEnabled}
@@ -324,7 +372,14 @@ export const SectionForm: React.FC<SectionFormProps> = ({
             <SectionConfigEditor
                 type={formState.type}
                 value={formState.config || {}}
-                onChange={(config) => setFormState((prev) => ({ ...prev, config }))}
+                onChange={(config) => setFormState((prev) => {
+                    const nextConfig = { ...(config || {}) } as Record<string, unknown>;
+                    const existingSpacing = (prev.config as Record<string, unknown> | undefined)?.sectionSpacing;
+                    if (nextConfig.sectionSpacing === undefined && existingSpacing !== undefined) {
+                        nextConfig.sectionSpacing = existingSpacing;
+                    }
+                    return { ...prev, config: nextConfig };
+                })}
             />
 
             {!isMultiBlockSection && (

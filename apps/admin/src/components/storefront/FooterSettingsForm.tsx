@@ -431,11 +431,17 @@ const FooterSettingsForm = forwardRef<FooterSettingsFormRef, FooterSettingsFormP
     );
     const hasCustomBrandDescriptionColor = Boolean(brandDescriptionColorValue);
     const copyrightColorValue = draft.copyrightColor?.trim() || '';
+    const copyrightBackgroundColorValue = draft.copyrightBackgroundColor?.trim() || '';
     const previewCopyrightColor = useMemo(
       () => copyrightColorValue || previewTextColor,
       [copyrightColorValue, previewTextColor]
     );
     const hasCustomCopyrightColor = Boolean(copyrightColorValue);
+    const previewCopyrightBackgroundColor = useMemo(
+      () => copyrightBackgroundColorValue || 'transparent',
+      [copyrightBackgroundColorValue]
+    );
+    const hasCustomCopyrightBackgroundColor = Boolean(copyrightBackgroundColorValue);
     const previewLogoSizeLabel = isLogoFullWidth
       ? t('storefront.footer.brand.logo_full_width_badge', 'Full width (100%)')
       : `${previewLogoSize}px`;
@@ -1045,6 +1051,7 @@ const FooterSettingsForm = forwardRef<FooterSettingsFormRef, FooterSettingsFormP
         visitorAnalytics: visitorAnalyticsDraft,
         copyrightText: draft.copyrightText?.trim() || '',
         copyrightColor: draft.copyrightColor?.trim() || '',
+        copyrightBackgroundColor: draft.copyrightBackgroundColor?.trim() || '',
       };
       const normalizedPayload = createFooterConfig(payload);
 
@@ -1542,6 +1549,59 @@ const FooterSettingsForm = forwardRef<FooterSettingsFormRef, FooterSettingsFormP
                     placeholder="<p>Custom HTML block...</p>"
                     minHeight={140}
                   />
+                </div>
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {t('storefront.footer.branding.copyright_heading', 'Copyright notice')}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'storefront.footer.branding.copyright_description',
+                        'Customize the brand attribution at the very bottom.'
+                      )}
+                    </p>
+                  </div>
+                  <TextareaInput
+                    id="copyright-text"
+                    label={t('storefront.footer.branding.copyright_text_label', 'Custom copyright text')}
+                    value={draft.copyrightText || ''}
+                    onChange={(event) => handleUpdate('copyrightText', event.target.value)}
+                    placeholder={t(
+                      'storefront.footer.branding.copyright_text_placeholder',
+                      '© 2026 Your Store. All rights reserved.'
+                    )}
+                    rows={2}
+                  />
+                  <ColorSelector
+                    label={t('storefront.footer.branding.copyright_color_label', 'Copyright text color')}
+                    value={draft.copyrightColor || ''}
+                    onChange={(color) => handleUpdate('copyrightColor', color || '')}
+                    placeholder="#94A3B8"
+                  />
+                  <ColorSelector
+                    label={t('storefront.footer.branding.copyright_background_color_label', 'Copyright background color')}
+                    value={draft.copyrightBackgroundColor || ''}
+                    onChange={(color) => handleUpdate('copyrightBackgroundColor', color || '')}
+                    placeholder="rgba(15,23,42,0.25)"
+                  />
+                  <div
+                    className={cn(
+                      'inline-flex w-fit items-center rounded-md border px-3 py-1 text-xs',
+                      hasCustomCopyrightBackgroundColor ? 'border-transparent' : 'border-gray-200'
+                    )}
+                    style={{
+                      color: previewCopyrightColor,
+                      backgroundColor: previewCopyrightBackgroundColor,
+                      opacity: hasCustomCopyrightColor ? 1 : 0.85,
+                    }}
+                  >
+                    {draft.copyrightText?.trim() ||
+                      t(
+                        'storefront.footer.branding.copyright_text_placeholder',
+                        '© 2026 Your Store. All rights reserved.'
+                      )}
+                  </div>
                 </div>
               </div>
             </div>

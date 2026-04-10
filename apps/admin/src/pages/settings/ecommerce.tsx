@@ -1,5 +1,6 @@
 import React from 'react';
 import { SettingsManager, OrderNumberSettings } from '@admin/components/settings';
+import { LoadingOverlaySettingsForm } from '@admin/components/storefront';
 import { withAdminSeo } from '@admin/components/SEO';
 import { BaseLayout } from '@admin/components/layout';
 import { FiHome, FiSettings, FiShoppingCart } from 'react-icons/fi';
@@ -52,6 +53,11 @@ const EcommerceSettingsPage: React.FC = () => {
                 {/* Order Settings Section */}
                 <section>
                     <OrderNumberSettings />
+                </section>
+
+                {/* Storefront Loading Overlay */}
+                <section>
+                    <LoadingOverlaySettingsForm />
                 </section>
             </div>
         </BaseLayout>

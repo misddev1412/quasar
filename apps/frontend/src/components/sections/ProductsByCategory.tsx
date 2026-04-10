@@ -846,7 +846,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
   }
 
   return (
-    <section className="py-4 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-2 lg:py-10" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">

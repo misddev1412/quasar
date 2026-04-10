@@ -231,7 +231,7 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   );
 
   return (
-    <section className="py-4 lg:py-16 dark:bg-gray-950" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-2 lg:py-10 dark:bg-gray-950" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       {layout === 'container' ? (
         <SectionContainer className="max-w-6xl">{content}</SectionContainer>
       ) : (

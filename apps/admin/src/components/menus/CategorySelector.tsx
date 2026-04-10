@@ -8,6 +8,8 @@ import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarge
 interface CategoryOption {
   value: string;
   label: string;
+  id: string;
+  slug?: string | null;
   image?: string | null;
   level?: number;
   productCount?: number;
@@ -24,9 +26,19 @@ const mapCategoryToOption = (category: any): CategoryOption => {
   // Try to get translated name first, then fallback to default name
   const name = category?.translations?.[0]?.name || category?.name || 'Unnamed category';
   const description = category?.translations?.[0]?.description || category?.description || null;
+  const directSlug = typeof category?.slug === 'string' ? category.slug.trim() : '';
+  const translatedSlug = Array.isArray(category?.translations)
+    ? category.translations
+      .map((translation: any) => (typeof translation?.slug === 'string' ? translation.slug.trim() : ''))
+      .find(Boolean)
+    : '';
+  const slug = directSlug || translatedSlug || '';
+  const referenceValue = slug || category.id;
 
   return {
-    value: category.id,
+    value: referenceValue,
+    id: category.id,
+    slug: slug || null,
     label: name,
     image: category.image,
     level: category.level || 0,
@@ -35,6 +47,8 @@ const mapCategoryToOption = (category: any): CategoryOption => {
     description,
   };
 };
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const CategorySelector: React.FC<CategorySelectorProps> = ({ value, onChange }) => {
   const [selectedOption, setSelectedOption] = useState<CategoryOption | null>(null);
@@ -135,8 +149,32 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({ value, onCha
       (async () => {
         try {
           const { trpcClient } = await import('../../utils/trpc');
-          const response = await trpcClient.adminProductCategories.getById.query({ id: value });
-          const category = (response as any)?.data;
+          let category: any | null = null;
+
+          if (UUID_REGEX.test(value)) {
+            const response = await trpcClient.adminProductCategories.getById.query({ id: value });
+            category = (response as any)?.data ?? null;
+          } else {
+            const response = await trpcClient.adminProductCategories.getAll.query({
+              page: 1,
+              limit: 50,
+              search: value,
+              isActive: true,
+            });
+            const items = (((response as any)?.data?.items ?? []) as any[]);
+            category = items.find((item) => {
+              const directSlug = typeof item?.slug === 'string' ? item.slug.trim() : '';
+              if (directSlug && directSlug === value) return true;
+
+              const translationSlugs = Array.isArray(item?.translations)
+                ? item.translations
+                  .map((translation: any) => (typeof translation?.slug === 'string' ? translation.slug.trim() : ''))
+                  .filter(Boolean)
+                : [];
+              return translationSlugs.includes(value);
+            }) ?? null;
+          }
+
           if (!category || cancelled) return;
           const option = mapCategoryToOption(category);
           setSelectedOption(option);

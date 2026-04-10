@@ -28,9 +28,14 @@ export class AdminInquiryRouter {
     output: paginatedResponseSchema,
   })
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
-  async list(@Input() input: z.infer<typeof listInquirySchema>) {
-    const result = await this.inquiryService.findPaginated(input);
+  async list(@Input() input: z.input<typeof listInquirySchema>) {
+    const params = {
+      page: input.page ?? 1,
+      limit: input.limit ?? 20,
+      search: input.search,
+      status: input.status,
+    };
+    const result = await this.inquiryService.findPaginated(params);
     return this.responseService.createTrpcSuccess(result);
   }
 }
-

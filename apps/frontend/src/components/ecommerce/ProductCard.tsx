@@ -208,11 +208,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
   const unifiedCtaSizeClass =
     addToCartButtonConfig.size === 'sm'
-      ? 'h-10 min-h-[40px] text-base'
+      ? 'h-9 min-h-[36px] text-xs sm:text-sm'
       : addToCartButtonConfig.size === 'lg'
-        ? 'h-16 min-h-[64px] text-xl'
-        : 'h-14 min-h-[56px] text-lg';
-  const unifiedCtaClassName = `${unifiedCtaSizeClass} rounded-xl px-6 font-semibold leading-none ${addToCartTextTransformClass}`;
+        ? 'h-11 min-h-[44px] text-sm sm:text-base'
+        : 'h-10 min-h-[40px] text-sm';
+  const unifiedCtaClassName = `${unifiedCtaSizeClass} rounded-lg px-4 font-medium leading-tight ${addToCartTextTransformClass}`;
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;

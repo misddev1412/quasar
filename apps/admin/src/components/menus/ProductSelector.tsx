@@ -8,6 +8,8 @@ import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarge
 interface ProductOption {
   value: string;
   label: string;
+  id: string;
+  slug?: string | null;
   sku?: string | null;
   image?: string | null;
   priceLabel?: string | null;
@@ -31,8 +33,13 @@ const mapProductToOption = (product: any): ProductOption => {
     priceLabel = currencyFormatter.format(product.lowestPrice);
   }
   const primaryImage = product?.primaryImage || product?.imageUrls?.[0] || product?.media?.[0]?.url || null;
+  const slug = typeof product?.slug === 'string' ? product.slug.trim() : '';
+  const referenceValue = slug || product.id;
+
   return {
-    value: product.id,
+    value: referenceValue,
+    id: product.id,
+    slug: slug || null,
     label: product.name || 'Unnamed product',
     sku: product.sku,
     image: primaryImage,
@@ -40,6 +47,8 @@ const mapProductToOption = (product: any): ProductOption => {
     brandName: product?.brand?.name ?? null,
   };
 };
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChange }) => {
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
@@ -122,8 +131,31 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
       (async () => {
         try {
           const { trpcClient } = await import('../../utils/trpc');
-          const response = await trpcClient.adminProducts.detail.query({ id: value });
-          const product = (response as any)?.data;
+          let product: any | null = null;
+
+          if (UUID_REGEX.test(value)) {
+            const response = await trpcClient.adminProducts.detail.query({ id: value });
+            product = (response as any)?.data ?? null;
+          } else {
+            const response = await trpcClient.adminProducts.list.query({
+              page: 1,
+              limit: 50,
+              search: value,
+            });
+            const items = (((response as any)?.data?.items ?? []) as any[]);
+            product = items.find((item) => {
+              const directSlug = typeof item?.slug === 'string' ? item.slug.trim() : '';
+              if (directSlug && directSlug === value) return true;
+
+              const translationSlugs = Array.isArray(item?.translations)
+                ? item.translations
+                  .map((translation: any) => (typeof translation?.slug === 'string' ? translation.slug.trim() : ''))
+                  .filter(Boolean)
+                : [];
+              return translationSlugs.includes(value);
+            }) ?? null;
+          }
+
           if (!product || cancelled) return;
           const option = mapProductToOption(product);
           setSelectedOption(option);

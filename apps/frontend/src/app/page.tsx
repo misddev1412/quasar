@@ -148,7 +148,11 @@ export default async function RootPage({
 
   return (
     <Layout>
-      {renderedSections.length > 0 ? renderedSections : renderFallbackContent()}
+      {renderedSections.length > 0 ? (
+        <div className="flex flex-col">
+          {renderedSections}
+        </div>
+      ) : renderFallbackContent()}
     </Layout>
   );
 }

@@ -11,6 +11,40 @@ import Container from '../common/Container';
 import { UnifiedIcon } from '../common/UnifiedIcon';
 import { Button } from '@heroui/react';
 
+type CallIconEffect = 'none' | 'ring' | 'pulse' | 'bounce' | 'spin' | 'wiggle' | 'float' | 'heartbeat';
+
+const ALLOWED_ICON_EFFECTS: ReadonlyArray<CallIconEffect> = [
+    'none',
+    'ring',
+    'pulse',
+    'bounce',
+    'spin',
+    'wiggle',
+    'float',
+    'heartbeat',
+];
+
+const getIconEffectClass = (effect: CallIconEffect): string => {
+    switch (effect) {
+        case 'pulse':
+            return 'motion-safe:animate-pulse';
+        case 'bounce':
+            return 'motion-safe:animate-bounce';
+        case 'spin':
+            return 'motion-safe:animate-spin';
+        case 'ring':
+            return 'motion-safe:animate-[brand-phone-ring_1.2s_ease-in-out_infinite]';
+        case 'wiggle':
+            return 'motion-safe:animate-[brand-icon-wiggle_1s_ease-in-out_infinite]';
+        case 'float':
+            return 'motion-safe:animate-[brand-icon-float_1.8s_ease-in-out_infinite]';
+        case 'heartbeat':
+            return 'motion-safe:animate-[brand-icon-heartbeat_1.2s_ease-in-out_infinite]';
+        default:
+            return '';
+    }
+};
+
 const BrandMenuBar: React.FC = () => {
     const { treeData, isLoading } = useMenu('brand_header');
     const locale = useLocale();
@@ -71,9 +105,10 @@ const BrandMenuBar: React.FC = () => {
     const showLogoTitle = logoItem?.config?.showTitle !== false;
 
     return (
-        <div className="w-full bg-[#FFBC00] dark:bg-yellow-600 text-gray-900 border-b border-yellow-600/20">
-            <Container>
-                <div className="flex flex-col md:flex-row items-center justify-between py-2 md:py-3 gap-4 md:gap-8 min-h-[80px]">
+        <>
+            <div className="w-full bg-[#FFBC00] dark:bg-yellow-600 text-gray-900 border-b border-yellow-600/20">
+                <Container>
+                    <div className="flex flex-col md:flex-row items-center justify-between py-2 md:py-3 gap-4 md:gap-8 min-h-[80px]">
 
                     {/* Logo Section */}
                     <div className="flex-shrink-0">
@@ -110,12 +145,14 @@ const BrandMenuBar: React.FC = () => {
                     <div className="flex-shrink-0 flex flex-wrap justify-center items-center gap-3">
                         {buttonItems.map((btn) => {
                             const label = getLocalizedContent(btn, 'label');
-                            const description = getLocalizedContent(btn, 'description');
                             const phone = (btn.config?.callButtonNumber as string) || btn.url || '';
                             const displayNumber = phone.replace('tel:', '');
+                            const iconEffectValue = typeof btn.config?.iconEffect === 'string' ? btn.config.iconEffect : 'none';
+                            const iconEffect: CallIconEffect = ALLOWED_ICON_EFFECTS.includes(iconEffectValue as CallIconEffect)
+                                ? iconEffectValue as CallIconEffect
+                                : 'none';
 
                             const bgColor = btn.backgroundColor || '#0060AF';
-                            const hoverColor = btn.backgroundColor ? btn.backgroundColor : '#004e90'; // Simplified hover for custom colors
                             const textColor = btn.textColor || '#ffffff';
                             const paddingY = btn.config?.paddingY ? `${btn.config.paddingY}px` : undefined;
 
@@ -133,7 +170,9 @@ const BrandMenuBar: React.FC = () => {
                                         ...(paddingY ? {} : { height: '3rem' }) // Fallback to h-12 (3rem) if no padding set
                                     }}
                                     startContent={
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white/40 bg-white/10">
+                                        <div
+                                            className={`relative flex items-center justify-center w-8 h-8 rounded-full border border-white/40 bg-white/10 ${getIconEffectClass(iconEffect)}`}
+                                        >
                                             <UnifiedIcon icon={btn.icon || 'phone'} size={18} color={textColor} />
                                         </div>
                                     }
@@ -151,9 +190,35 @@ const BrandMenuBar: React.FC = () => {
                         })}
                     </div>
 
-                </div>
-            </Container>
-        </div>
+                    </div>
+                </Container>
+            </div>
+            <style jsx>{`
+                @keyframes brand-phone-ring {
+                    0%, 100% { transform: rotate(0deg); }
+                    20% { transform: rotate(-18deg); }
+                    40% { transform: rotate(18deg); }
+                    60% { transform: rotate(-12deg); }
+                    80% { transform: rotate(12deg); }
+                }
+                @keyframes brand-icon-wiggle {
+                    0%, 100% { transform: rotate(0deg); }
+                    25% { transform: rotate(-10deg); }
+                    75% { transform: rotate(10deg); }
+                }
+                @keyframes brand-icon-float {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-4px); }
+                }
+                @keyframes brand-icon-heartbeat {
+                    0%, 100% { transform: scale(1); }
+                    14% { transform: scale(1.12); }
+                    28% { transform: scale(1); }
+                    42% { transform: scale(1.12); }
+                    70% { transform: scale(1); }
+                }
+            `}</style>
+        </>
     );
 };
 

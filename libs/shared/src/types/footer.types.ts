@@ -135,6 +135,7 @@ export interface FooterConfig {
   textColor?: string;
   copyrightText?: string;
   copyrightColor?: string;
+  copyrightBackgroundColor?: string;
   widget?: FooterWidgetConfig;
   visitorAnalytics?: VisitorAnalyticsConfig;
   menuTypography: FooterMenuTypographyConfig;
@@ -249,6 +250,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   textColor: '',
   copyrightText: '',
   copyrightColor: '',
+  copyrightBackgroundColor: '',
   widget: DEFAULT_WIDGET_CONFIG,
   visitorAnalytics: DEFAULT_VISITOR_ANALYTICS_CONFIG,
   menuTypography: DEFAULT_MENU_TYPOGRAPHY,
@@ -530,5 +532,9 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
       override.copyrightColor !== undefined
         ? (override.copyrightColor || '').trim()
         : base.copyrightColor,
+    copyrightBackgroundColor:
+      override.copyrightBackgroundColor !== undefined
+        ? (override.copyrightBackgroundColor || '').trim()
+        : base.copyrightBackgroundColor,
   };
 };

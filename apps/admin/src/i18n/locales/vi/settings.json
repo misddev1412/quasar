@@ -383,6 +383,8 @@
         "copyright_text_hint": "Hỗ trợ văn bản thuần túy. Để trống để tự động tạo dựa trên tên trang web của bạn.",
         "copyright_color_label": "Màu văn bản bản quyền",
         "copyright_color_hint": "Hỗ trợ HEX hoặc RGB. Để trống để khớp với màu văn bản bị mờ của chân trang.",
+        "copyright_background_color_label": "Màu nền bản quyền",
+        "copyright_background_color_hint": "Hỗ trợ HEX hoặc RGB. Để trống để giữ nền trong suốt.",
         "copyright_text_placeholder": "© 2026 Cửa hàng của bạn. Bảo lưu mọi quyền."
       },
       "newsletter": {

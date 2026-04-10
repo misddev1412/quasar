@@ -27,6 +27,11 @@ interface AttributeValue {
   isDeleted?: boolean;
 }
 
+const isPredefinedOptionsType = (type: string) => {
+  const normalizedType = (type || '').toUpperCase();
+  return normalizedType === 'SELECT' || normalizedType === 'MULTISELECT';
+};
+
 export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
   isOpen,
   attribute,
@@ -100,7 +105,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
       setFormData({
         name: attribute.name || '',
         displayName: attribute.displayName || '',
-        type: attribute.type || 'TEXT',
+        type: ((attribute.type || 'TEXT') as string).toUpperCase() as typeof formData.type,
         isRequired: attribute.isRequired || false,
         isFilterable: attribute.isFilterable || false,
         sortOrder: attribute.sortOrder || 0,
@@ -140,7 +145,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
   }, [translationsData]);
 
   const handleValueChanges = async () => {
-    const isSelectType = formData.type === 'SELECT' || formData.type === 'MULTISELECT';
+    const isSelectType = isPredefinedOptionsType(formData.type);
     
     if (!isSelectType) return;
 
@@ -234,7 +239,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
     }
 
     // For select types, validate that we have at least one value
-    if ((formData.type === 'SELECT' || formData.type === 'MULTISELECT') && attributeValues.length === 0) {
+    if (isPredefinedOptionsType(formData.type) && attributeValues.length === 0) {
       addToast({
         title: t('common.error', 'Error'),
         description: t('attributes.validation.valuesRequired', 'Select attributes must have at least one value'),
@@ -256,7 +261,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
     }));
 
     // Clear values when changing away from select types
-    if (field === 'type' && value !== 'SELECT' && value !== 'MULTISELECT') {
+    if (field === 'type' && !isPredefinedOptionsType(String(value))) {
       setAttributeValues([]);
     }
   };
@@ -297,7 +302,7 @@ export const EditAttributeModal: React.FC<EditAttributeModalProps> = ({
     { value: 'DATE', label: t('attributes.types.date', 'Date') },
   ];
 
-  const isSelectType = formData.type === 'SELECT' || formData.type === 'MULTISELECT';
+  const isSelectType = isPredefinedOptionsType(formData.type);
   const isLoading = updateMutation.isPending || createValueMutation.isPending || 
                    updateValueMutation.isPending || deleteValueMutation.isPending;
 

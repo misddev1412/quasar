@@ -8,6 +8,7 @@ import { Card } from '@admin/components/common/Card';
 import { Badge } from '@admin/components/common/Badge';
 import { Select } from '@admin/components/common/Select';
 import { ProductVariantMatrixGenerator, VariantMatrixItem } from '@admin/components/products/ProductVariantMatrixGenerator';
+import { CreateAttributeModal } from '@admin/components/products/CreateAttributeModal';
 
 export type { VariantMatrixItem };
 
@@ -26,10 +27,12 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const utils = trpc.useUtils();
 
   // Always show matrix generator - no manual variant creation
   const [showMatrixGenerator] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
+  const [isCreateAttributeModalOpen, setIsCreateAttributeModalOpen] = useState(false);
 
   // Fetch attributes for attribute management
   const { data: attributesData, isLoading: attributesLoading } = trpc.adminProductAttributes.getSelectAttributes.useQuery();
@@ -59,62 +62,73 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
               {t('products.variants_auto_generate_help', 'Variants are automatically generated from attribute combinations. First create attributes with values, then select them below to generate a matrix of all possible combinations.')}
             </p>
           </div>
-          <div className="relative">
-            <button
+          <div className="flex items-center gap-2">
+            <Button
               type="button"
-              onClick={() => setShowHelp(!showHelp)}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-              title={t('common.help', 'Help')}
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCreateAttributeModalOpen(true)}
             >
-              <FiHelpCircle className="w-5 h-5" />
-            </button>
+              <FiPlus className="w-4 h-4 mr-2" />
+              {t('products.create_attributes', 'Create Attributes')}
+            </Button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowHelp(!showHelp)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                title={t('common.help', 'Help')}
+              >
+                <FiHelpCircle className="w-5 h-5" />
+              </button>
 
-            {/* Help Tooltip */}
-            {showHelp && (
-              <div className="absolute right-0 top-full mt-2 w-96 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      1
+              {/* Help Tooltip */}
+              {showHelp && (
+                <div className="absolute right-0 top-full mt-2 w-96 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                        1
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {t('products.workflow_step_1', 'Step 1: Create Attributes')}
+                        </h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {t('products.workflow_step_1_desc', 'Go to Product Attributes page and create attributes (e.g., Color, Size) with their values (e.g., Red, Blue, Small, Large).')}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {t('products.workflow_step_1', 'Step 1: Create Attributes')}
-                      </h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {t('products.workflow_step_1_desc', 'Go to Product Attributes page and create attributes (e.g., Color, Size) with their values (e.g., Red, Blue, Small, Large).')}
-                      </p>
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                        2
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {t('products.workflow_step_2', 'Step 2: Select Attributes & Values')}
+                        </h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {t('products.workflow_step_2_desc', 'Choose which attributes apply to this product and select the specific values you want to offer.')}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      2
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {t('products.workflow_step_2', 'Step 2: Select Attributes & Values')}
-                      </h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {t('products.workflow_step_2_desc', 'Choose which attributes apply to this product and select the specific values you want to offer.')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      3
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {t('products.workflow_step_3', 'Step 3: Auto-Generated Matrix')}
-                      </h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {t('products.workflow_step_3_desc', 'Variants will be automatically generated (N×M matrix). Configure pricing and inventory for each combination.')}
-                      </p>
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                        3
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {t('products.workflow_step_3', 'Step 3: Auto-Generated Matrix')}
+                        </h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {t('products.workflow_step_3_desc', 'Variants will be automatically generated (N×M matrix). Configure pricing and inventory for each combination.')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -140,7 +154,7 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                   type="button"
                   variant="primary"
                   size="sm"
-                  onClick={() => window.open('/admin/products/attributes', '_blank')}
+                  onClick={() => setIsCreateAttributeModalOpen(true)}
                 >
                   <FiPlus className="w-4 h-4 mr-2" />
                   {t('products.create_attributes', 'Create Attributes')}
@@ -266,6 +280,15 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
           />
         </>
       )}
+
+      <CreateAttributeModal
+        isOpen={isCreateAttributeModalOpen}
+        onClose={() => setIsCreateAttributeModalOpen(false)}
+        onSuccess={async () => {
+          await utils.adminProductAttributes.getSelectAttributes.invalidate();
+          setIsCreateAttributeModalOpen(false);
+        }}
+      />
     </div>
   );
 };

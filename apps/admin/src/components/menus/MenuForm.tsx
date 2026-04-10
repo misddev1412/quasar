@@ -75,6 +75,8 @@ const TOP_MARQUEE_SPEED_KEY = 'topMarqueeSpeed' as const;
 const TOP_MENU_STRING_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat', TOP_MARQUEE_WIDTH_KEY, TOP_MARQUEE_SPEED_KEY] as const;
 const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME, MenuType.TOP_MARQUEE] as const;
 const CALL_BUTTON_CONFIG_KEY = 'callButtonNumber';
+const CALL_BUTTON_ICON_EFFECT_KEY = 'iconEffect';
+const CALL_BUTTON_ONLY_CONFIG_KEYS = [CALL_BUTTON_CONFIG_KEY, 'paddingY', CALL_BUTTON_ICON_EFFECT_KEY] as const;
 
 const getConfigStringValue = (
   config: Record<string, unknown> | undefined,
@@ -116,8 +118,12 @@ const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type
     }
   }
 
-  if (type !== MenuType.CALL_BUTTON && CALL_BUTTON_CONFIG_KEY in nextConfig) {
-    delete nextConfig[CALL_BUTTON_CONFIG_KEY];
+  if (type !== MenuType.CALL_BUTTON) {
+    CALL_BUTTON_ONLY_CONFIG_KEYS.forEach((key) => {
+      if (key in nextConfig) {
+        delete nextConfig[key];
+      }
+    });
   }
 
   return nextConfig;
@@ -1111,6 +1117,28 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                     value={getConfigStringValue(formData.config, 'paddingY') || '0'}
                     onChange={(e) => updateArbitraryConfigValue('paddingY', e.target.value)}
                     placeholder="0"
+                  />
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t('form.labels.iconEffect', 'Icon Effect')}
+                  </label>
+                  <Select
+                    value={getConfigStringValue(formData.config, CALL_BUTTON_ICON_EFFECT_KEY) || 'none'}
+                    onChange={(value) => updateArbitraryConfigValue(CALL_BUTTON_ICON_EFFECT_KEY, value)}
+                    options={[
+                      { value: 'none', label: t('form.options.none', 'None') },
+                      { value: 'ring', label: t('form.options.iconEffectRing', 'Ring phone') },
+                      { value: 'pulse', label: t('form.options.iconEffectPulse', 'Pulse') },
+                      { value: 'bounce', label: t('form.options.iconEffectBounce', 'Bounce') },
+                      { value: 'spin', label: t('form.options.iconEffectSpin', 'Spin') },
+                      { value: 'wiggle', label: t('form.options.iconEffectWiggle', 'Wiggle') },
+                      { value: 'float', label: t('form.options.iconEffectFloat', 'Float') },
+                      { value: 'heartbeat', label: t('form.options.iconEffectHeartbeat', 'Heartbeat') },
+                    ]}
+                    className="mt-1"
+                    size="md"
                   />
                 </div>
               </div>

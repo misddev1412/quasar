@@ -979,6 +979,7 @@ export class AdminProductService {
       });
 
       const columnMap: Record<string, string[]> = {
+        productId: ['productid', 'product_id', 'id', 'masanpham', 'idsanpham'],
         name: ['name', 'productname', 'tensanpham'],
         sku: ['sku', 'productsku', 'masp', 'masanpham'],
         description: ['description', 'productdescription', 'mota', 'motasanpham'],
@@ -1020,6 +1021,16 @@ export class AdminProductService {
           }
         }
         return undefined;
+      };
+
+      const hasColumnData = (row: Record<string, any>, keys: string[]): boolean => {
+        return keys.some((key) => {
+          if (!Object.prototype.hasOwnProperty.call(row, key)) {
+            return false;
+          }
+          const value = row[key];
+          return value !== undefined && value !== null && normalizeString(value) !== '';
+        });
       };
 
       const parseBoolean = (value: any, fallback: boolean): boolean => {
@@ -1175,7 +1186,12 @@ export class AdminProductService {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
       const productGroups = new Map<string, {
+        productId: string | null;
         productData: any;
+        hasAnyProductDataChange: boolean;
+        shouldUpdateCategories: boolean;
+        shouldUpdateTags: boolean;
+        shouldUpdateMedia: boolean;
         categoryIds: Set<string>;
         tags: Set<string>;
         productImageUrls: Set<string>;
@@ -1187,20 +1203,21 @@ export class AdminProductService {
         const row = normalizedRows[index];
         const spreadsheetRowNumber = index + 1;
 
+        const productId = normalizeString(getFromRow(row, columnMap.productId)) || null;
         const rawName = getFromRow(row, columnMap.name);
         const name = normalizeString(rawName);
 
-        if (!name) {
+        if (!name && !productId) {
           summary.skipped += 1;
           summary.errors.push({
             row: spreadsheetRowNumber,
-            message: 'Missing required field: product name',
+            message: 'Missing required field: product name or product ID',
           });
           summary.details.push({
             row: spreadsheetRowNumber,
             productName: 'Unknown',
             status: 'ERROR',
-            message: 'Missing required field: product name',
+            message: 'Missing required field: product name or product ID',
           });
           continue;
         }
@@ -1208,7 +1225,19 @@ export class AdminProductService {
         const skuValue = getFromRow(row, columnMap.sku);
         const sku = normalizeString(skuValue) || null;
 
-        const productKey = sku ? `sku:${normalizeKey(sku)}` : `name:${normalizeKey(name) || name.toLowerCase()}`;
+        const productKey = productId
+          ? `id:${normalizeKey(productId)}`
+          : (sku ? `sku:${normalizeKey(sku)}` : `name:${normalizeKey(name) || name.toLowerCase()}`);
+
+        const hasNameColumn = hasColumnData(row, columnMap.name);
+        const hasDescriptionColumn = hasColumnData(row, columnMap.description);
+        const hasStatusColumn = hasColumnData(row, columnMap.status);
+        const hasIsActiveColumn = hasColumnData(row, columnMap.isActive);
+        const hasIsFeaturedColumn = hasColumnData(row, columnMap.isFeatured);
+        const hasBrandColumn = hasColumnData(row, columnMap.brandId);
+        const hasCategoryColumn = hasColumnData(row, columnMap.categoryIds);
+        const hasTagsColumn = hasColumnData(row, columnMap.tags);
+        const hasProductImagesColumn = hasColumnData(row, columnMap.productImageUrls);
 
         const description = normalizeString(getFromRow(row, columnMap.description)) || null;
         const status = parseStatus(getFromRow(row, columnMap.status));
@@ -1258,10 +1287,12 @@ export class AdminProductService {
         const attributeItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = [];
         const seenAttributeIds = new Set<string>();
         let attributeError = false;
+        let hasRowVariantAttributeColumnInput = false;
 
         // Process variant attributes column first
         const variantAttributesRaw = normalizeString(getFromRow(row, columnMap.variantAttributes));
         if (variantAttributesRaw) {
+          hasRowVariantAttributeColumnInput = true;
           const pairs = variantAttributesRaw.split('|');
           for (const pair of pairs) {
             const [attrName, attrValue] = pair.split(':').map(s => s.trim());
@@ -1353,6 +1384,7 @@ export class AdminProductService {
           if (!rawAttributeValue) {
             continue;
           }
+          hasRowVariantAttributeColumnInput = true;
 
           let resolvedValue = null;
           if (uuidRegex.test(rawAttributeValue)) {
@@ -1391,22 +1423,40 @@ export class AdminProductService {
           continue;
         }
 
+        const shouldIncludeVariant = attributeItems.length > 0 || hasRowVariantAttributeColumnInput;
+
         let group = productGroups.get(productKey);
         if (!group) {
-          const baseData: any = {
-            name,
-            description,
-            sku,
-            status,
-            isActive,
-            isFeatured,
-          };
-          if (brandId) {
+          const baseData: any = {};
+          if (hasNameColumn) {
+            baseData.name = name;
+          }
+          if (hasDescriptionColumn) {
+            baseData.description = description;
+          }
+          if (hasStatusColumn) {
+            baseData.status = status;
+          }
+          if (hasIsActiveColumn) {
+            baseData.isActive = isActive;
+          }
+          if (hasIsFeaturedColumn) {
+            baseData.isFeatured = isFeatured;
+          }
+          if (sku) {
+            baseData.sku = sku;
+          }
+          if (hasBrandColumn && brandId) {
             baseData.brandId = brandId;
           }
 
           group = {
+            productId,
             productData: baseData,
+            hasAnyProductDataChange: Object.keys(baseData).length > 0,
+            shouldUpdateCategories: hasCategoryColumn,
+            shouldUpdateTags: hasTagsColumn,
+            shouldUpdateMedia: hasProductImagesColumn,
             categoryIds: new Set<string>(categoryIds),
             tags: new Set<string>(tags),
             productImageUrls: new Set<string>(productImageUrls),
@@ -1416,15 +1466,24 @@ export class AdminProductService {
 
           productGroups.set(productKey, group);
         } else {
+          if (!group.productId && productId) {
+            group.productId = productId;
+          }
+          group.shouldUpdateCategories = group.shouldUpdateCategories || hasCategoryColumn;
+          group.shouldUpdateTags = group.shouldUpdateTags || hasTagsColumn;
+          group.shouldUpdateMedia = group.shouldUpdateMedia || hasProductImagesColumn;
           categoryIds.forEach((id) => group.categoryIds.add(id));
           tags.forEach((tag) => group.tags.add(tag));
           productImageUrls.forEach((url) => group.productImageUrls.add(url));
 
-          if (!group.productData.description && description) {
+          if (hasNameColumn && !group.productData.name && name) {
+            group.productData.name = name;
+          }
+          if (hasDescriptionColumn && !group.productData.description && description) {
             group.productData.description = description;
           }
 
-          if (!group.productData.brandId && brandId) {
+          if (hasBrandColumn && !group.productData.brandId && brandId) {
             group.productData.brandId = brandId;
           }
 
@@ -1432,9 +1491,16 @@ export class AdminProductService {
             group.productData.sku = sku;
           }
 
-          if (isFeatured) {
+          if (hasStatusColumn && !group.productData.status) {
+            group.productData.status = status;
+          }
+          if (hasIsActiveColumn && group.productData.isActive === undefined) {
+            group.productData.isActive = isActive;
+          }
+          if (hasIsFeaturedColumn && isFeatured) {
             group.productData.isFeatured = true;
           }
+          group.hasAnyProductDataChange = group.hasAnyProductDataChange || Object.keys(group.productData).length > 0;
         }
 
         group.rowNumbers.push(spreadsheetRowNumber);
@@ -1443,33 +1509,35 @@ export class AdminProductService {
           ? Math.round(variantSortOrder)
           : group.variants.length;
 
-        group.variants.push({
-          rowNumber: spreadsheetRowNumber,
-          variant: {
-            name: variantName,
-            sku: variantSku || undefined,
-            barcode: variantBarcode || undefined,
-            price,
-            compareAtPrice,
-            costPrice,
-            stockQuantity,
-            lowStockThreshold: lowStockThresholdValue,
-            trackInventory,
-            allowBackorders,
-            weight: null,
-            dimensions: null,
-            image: null,
-            isActive: variantIsActive,
-            sortOrder: sortOrderValue,
-            variantItems: attributeItems.map((item, itemIndex) => ({
-              attributeId: item.attributeId,
-              attributeValueId: item.attributeValueId,
-              sortOrder: item.sortOrder ?? itemIndex,
-            })),
-          },
-          sourceImageUrl: variantImageUrl,
-          sortOrderProvided: variantSortOrder !== undefined,
-        });
+        if (shouldIncludeVariant) {
+          group.variants.push({
+            rowNumber: spreadsheetRowNumber,
+            variant: {
+              name: variantName,
+              sku: variantSku || undefined,
+              barcode: variantBarcode || undefined,
+              price,
+              compareAtPrice,
+              costPrice,
+              stockQuantity,
+              lowStockThreshold: lowStockThresholdValue,
+              trackInventory,
+              allowBackorders,
+              weight: null,
+              dimensions: null,
+              image: null,
+              isActive: variantIsActive,
+              sortOrder: sortOrderValue,
+              variantItems: attributeItems.map((item, itemIndex) => ({
+                attributeId: item.attributeId,
+                attributeValueId: item.attributeValueId,
+                sortOrder: item.sortOrder ?? itemIndex,
+              })),
+            },
+            sourceImageUrl: variantImageUrl,
+            sortOrderProvided: variantSortOrder !== undefined,
+          });
+        }
       }
 
       let processedGroups = 0;
@@ -1484,15 +1552,6 @@ export class AdminProductService {
           // We don't await here to not block too much, or we can await. Awaiting is safer.
           await this.importJobService.updateProgress(job.id, progress, processedItems, failedItems, summary.totalRows);
         }
-        if (!group.variants.length) {
-          summary.skipped += group.rowNumbers.length;
-          summary.errors.push({
-            row: group.rowNumbers[0],
-            message: 'No valid variants found for this product.',
-          });
-          continue;
-        }
-
         const categoryIds = Array.from(group.categoryIds);
         const tags = Array.from(group.tags);
         const productImageUrls = Array.from(group.productImageUrls);
@@ -1521,10 +1580,24 @@ export class AdminProductService {
 
         const productPayload: any = {
           ...group.productData,
-          ...(categoryIds.length > 0 ? { categoryIds } : {}),
-          ...(tags.length > 0 ? { tags } : {}),
-          variants: variantRecords.map((record) => record.clone),
+          ...(group.shouldUpdateCategories ? { categoryIds } : {}),
+          ...(group.shouldUpdateTags ? { tags } : {}),
+          ...(group.variants.length > 0 ? { variants: variantRecords.map((record) => record.clone) } : {}),
         };
+
+        const hasUpdatableData = group.hasAnyProductDataChange
+          || group.shouldUpdateCategories
+          || group.shouldUpdateTags
+          || group.shouldUpdateMedia
+          || group.variants.length > 0;
+        if (!hasUpdatableData) {
+          summary.skipped += group.rowNumbers.length;
+          summary.errors.push({
+            row: group.rowNumbers[0],
+            message: 'No updatable columns provided for this product row.',
+          });
+          continue;
+        }
 
         const applyMediaUploads = async (payload: any) => {
           if (dryRun) {
@@ -1562,12 +1635,34 @@ export class AdminProductService {
 
         try {
           let existingProduct: Product | null = null;
-          if (group.productData.sku) {
+          if (group.productId) {
+            if (AdminProductService.UUID_REGEX.test(group.productId)) {
+              existingProduct = await this.productRepository.findById(group.productId);
+            } else {
+              existingProduct = await this.productRepository.findBySku(group.productId);
+            }
+          }
+          if (!existingProduct && group.productData.sku) {
             existingProduct = await this.productRepository.findBySku(group.productData.sku);
           }
 
+          if (group.productId && !existingProduct) {
+            summary.skipped += group.rowNumbers.length;
+            summary.errors.push({
+              row: group.rowNumbers[0],
+              message: `Product not found for Product ID '${group.productId}'.`,
+            });
+            summary.details.push({
+              row: group.rowNumbers[0],
+              productName: group.productData.name || group.productId,
+              status: 'ERROR',
+              message: `Product not found for Product ID '${group.productId}'.`,
+            });
+            continue;
+          }
+
           if (existingProduct) {
-            if (!overrideExisting) {
+            if (!overrideExisting && !group.productId) {
               summary.duplicates += 1;
               summary.skipped += group.rowNumbers.length;
               summary.errors.push({

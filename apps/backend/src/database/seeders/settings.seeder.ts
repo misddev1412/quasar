@@ -99,6 +99,14 @@ export class SettingsSeeder {
         description: 'Default country (ID or ISO code) preselected on storefront checkout',
       },
       {
+        key: 'storefront.loading_overlay_enabled',
+        value: 'true',
+        type: 'boolean' as const,
+        group: 'storefront',
+        isPublic: true,
+        description: 'Show loading overlay during storefront initialization',
+      },
+      {
         key: 'storefront.maintenance_enabled',
         value: 'false',
         type: 'boolean' as const,

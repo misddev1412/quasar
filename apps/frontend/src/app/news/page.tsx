@@ -274,7 +274,9 @@ async function NewsPageContent({
   if (renderedSections.length > 0) {
     return (
       <Layout>
-        {renderedSections}
+        <div className="flex flex-col">
+          {renderedSections}
+        </div>
       </Layout>
     );
   }

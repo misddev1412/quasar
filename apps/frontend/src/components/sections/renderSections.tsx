@@ -78,6 +78,23 @@ interface ComponentConfigResponse {
   defaultConfig?: Record<string, unknown> | null;
 }
 
+const parseNonNegativeInteger = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+    return Math.floor(value);
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+const resolveSectionSpacing = (config: Record<string, unknown>): number | null => {
+  return parseNonNegativeInteger(config.sectionSpacing);
+};
+
 async function fetchProductsByCategorySidebarConfig(): Promise<ProductsByCategorySidebarConfig | undefined> {
   try {
     const apiResponse = (await serverTrpc.clientComponentConfigs.listByKeys.query({
@@ -132,7 +149,7 @@ export const renderSections = async (sections: SectionListItem[]): Promise<React
   ]);
 
   return sections
-    .map((section) => {
+    .map((section, index) => {
       const Component = sectionComponentMap[section.type as SectionType];
       if (!Component) {
         return null;
@@ -147,16 +164,25 @@ export const renderSections = async (sections: SectionListItem[]): Promise<React
         SectionType.PRODUCTS_BY_CATEGORY,
       ].includes(section.type as SectionType);
 
+      const spacing = resolveSectionSpacing(section.config as Record<string, unknown>);
+      const isLastSection = index === sections.length - 1;
+      const wrapperStyle: React.CSSProperties | undefined = !isLastSection && spacing !== null
+        ? {
+          paddingBottom: `${spacing}px`,
+        }
+        : undefined;
+
       return (
-        <Component
-          key={section.id}
-          config={section.config as Record<string, unknown>}
-          translation={translation}
-          {...(shouldPassButtonConfig && { viewMoreButtonConfig })}
-          {...(section.type === SectionType.PRODUCTS_BY_CATEGORY && {
-            sidebarConfigOverride: productsByCategorySidebarConfig,
-          })}
-        />
+        <div key={section.id} style={wrapperStyle}>
+          <Component
+            config={section.config as Record<string, unknown>}
+            translation={translation}
+            {...(shouldPassButtonConfig && { viewMoreButtonConfig })}
+            {...(section.type === SectionType.PRODUCTS_BY_CATEGORY && {
+              sidebarConfigOverride: productsByCategorySidebarConfig,
+            })}
+          />
+        </div>
       );
     })
     .filter(Boolean) as React.ReactNode[];

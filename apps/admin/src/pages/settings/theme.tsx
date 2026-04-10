@@ -4,7 +4,7 @@ import { BaseLayout } from '@admin/components/layout';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiLayout, FiSave } from 'react-icons/fi';
 import { GlobalThemeSettings } from '@admin/components/settings';
-import { Button } from '@admin/components/common';
+import { Input } from '@admin/components/common';
 import { defaultThemeConfig, ThemeConfig } from '@admin/config/theme.config';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
@@ -16,6 +16,7 @@ const ThemeSettingsPage: React.FC = () => {
     // Storefront Theme State
     const [storefrontTheme, setStorefrontTheme] = useState<ThemeConfig>(defaultThemeConfig);
     const [storefrontMode, setStorefrontMode] = useState<'light' | 'dark'>('light');
+    const [sectionSpacing, setSectionSpacing] = useState('48');
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch Storefront Settings
@@ -55,6 +56,12 @@ const ThemeSettingsPage: React.FC = () => {
                     if (setting.key === 'storefront.theme.secondary_hover') updateColor('secondaryHover', setting.value);
                     if (setting.key === 'storefront.theme.secondary_light') updateColor('secondaryLight', setting.value);
                     if (setting.key === 'storefront.theme.secondary_dark') updateColor('secondaryDark', setting.value);
+                    if (setting.key === 'storefront.theme.section_spacing' && setting.value) {
+                        const parsed = Number.parseInt(String(setting.value), 10);
+                        if (Number.isFinite(parsed) && parsed >= 0) {
+                            setSectionSpacing(String(parsed));
+                        }
+                    }
                 });
                 setStorefrontTheme(newTheme);
                 setStorefrontMode(mode);
@@ -92,6 +99,13 @@ const ThemeSettingsPage: React.FC = () => {
             if (storefrontTheme.colors?.secondaryHover) updates.push({ key: 'storefront.theme.secondary_hover', value: storefrontTheme.colors.secondaryHover, group: 'storefront_appearance', isPublic: true });
             if (storefrontTheme.colors?.secondaryLight) updates.push({ key: 'storefront.theme.secondary_light', value: storefrontTheme.colors.secondaryLight, group: 'storefront_appearance', isPublic: true });
             if (storefrontTheme.colors?.secondaryDark) updates.push({ key: 'storefront.theme.secondary_dark', value: storefrontTheme.colors.secondaryDark, group: 'storefront_appearance', isPublic: true });
+            const normalizedSectionSpacing = Number.parseInt(sectionSpacing, 10);
+            updates.push({
+                key: 'storefront.theme.section_spacing',
+                value: String(Number.isFinite(normalizedSectionSpacing) && normalizedSectionSpacing >= 0 ? normalizedSectionSpacing : 48),
+                group: 'storefront_appearance',
+                isPublic: true
+            });
 
             if (updates.length > 0) {
                 await bulkUpdateMutation.mutateAsync({ settings: updates });
@@ -151,6 +165,23 @@ const ThemeSettingsPage: React.FC = () => {
                                 currentMode={storefrontMode}
                                 onModeChange={setStorefrontMode}
                             />
+                            <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    {t('settings.theme.section_spacing_label', 'Section Spacing (px)')}
+                                </h4>
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {t('settings.theme.section_spacing_desc', 'Khoảng cách dọc giữa các section trên storefront (Home, News, Products).')}
+                                </p>
+                                <div className="mt-3 max-w-xs">
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        step={4}
+                                        value={sectionSpacing}
+                                        onChange={(event) => setSectionSpacing(event.target.value)}
+                                    />
+                                </div>
+                            </div>
 
                         </div>
                     </div>

@@ -32,6 +32,7 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
 
 const DEFAULT_EFFECT: FloatingWidgetActionEffect = 'none';
 const BUTTON_SIZE_PX = 54;
+const FLOATING_ICONS_POSITION_KEY = 'storefront.float_icons_position';
 
 const EFFECT_CLASS_MAP: Record<FloatingWidgetActionEffect, string> = {
   none: '',
@@ -74,6 +75,9 @@ const FloatingIcons: React.FC = () => {
 
   const { data: settingsResponse, isLoading, error } = trpc.settings.getPublicSetting.useQuery({
     key: 'storefront.float_icons'
+  });
+  const { data: positionSettingResponse } = trpc.settings.getPublicSetting.useQuery({
+    key: FLOATING_ICONS_POSITION_KEY
   });
 
   // Parse and validate floating icons data
@@ -170,12 +174,32 @@ const FloatingIcons: React.FC = () => {
     return null;
   }
 
+  const positionRaw = String(positionSettingResponse?.data?.value || '').trim().toLowerCase();
+  const positionClass = positionRaw === 'left' ? 'left-5' : 'right-5';
+
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col gap-3">
+    <div className={`pointer-events-none fixed bottom-5 ${positionClass} z-50 flex flex-col gap-3`}>
+      <style jsx>{`
+        @keyframes floating-phone-ring {
+          0%, 100% { transform: rotate(0deg); }
+          10% { transform: rotate(14deg); }
+          20% { transform: rotate(-12deg); }
+          30% { transform: rotate(10deg); }
+          40% { transform: rotate(-8deg); }
+          50% { transform: rotate(6deg); }
+          60%, 90% { transform: rotate(0deg); }
+        }
+
+        .floating-phone-ring-icon {
+          transform-origin: 50% 15%;
+          animation: floating-phone-ring 1.35s ease-in-out infinite;
+        }
+      `}</style>
       {actionItems.map((item) => {
         const effect = item.effect || DEFAULT_EFFECT;
         const iconColor = item.textColor || '#ffffff';
         const isRing = effect === 'ring';
+        const isPhoneAction = item.type === 'call' || item.type === 'group_phone';
         const transparentBg = Boolean(item.isTransparentBackground);
         const iconClassName = transparentBg ? '' : 'h-5 w-5';
         const iconVariant = transparentBg ? 'floating' : 'nav';
@@ -275,7 +299,7 @@ const FloatingIcons: React.FC = () => {
                 icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
                 variant={iconVariant}
                 size={iconSize}
-                className={iconClassName}
+                className={`${iconClassName} ${isPhoneAction ? 'floating-phone-ring-icon' : ''}`}
                 style={iconStyle}
               />
             </button>

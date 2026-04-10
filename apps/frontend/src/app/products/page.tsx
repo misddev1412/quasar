@@ -162,7 +162,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       />
       <div className="pt-6 lg:pt-8">
         {renderedSections.length > 0 ? (
-          <div className="space-y-12">{renderedSections}</div>
+          <div className="flex flex-col">{renderedSections}</div>
         ) : (
           <>
             {renderDefaultProductHero()}

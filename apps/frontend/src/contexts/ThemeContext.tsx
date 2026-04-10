@@ -120,6 +120,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           };
           root.style.setProperty('--radius', radiusMap[setting.value] || '0.5rem');
         }
+        if (setting.key === 'storefront.theme.section_spacing' && setting.value !== undefined && setting.value !== null) {
+          const spacing = Number.parseInt(String(setting.value), 10);
+          if (Number.isFinite(spacing) && spacing >= 0) {
+            root.style.setProperty('--storefront-section-spacing', `${spacing}px`);
+          }
+        }
       });
     }
   }, [settingsData]);

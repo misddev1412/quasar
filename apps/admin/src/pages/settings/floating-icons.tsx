@@ -33,8 +33,10 @@ type ApiSettingResponse = {
 };
 
 const FLOATING_ICONS_SETTING_KEY = 'storefront.float_icons';
+const FLOATING_ICONS_POSITION_SETTING_KEY = 'storefront.float_icons_position';
 const FLOATING_ICONS_GROUP = 'storefront-ui';
 const ICON_BOX_SIZE = 54;
+type FloatingIconPosition = 'left' | 'right';
 
 const DEFAULT_ICON_BY_TYPE: Record<FloatingWidgetActionType, string> = {
   call: 'phone',
@@ -795,7 +797,10 @@ const FloatingIconsSettingsPage: React.FC = () => {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [currentSettingId, setCurrentSettingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPositionSaving, setIsPositionSaving] = useState(false);
   const [initialLoadError, setInitialLoadError] = useState<string | null>(null);
+  const [position, setPosition] = useState<FloatingIconPosition>('right');
+  const [currentPositionSettingId, setCurrentPositionSettingId] = useState<string | null>(null);
   const itemsRef = useRef<FloatingWidgetActionConfigList>([]);
 
   const {
@@ -805,6 +810,15 @@ const FloatingIconsSettingsPage: React.FC = () => {
     refetch,
   } = trpc.adminSettings.getByKey.useQuery(
     { key: FLOATING_ICONS_SETTING_KEY },
+    {
+      retry: false,
+    }
+  );
+  const {
+    data: positionSettingResponse,
+    isLoading: isPositionLoading,
+  } = trpc.adminSettings.getByKey.useQuery(
+    { key: FLOATING_ICONS_POSITION_SETTING_KEY },
     {
       retry: false,
     }
@@ -864,6 +878,19 @@ const FloatingIconsSettingsPage: React.FC = () => {
       setInitialLoadError(null);
     }
   }, [errorCode, errorStatus, error?.message, settingResponse, t]);
+
+  useEffect(() => {
+    const response = positionSettingResponse as ApiSettingResponse | undefined;
+    if (!response?.data) {
+      setCurrentPositionSettingId(null);
+      setPosition('right');
+      return;
+    }
+
+    setCurrentPositionSettingId(response.data.id || null);
+    const raw = String(response.data.value || '').trim().toLowerCase();
+    setPosition(raw === 'left' ? 'left' : 'right');
+  }, [positionSettingResponse]);
 
   const normalizedItems = useMemo(() => normalizeItems(items), [items]);
   const activeCount = useMemo(() => normalizedItems.filter((item) => item.isActive).length, [normalizedItems]);
@@ -956,6 +983,48 @@ const FloatingIconsSettingsPage: React.FC = () => {
       t,
       updateSettingMutation,
     ]
+  );
+
+  const handleSavePosition = useCallback(
+    async (nextPosition: FloatingIconPosition) => {
+      if (isPositionSaving) {
+        return;
+      }
+      setIsPositionSaving(true);
+      setPosition(nextPosition);
+      try {
+        if (currentPositionSettingId) {
+          await updateSettingMutation.mutateAsync({
+            id: currentPositionSettingId,
+            value: nextPosition,
+            type: 'string',
+            description: 'Storefront floating icon position',
+          });
+        } else {
+          const response = (await createSettingMutation.mutateAsync({
+            key: FLOATING_ICONS_POSITION_SETTING_KEY,
+            value: nextPosition,
+            type: 'string',
+            isPublic: true,
+            group: FLOATING_ICONS_GROUP,
+            description: 'Storefront floating icon position',
+          })) as ApiSettingResponse;
+          if (response?.data?.id) {
+            setCurrentPositionSettingId(response.data.id);
+          }
+        }
+      } catch (saveError) {
+        console.error('Failed to save floating icon position', saveError);
+        addToast({
+          type: 'error',
+          title: t('floating_icons.toast.save_error_title', 'Unable to save'),
+          description: t('floating_icons.toast.save_error_desc', 'Please try again in a moment.'),
+        });
+      } finally {
+        setIsPositionSaving(false);
+      }
+    },
+    [addToast, createSettingMutation, currentPositionSettingId, isPositionSaving, t, updateSettingMutation]
   );
 
   const applyChangesAndSave = useCallback(
@@ -1173,6 +1242,20 @@ const FloatingIconsSettingsPage: React.FC = () => {
           <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-gray-600">
             <FiCheckCircle className="h-4 w-4 text-emerald-500" />
             {t('floating_icons.quick_actions.auto_save', 'Auto-save enabled')}
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-gray-900">
+              {t('floating_icons.position.title', 'Floating position')}
+            </p>
+            <Select
+              value={position}
+              options={[
+                { value: 'right', label: t('floating_icons.position.right', 'Right') },
+                { value: 'left', label: t('floating_icons.position.left', 'Left') },
+              ]}
+              onChange={(value) => handleSavePosition(value as FloatingIconPosition)}
+              disabled={isPositionSaving || isPositionLoading}
+            />
           </div>
         </div>
       </div>

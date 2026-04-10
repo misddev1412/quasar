@@ -23,6 +23,11 @@ interface AttributeValue {
   sortOrder: number;
 }
 
+const isPredefinedOptionsType = (type: string) => {
+  const normalizedType = (type || '').toUpperCase();
+  return normalizedType === 'SELECT' || normalizedType === 'MULTISELECT';
+};
+
 export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
   isOpen,
   onClose,
@@ -62,7 +67,7 @@ export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
       }
       
       // If this is a select type attribute and we have values, create them
-      if ((formData.type === 'SELECT' || formData.type === 'MULTISELECT') && attributeValues.length > 0) {
+      if (isPredefinedOptionsType(formData.type) && attributeValues.length > 0) {
         // Create attribute values
         for (const value of attributeValues) {
           await createValueMutation.mutateAsync({
@@ -107,7 +112,7 @@ export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
     }
 
     // For select types, validate that we have at least one value
-    if ((formData.type === 'SELECT' || formData.type === 'MULTISELECT') && attributeValues.length === 0) {
+    if (isPredefinedOptionsType(formData.type) && attributeValues.length === 0) {
       addToast({
         title: t('common.error', 'Error'),
         description: t('attributes.validation.valuesRequired', 'Select attributes must have at least one value'),
@@ -126,7 +131,7 @@ export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
     }));
 
     // Clear values when changing away from select types
-    if (field === 'type' && value !== 'SELECT' && value !== 'MULTISELECT') {
+    if (field === 'type' && !isPredefinedOptionsType(String(value))) {
       setAttributeValues([]);
     }
   };
@@ -159,7 +164,7 @@ export const CreateAttributeModal: React.FC<CreateAttributeModalProps> = ({
     { value: 'DATE', label: t('attributes.types.date', 'Date') },
   ];
 
-  const isSelectType = formData.type === 'SELECT' || formData.type === 'MULTISELECT';
+  const isSelectType = isPredefinedOptionsType(formData.type);
   const isLoading = createMutation.isPending || createValueMutation.isPending;
 
   return (

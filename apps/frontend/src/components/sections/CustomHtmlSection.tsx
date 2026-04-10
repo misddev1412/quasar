@@ -26,7 +26,7 @@ export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, tr
   const sectionDescription = translation?.description === null ? null : translation?.description;
 
   return (
-    <section className="py-4 lg:py-16 text-gray-900 dark:text-gray-100" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-2 lg:py-10 text-gray-900 dark:text-gray-100" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer paddingClassName="px-4 sm:px-6 lg:px-8">
         {(sectionTitle || sectionDescription) && (
           <div className="mb-6 max-w-3xl">

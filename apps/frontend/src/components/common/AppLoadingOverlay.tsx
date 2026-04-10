@@ -15,13 +15,14 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
   progress = 0,
   message = 'Loading...'
 }) => {
-  const { getSetting } = useSettings();
+  const { getSetting, getSettingAsBoolean } = useSettings();
   const fallbackSiteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar Store';
   const configuredSiteName = (getSetting('site.name', '') || '').trim();
   const legacySiteName = (getSetting('site_name', '') || '').trim();
   const siteName = configuredSiteName || legacySiteName || fallbackSiteName;
+  const isOverlayEnabled = getSettingAsBoolean('storefront.loading_overlay_enabled', true);
 
-  if (!isLoading) return null;
+  if (!isLoading || !isOverlayEnabled) return null;
 
   return (
     <div

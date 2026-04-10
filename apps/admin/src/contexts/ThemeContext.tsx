@@ -11,6 +11,30 @@ interface ExtendedThemeContextType extends ThemeContextType {
 }
 
 const ThemeContext = createContext<ExtendedThemeContextType | undefined>(undefined);
+const vietnameseSafeFontFamilies = new Set([
+  'Inter, sans-serif',
+  'Roboto, sans-serif',
+  '"Open Sans", sans-serif',
+  'Lato, sans-serif',
+  '"Noto Sans", sans-serif',
+  '"Be Vietnam Pro", sans-serif',
+]);
+
+const normalizeFontFamily = (fontFamilyValue?: string): string => {
+  const matchedFont = availableFonts.find(f => f.value === fontFamilyValue)?.value;
+  const normalized = matchedFont || defaultThemeConfig.fontFamily;
+
+  if (typeof window === 'undefined') {
+    return normalized;
+  }
+
+  const locale = (window.localStorage.getItem('admin-locale') || document.documentElement.lang || 'vi').toLowerCase();
+  if (locale.startsWith('vi') && !vietnameseSafeFontFamilies.has(normalized)) {
+    return defaultThemeConfig.fontFamily;
+  }
+
+  return normalized;
+};
 
 export const useTheme = (): ExtendedThemeContextType => {
   const context = useContext(ThemeContext);
@@ -43,7 +67,8 @@ const addThemeTransitionCSS = () => {
 const loadFont = (fontFamilyValue: string) => {
   if (typeof document === 'undefined') return;
 
-  const fontConfig = availableFonts.find(f => f.value === fontFamilyValue);
+  const safeFontFamily = normalizeFontFamily(fontFamilyValue);
+  const fontConfig = availableFonts.find(f => f.value === safeFontFamily);
   if (!fontConfig || !fontConfig.url) return;
 
   // Check if already loaded
@@ -141,10 +166,9 @@ const applyThemeToCssVariables = (theme: ThemeConfig, isDark: boolean) => {
     root.style.setProperty('--border-radius', borderRadiusMap[safeTheme.borderRadius]);
 
     // Apply font
-    if (safeTheme.fontFamily) {
-      loadFont(safeTheme.fontFamily);
-      root.style.setProperty('--font-family-sans', safeTheme.fontFamily);
-    }
+    const safeFontFamily = normalizeFontFamily(safeTheme.fontFamily);
+    loadFont(safeFontFamily);
+    root.style.setProperty('--font-family-sans', safeFontFamily);
   }
 };
 
@@ -156,7 +180,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (storedTheme) {
         try {
           const parsedTheme = JSON.parse(storedTheme);
-          return {
+          const mergedTheme = {
             ...defaultThemeConfig,
             ...parsedTheme,
             colors: { ...defaultThemeConfig.colors, ...(parsedTheme.colors || {}) },
@@ -166,6 +190,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               light: { ...defaultThemeConfig.modes.light, ...(parsedTheme.modes?.light || {}), text: { ...defaultThemeConfig.modes.light.text, ...(parsedTheme.modes?.light?.text || {}) } },
               dark: { ...defaultThemeConfig.modes.dark, ...(parsedTheme.modes?.dark || {}), text: { ...defaultThemeConfig.modes.dark.text, ...(parsedTheme.modes?.dark?.text || {}) } }
             }
+          };
+          return {
+            ...mergedTheme,
+            fontFamily: normalizeFontFamily(mergedTheme.fontFamily),
           };
         } catch (e) {
           console.error('Error parsing stored theme:', e);
@@ -212,7 +240,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       backendSettings.forEach(setting => {
         if (setting.key === 'theme.font_family') {
-          newTheme.fontFamily = setting.value as string;
+          newTheme.fontFamily = normalizeFontFamily(setting.value as string);
         }
         if (setting.key === 'theme.border_radius') {
           newTheme.borderRadius = setting.value as any;
@@ -301,6 +329,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const updated = {
         ...prevTheme,
         ...newTheme,
+        fontFamily: normalizeFontFamily(newTheme.fontFamily || prevTheme.fontFamily),
       };
       return updated;
     });

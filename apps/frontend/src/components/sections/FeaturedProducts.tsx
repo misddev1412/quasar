@@ -397,7 +397,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
   };
 
   return (
-    <section className="py-4 lg:py-16" style={getSectionStyle()}>
+    <section className="py-2 lg:py-10" style={getSectionStyle()}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {hasContent && (
           <SectionHeader

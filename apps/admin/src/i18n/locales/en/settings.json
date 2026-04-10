@@ -382,6 +382,8 @@
         "copyright_text_hint": "Plain text supported. Leave blank to auto-generate based on your site name.",
         "copyright_color_label": "Copyright text color",
         "copyright_color_hint": "Hex or RGB support. Leave blank to match dimmed footer text.",
+        "copyright_background_color_label": "Copyright background color",
+        "copyright_background_color_hint": "Hex or RGB support. Leave blank for transparent background.",
         "copyright_text_placeholder": "© 2026 Your Store. All rights reserved."
       },
       "newsletter": {

@@ -131,6 +131,8 @@ const GlobalThemeSettings: React.FC<GlobalThemeSettingsProps> = ({
             {/* We'll assume the same list or re-declare. ideally import. */}
             <option value="Inter, sans-serif">Inter</option>
             <option value="Roboto, sans-serif">Roboto</option>
+            <option value='"Noto Sans", sans-serif'>Noto Sans</option>
+            <option value='"Be Vietnam Pro", sans-serif'>Be Vietnam Pro</option>
             <option value="Outfit, sans-serif">Outfit</option>
             <option value='"Open Sans", sans-serif'>Open Sans</option>
             <option value="Lato, sans-serif">Lato</option>
