@@ -84,6 +84,27 @@ const transformMediaItemForBackend = (mediaItem: MediaItem) => ({
   isPrimary: Boolean(mediaItem.isPrimary),
 });
 
+const normalizeTagList = (value: unknown): string[] | undefined => {
+  if (value == null) {
+    return undefined;
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+
+  return undefined;
+};
+
 const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   slug: z.string().min(1, 'Slug is required'),
@@ -95,7 +116,7 @@ const productSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
   warrantyId: z.string().optional(),
   media: z.any().optional(), // Simplified validation for media
-  tags: z.array(z.string()).optional(),
+  tags: z.preprocess(normalizeTagList, z.array(z.string()).optional()),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
@@ -284,6 +305,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         image: v.image,
         isEnabled: Boolean(v.isActive),
         isContactPrice: Boolean((v as any).isContactPrice),
+        valueNamesById: (Array.isArray(v.variantItems) ? v.variantItems : []).reduce<Record<string, string>>((acc, item) => {
+          const valueId = item?.attributeValueId;
+          if (!valueId) return acc;
+
+          const valueName = item?.attributeValue?.displayValue || item?.attributeValue?.value;
+          if (valueName) {
+            acc[valueId] = valueName;
+          }
+          return acc;
+        }, {}),
       }];
     });
 
@@ -822,6 +853,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               name: 'tags',
               label: t('products.tags', 'Tags'),
               type: 'tags',
+              tagsValueType: 'array',
               placeholder: t('products.tags_placeholder', 'Add tags'),
               required: false,
               description: t('products.tags_description', 'Add tags to help organize and find your products'),
@@ -1304,6 +1336,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       let submitData: any = {
         ...data,
         slug: normalizedSlug,
+        tags: normalizeTagList((data as any).tags) || [],
         // Transform media back to backend format
         media: data.media ? data.media.map(transformMediaItemForBackend) : [],
         // Use local state for warehouse quantities, stock quantity, and enable flag

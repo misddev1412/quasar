@@ -271,6 +271,11 @@ export class NavigationService implements INavigationService {
             path: '/orders'
           },
           {
+            icon: React.createElement(ChatIcon),
+            label: t('navigation.contact_price_inquiries', 'Liên hệ báo giá'),
+            path: '/orders/contact-price-inquiries'
+          },
+          {
             icon: React.createElement(PackageIcon),
             label: t('fulfillments.title', 'Xử lý đơn hàng'),
             path: '/orders/fulfillments'
@@ -523,7 +528,7 @@ export class NavigationService implements INavigationService {
 
     // Special handling for orders - main /orders should match detail/edit/create
     if (path === '/orders') {
-      if (currentPath.startsWith('/orders/fulfillments')) {
+      if (currentPath.startsWith('/orders/fulfillments') || currentPath.startsWith('/orders/contact-price-inquiries')) {
         return false;
       }
 

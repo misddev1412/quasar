@@ -184,6 +184,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Orders
   '/orders': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/orders/exports': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/orders/contact-price-inquiries': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/orders/new': { resource: 'order', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/orders/:id': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/orders/:id/edit': { resource: 'order', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },

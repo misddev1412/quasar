@@ -7,6 +7,7 @@ import { ProductWarehouseQuantityRepository } from '@backend/modules/products/re
 import { AttributeRepository } from '@backend/modules/products/repositories/attribute.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { Product, ProductStatus } from '@backend/modules/products/entities/product.entity';
+import { ProductTag } from '@backend/modules/products/entities/product-tag.entity';
 import { ProductPriceHistory } from '@backend/modules/products/entities/product-price-history.entity';
 import { ProductVariantPriceHistory } from '@backend/modules/products/entities/product-variant-price-history.entity';
 import { MediaType } from '@backend/modules/products/entities/product-media.entity';
@@ -124,6 +125,10 @@ export class AdminProductService {
     private readonly mediaService: MediaService,
     private readonly dataExportService: DataExportService,
     private readonly exportJobRunnerService: ExportJobRunnerService,
+    @InjectRepository(Product)
+    private readonly ormProductRepository: Repository<Product>,
+    @InjectRepository(ProductTag)
+    private readonly productTagOrmRepository: Repository<ProductTag>,
     @InjectRepository(ProductPriceHistory)
     private readonly productPriceHistoryRepository: Repository<ProductPriceHistory>,
     @InjectRepository(ProductVariantPriceHistory)
@@ -374,7 +379,7 @@ export class AdminProductService {
       const result = await this.productRepository.findAll({
         page: filters.page,
         limit: filters.limit,
-        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category', 'specifications'],
+        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category', 'specifications', 'tags'],
         filters: {
           search: filters.search,
           brandId: filters.brandId,
@@ -441,6 +446,108 @@ export class AdminProductService {
     }
   }
 
+  private normalizeTagNames(rawTags: unknown): string[] {
+    if (!Array.isArray(rawTags)) {
+      return [];
+    }
+
+    const seen = new Set<string>();
+    const normalized: string[] = [];
+
+    rawTags.forEach((tag) => {
+      const value = typeof tag === 'string' ? tag.trim() : '';
+      if (!value) {
+        return;
+      }
+
+      const key = value.toLowerCase();
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+      normalized.push(value.substring(0, 255));
+    });
+
+    return normalized;
+  }
+
+  private async ensureUniqueTagSlug(baseSlug: string): Promise<string | null> {
+    const safeBase = (baseSlug || '').trim();
+    if (!safeBase) {
+      return null;
+    }
+
+    let slug = safeBase;
+    let counter = 1;
+
+    while (true) {
+      const existing = await this.productTagOrmRepository.findOne({ where: { slug } });
+      if (!existing) {
+        return slug;
+      }
+
+      slug = `${safeBase}-${counter}`;
+      counter += 1;
+    }
+  }
+
+  private async syncProductTags(productId: string, rawTags: unknown): Promise<void> {
+    const tagNames = this.normalizeTagNames(rawTags);
+    const tagEntities: ProductTag[] = [];
+
+    for (const tagName of tagNames) {
+      let existingTag = await this.productTagOrmRepository.findOne({ where: { name: tagName } });
+
+      if (!existingTag) {
+        const baseSlug = SlugUtil.generate(tagName).substring(0, 120).replace(/-+$/, '');
+        const uniqueSlug = await this.ensureUniqueTagSlug(baseSlug);
+        const createdTag = this.productTagOrmRepository.create({
+          name: tagName,
+          slug: uniqueSlug ?? undefined,
+        });
+        existingTag = await this.productTagOrmRepository.save(createdTag);
+      }
+
+      tagEntities.push(existingTag);
+    }
+
+    const existingProduct = await this.ormProductRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.tags', 'tag')
+      .where('product.id = :productId', { productId })
+      .getOne();
+
+    const existingTagsRaw = (existingProduct as any)?.tags;
+    let existingTags: ProductTag[] = [];
+
+    if (Array.isArray(existingTagsRaw)) {
+      existingTags = existingTagsRaw;
+    } else if (existingTagsRaw && typeof existingTagsRaw.then === 'function') {
+      const resolvedTags = await existingTagsRaw;
+      existingTags = Array.isArray(resolvedTags) ? resolvedTags : [];
+    }
+
+    const existingTagIds = new Set<string>(existingTags.map((tag) => tag.id));
+    const nextTagIds = new Set<string>(tagEntities.map((tag) => tag.id));
+
+    const tagIdsToAdd = Array.from(nextTagIds).filter((tagId) => !existingTagIds.has(tagId));
+    const tagIdsToRemove = Array.from(existingTagIds).filter((tagId) => !nextTagIds.has(tagId));
+
+    const relation = this.ormProductRepository
+      .createQueryBuilder()
+      .relation(Product, 'tags')
+      .of(productId);
+
+    if (tagIdsToRemove.length > 0) {
+      await relation.remove(tagIdsToRemove);
+    }
+
+    if (tagIdsToAdd.length > 0) {
+      await relation.add(tagIdsToAdd);
+    }
+  }
+
   async getProductById(
     id: string,
     relations: string[] = [
@@ -453,6 +560,7 @@ export class AdminProductService {
       'productCategories',
       'productCategories.category',
       'specifications',
+      'tags',
       'translations',
     ],
   ): Promise<TransformedProduct> {
@@ -555,9 +663,6 @@ export class AdminProductService {
 
       // Handle media - will be processed after product creation
 
-      // For now, skip tags and variants processing - these will need separate handling
-      // as they involve relations that should be created after the product is saved
-
       const product = await this.productRepository.create(transformedData);
       if (ensuredSlug && product.slug !== ensuredSlug) {
         await this.productRepository.update(product.id, { slug: ensuredSlug });
@@ -588,8 +693,9 @@ export class AdminProductService {
         await this.handleWarehouseQuantities(product.id, productData.warehouseQuantities);
       }
 
-      // TODO: Handle tags after product creation
-      // This would require additional service methods to create related entities
+      if (productData.tags !== undefined) {
+        await this.syncProductTags(product.id, productData.tags);
+      }
 
       return product;
     } catch (error) {
@@ -726,6 +832,11 @@ export class AdminProductService {
           // If not using warehouse quantities, clear them
           await this.productWarehouseQuantityRepository.deleteByProductId(id);
         }
+      }
+
+      // Handle tags - only if explicitly provided
+      if (productData.tags !== undefined) {
+        await this.syncProductTags(id, productData.tags);
       }
 
       // Track price history if changed
@@ -2156,14 +2267,31 @@ export class AdminProductService {
 
   private async handleProductVariants(productId: string, variantsData: any[]): Promise<void> {
     try {
-      // Delete existing variants for this product first
-      await this.productVariantRepository.deleteByProductId(productId);
+      const existingVariantsResult = await this.productVariantRepository.findByProductId(productId);
+      const existingVariants = Array.isArray(existingVariantsResult?.data) ? existingVariantsResult.data : [];
+      const existingVariantIdSet = new Set(existingVariants.map((variant) => variant.id));
+      const incomingVariantIdSet = new Set<string>();
 
-      // Create new variants only if there are any
-      if (variantsData && variantsData.length > 0) {
-        const seenCombinationKeys = new Set<string>();
+      // If caller sends empty array, remove all variants for this product.
+      if (!variantsData || variantsData.length === 0) {
+        await this.productVariantRepository.deleteByProductId(productId);
+        return;
+      }
 
-        for (const variantData of variantsData) {
+      const seenCombinationKeys = new Set<string>();
+
+      for (const variantData of variantsData) {
+        const incomingVariantId = typeof variantData?.id === 'string' && variantData.id.trim() !== ''
+          ? variantData.id.trim()
+          : undefined;
+
+        const hasExistingVariantId = Boolean(incomingVariantId && existingVariantIdSet.has(incomingVariantId));
+
+        // If client sends a stale/foreign variant ID, treat it as a new variant instead of failing the whole save.
+        if (hasExistingVariantId && incomingVariantId) {
+          incomingVariantIdSet.add(incomingVariantId);
+        }
+
           const rawVariantItems = Array.isArray(variantData.variantItems) ? variantData.variantItems : [];
           const normalizedVariantItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = rawVariantItems
             .filter((item: any) => item?.attributeId && item?.attributeValueId)
@@ -2198,7 +2326,13 @@ export class AdminProductService {
           }
           seenCombinationKeys.add(combinationKey);
 
-          const createVariantData: CreateProductVariantDto = {
+          const normalizedIsContactPrice =
+            variantData.isContactPrice === true ||
+            variantData.isContactPrice === 'true' ||
+            variantData.isContactPrice === 1 ||
+            variantData.isContactPrice === '1';
+
+          const variantPayload = {
             productId,
             name: variantData.name || 'Default Variant',
             sku: variantData.sku || null,
@@ -2214,12 +2348,45 @@ export class AdminProductService {
             dimensions: variantData.dimensions || null,
             image: variantData.image || null,
             isActive: Boolean(variantData.isActive),
+            isContactPrice: normalizedIsContactPrice,
             sortOrder: Number(variantData.sortOrder) || 0,
             attributes: attributesMap,
             variantItems: normalizedVariantItems,
           };
 
-          await this.productVariantRepository.create(createVariantData);
+          if (hasExistingVariantId && incomingVariantId) {
+            await this.productVariantRepository.update(incomingVariantId, {
+              name: variantPayload.name,
+              sku: variantPayload.sku,
+              barcode: variantPayload.barcode,
+              price: variantPayload.price,
+              compareAtPrice: variantPayload.compareAtPrice,
+              costPrice: variantPayload.costPrice,
+              stockQuantity: variantPayload.stockQuantity,
+              lowStockThreshold: variantPayload.lowStockThreshold,
+              trackInventory: variantPayload.trackInventory,
+              allowBackorders: variantPayload.allowBackorders,
+              weight: variantPayload.weight,
+              dimensions: variantPayload.dimensions,
+              image: variantPayload.image,
+              isActive: variantPayload.isActive,
+              isContactPrice: variantPayload.isContactPrice,
+              sortOrder: variantPayload.sortOrder,
+              attributes: variantPayload.attributes,
+              variantItems: variantPayload.variantItems,
+            });
+          } else {
+            const createVariantData: CreateProductVariantDto = {
+              ...variantPayload,
+            };
+            await this.productVariantRepository.create(createVariantData);
+          }
+      }
+
+      // Remove variants that no longer exist in submitted payload.
+      for (const existingVariant of existingVariants) {
+        if (!incomingVariantIdSet.has(existingVariant.id)) {
+          await this.productVariantRepository.delete(existingVariant.id);
         }
       }
     } catch (error) {

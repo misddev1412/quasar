@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 interface TagInputProps {
   value?: string[];
   onChange: (tags: string[]) => void;
+  onBlur?: () => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -13,6 +14,7 @@ interface TagInputProps {
 export const TagInput: React.FC<TagInputProps> = ({
   value = [],
   onChange,
+  onBlur,
   placeholder = 'Add tags...',
   disabled = false,
   className = '',
@@ -66,6 +68,7 @@ export const TagInput: React.FC<TagInputProps> = ({
       addTag(inputValue);
     }
     setIsFocused(false);
+    onBlur?.();
   };
 
   return (

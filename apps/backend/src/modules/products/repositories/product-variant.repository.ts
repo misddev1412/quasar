@@ -22,6 +22,7 @@ export interface CreateProductVariantDto {
   dimensions?: string;
   image?: string;
   isActive?: boolean;
+  isContactPrice?: boolean;
   sortOrder?: number;
   attributes?: Record<string, string>;
   variantItems?: Array<{
@@ -46,6 +47,7 @@ export interface UpdateProductVariantDto {
   dimensions?: string;
   image?: string;
   isActive?: boolean;
+  isContactPrice?: boolean;
   sortOrder?: number;
   attributes?: Record<string, string>;
   variantItems?: Array<{
@@ -91,6 +93,30 @@ export class ProductVariantRepository {
     @InjectRepository(AttributeValue)
     private readonly attributeValueRepo: Repository<AttributeValue>,
   ) {}
+
+  private normalizeOptionalBoolean(value: unknown): boolean | undefined {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'number') {
+      if (value === 1) return true;
+      if (value === 0) return false;
+      return undefined;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true' || normalized === '1') return true;
+      if (normalized === 'false' || normalized === '0') return false;
+    }
+
+    return undefined;
+  }
 
   private async validateVariantItems(
     variantItems: Array<{ attributeId: string; attributeValueId: string; sortOrder?: number }>
@@ -307,8 +333,10 @@ export class ProductVariantRepository {
     // Create the variant
     const { variantItems, ...variantData } = data;
 
+    const normalizedIsContactPrice = this.normalizeOptionalBoolean((data as any).isContactPrice);
     const variant = this.variantRepo.create({
       ...variantData,
+      ...(normalizedIsContactPrice !== undefined ? { isContactPrice: normalizedIsContactPrice } : {}),
     });
 
     const savedVariant = await this.variantRepo.save(variant);
@@ -340,7 +368,13 @@ export class ProductVariantRepository {
     // Update variant data
     const { variantItems, ...restUpdateData } = data;
 
-    await this.variantRepo.update(id, restUpdateData as any);
+    const normalizedIsContactPrice = this.normalizeOptionalBoolean((data as any).isContactPrice);
+    const normalizedUpdateData: Record<string, unknown> = {
+      ...(restUpdateData as any),
+      ...(normalizedIsContactPrice !== undefined ? { isContactPrice: normalizedIsContactPrice } : {}),
+    };
+
+    await this.variantRepo.update(id, normalizedUpdateData as any);
 
     // Update variant items if provided
     if (variantItems !== undefined) {

@@ -562,8 +562,17 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                       ? formField.value.split(',').map(tag => tag.trim()).filter(Boolean)
                       : formField.value || []
                   }
+                  onBlur={formField.onBlur}
                   onChange={(tags) => {
-                    // Convert tags array back to comma-separated string for compatibility
+                    const shouldUseArrayValue =
+                      field.tagsValueType === 'array' || Array.isArray(formField.value);
+
+                    if (shouldUseArrayValue) {
+                      formField.onChange(tags);
+                      return;
+                    }
+
+                    // Default compatibility mode for legacy forms
                     formField.onChange(tags.join(', '));
                   }}
                   placeholder={field.placeholder || 'Add tags...'}

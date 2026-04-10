@@ -38,4 +38,20 @@ export class AdminInquiryRouter {
     const result = await this.inquiryService.findPaginated(params);
     return this.responseService.createTrpcSuccess(result);
   }
+
+  @Query({
+    input: listInquirySchema,
+    output: paginatedResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async listContactPrice(@Input() input: z.input<typeof listInquirySchema>) {
+    const params = {
+      page: input.page ?? 1,
+      limit: input.limit ?? 20,
+      search: input.search,
+      status: input.status,
+    };
+    const result = await this.inquiryService.findContactPricePaginated(params);
+    return this.responseService.createTrpcSuccess(result);
+  }
 }

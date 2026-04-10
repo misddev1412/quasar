@@ -25,6 +25,7 @@ export interface VariantMatrixItem {
   image?: string | null;
   isEnabled: boolean;
   isContactPrice: boolean;
+  valueNamesById?: Record<string, string>; // attributeValueId -> display value
 }
 
 export interface ProductVariantMatrixGeneratorProps {
@@ -191,6 +192,24 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     const attribute = attributes.find(attr => attr.id === attributeId);
     return attribute?.displayName || attribute?.name || 'Unknown';
   };
+
+  const fallbackValueNamesByAttribute = useMemo(() => {
+    const byAttribute: Record<string, Record<string, string>> = {};
+
+    variants.forEach((variant) => {
+      Object.entries(variant.attributeCombination || {}).forEach(([attributeId, valueId]) => {
+        const displayName = variant.valueNamesById?.[valueId];
+        if (!displayName) return;
+
+        if (!byAttribute[attributeId]) {
+          byAttribute[attributeId] = {};
+        }
+        byAttribute[attributeId][valueId] = displayName;
+      });
+    });
+
+    return byAttribute;
+  }, [variants]);
 
 
 
@@ -483,6 +502,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                             attributeId={attr.attributeId}
                             attributeType={selectedAttribute?.type}
                             selectedValueIds={attr.valueIds}
+                            fallbackValueNames={fallbackValueNamesByAttribute[attr.attributeId] || {}}
                             onValueIdsChange={(valueIds) => updateAttributeSelection(index, 'valueIds', valueIds)}
                             disabled={!attr.attributeId}
                           />

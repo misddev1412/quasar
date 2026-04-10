@@ -40,6 +40,7 @@ export interface TransformedProduct {
   // Related data
   brand: TransformedBrand | null;
   categories: TransformedCategory[];
+  tags: TransformedTag[];
   media: TransformedMedia[];
   variants: TransformedVariant[];
   specifications: TransformedSpecification[];
@@ -156,6 +157,14 @@ export interface TransformedSpecification {
   labelGroupCode: string | null;
 }
 
+export interface TransformedTag {
+  id: string;
+  name: string;
+  slug: string | null;
+  color: string | null;
+  description: string | null;
+}
+
 @Injectable()
 export class ProductTransformer {
 
@@ -170,6 +179,7 @@ export class ProductTransformer {
     const variants = await this.extractAndTransformVariants(product);
     const brand = this.extractAndTransformBrand(product);
     const categories = this.extractAndTransformCategories(product);
+    const tags = await this.extractAndTransformTags(product);
     const specifications = this.extractAndTransformSpecifications(product);
     const translations = Array.isArray(product.translations)
       ? product.translations.map((translation) => ({
@@ -250,6 +260,7 @@ export class ProductTransformer {
       // Related data
       brand,
       categories,
+      tags,
       media,
       variants,
       specifications,
@@ -386,6 +397,32 @@ export class ProductTransformer {
     const media = (product as any).media;
     const normalized = this.unwrapRelationArray(media);
     return normalized.length ? this.processMediaArray(normalized) : [];
+  }
+
+  private async extractAndTransformTags(product: Product): Promise<TransformedTag[]> {
+    const rawTags = (product as any).tags ?? (product as any).__tags__;
+    let tagsArray: any[] = [];
+
+    if (Array.isArray(rawTags)) {
+      tagsArray = rawTags;
+    } else if (rawTags && typeof rawTags.then === 'function') {
+      try {
+        const resolvedTags = await rawTags;
+        tagsArray = Array.isArray(resolvedTags) ? resolvedTags : [];
+      } catch {
+        tagsArray = [];
+      }
+    }
+
+    return tagsArray
+      .filter((tag) => tag && typeof tag === 'object')
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug || null,
+        color: tag.color || null,
+        description: tag.description || null,
+      }));
   }
 
   private extractAndTransformSpecifications(product: Product): TransformedSpecification[] {

@@ -200,6 +200,22 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
     }
 
     try {
+      const normalizedPrimaryImage = primaryImage === '/placeholder-product.png' ? null : primaryImage;
+      const snapshotSku = product.sku
+        || product.variants?.find((variant) => typeof variant?.sku === 'string' && variant.sku.trim().length > 0)?.sku
+        || null;
+
+      const productSnapshot = {
+        id: product.id,
+        name: displayName || product.name || '',
+        slug: product.slug || null,
+        sku: snapshotSku,
+        isContactPrice: Boolean(product.isContactPrice),
+        category: categoryNames || null,
+        variantCount: variantCountValue,
+        primaryImage: normalizedPrimaryImage,
+      };
+
       await submitInquiry.mutateAsync({
         name: trimmedName,
         email: trimmedEmail,
@@ -208,6 +224,11 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
         productId: product.id,
         url: typeof window !== 'undefined' ? window.location.href : pathname,
         subject: `Inquiry for ${displayName || product.id}`,
+        metadata: {
+          inquiryType: 'CONTACT_PRICE',
+          source: 'CONTACT_PRICE',
+          productSnapshot,
+        },
       });
 
       toast.success(mergedLabels.submitSuccess);
@@ -225,6 +246,7 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
       toast.error(error?.message || mergedLabels.submitError);
     }
   }, [
+    categoryNames,
     contactEmail,
     contactMessage,
     contactName,
@@ -241,9 +263,16 @@ const ContactPriceModal: React.FC<ContactPriceModalProps> = ({
     onClose,
     pathname,
     product.id,
+    product.isContactPrice,
+    product.name,
+    product.slug,
+    product.sku,
+    product.variants,
+    primaryImage,
     resetForm,
     selectedPhoneCountry,
     submitInquiry,
+    variantCountValue,
   ]);
 
   return (

@@ -125,6 +125,7 @@ const ComponentConfigCreatePage = lazy(() => import(/* webpackChunkName: "admin-
 const ComponentConfigEditPage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/component-configs/[id]/edit'));
 const OrdersIndexPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders'));
 const OrdersExportsPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/exports'));
+const ContactPriceInquiriesPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/contact-price-inquiries'));
 const OrderCreatePage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/create'));
 const OrderEditPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/[id]/edit'));
 const OrderDetailPage = lazy(() => import(/* webpackChunkName: "admin-orders" */ '@admin/pages/orders/[id]'));
@@ -346,6 +347,7 @@ const AppRoutes: React.FC = () => {
         {/* Order Management */}
         <Route path="/orders" element={<ProtectedRoute><OrdersIndexPage /></ProtectedRoute>} />
         <Route path="/orders/exports" element={<ProtectedRoute><OrdersExportsPage /></ProtectedRoute>} />
+        <Route path="/orders/contact-price-inquiries" element={<ProtectedRoute><ContactPriceInquiriesPage /></ProtectedRoute>} />
         <Route path="/orders/new" element={<ProtectedRoute><OrderCreatePage /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
         <Route path="/orders/:id/edit" element={<ProtectedRoute><OrderEditPage /></ProtectedRoute>} />

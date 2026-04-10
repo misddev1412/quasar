@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Attribute, AttributeType } from '@backend/modules/products/entities/attribute.entity';
 import { AttributeValue, AttributeValueScope } from '@backend/modules/products/entities/attribute-value.entity';
 import { AttributeTranslation } from '@backend/modules/products/entities/attribute-translation.entity';
@@ -183,7 +183,10 @@ export class AttributeRepository {
   // Attribute Value methods
   async findAttributeValues(attributeId: string): Promise<AttributeValue[]> {
     return this.attributeValueRepo.find({
-      where: { attributeId, scope: AttributeValueScope.GLOBAL },
+      where: {
+        attributeId,
+        scope: In([AttributeValueScope.GLOBAL, AttributeValueScope.LOCAL]),
+      },
       order: { sortOrder: 'ASC', value: 'ASC' },
     });
   }

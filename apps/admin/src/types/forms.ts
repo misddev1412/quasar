@@ -47,6 +47,8 @@ export interface FormFieldConfig {
   // Custom right element (e.g. for AI generation button)
   rightElement?: ReactNode;
   rightElementPosition?: 'label' | 'inside-input';
+  // Tags field output format
+  tagsValueType?: 'array' | 'csv';
 }
 
 // Form section configuration

@@ -12,6 +12,7 @@ interface AttributeValuesSelectorProps {
   selectedValueIds: string[];
   onValueIdsChange: (valueIds: string[]) => void;
   onValueNamesLoad?: (valueNames: Record<string, string>) => void;
+  fallbackValueNames?: Record<string, string>;
   disabled?: boolean;
 }
 
@@ -21,6 +22,7 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
   selectedValueIds,
   onValueIdsChange,
   onValueNamesLoad,
+  fallbackValueNames = {},
   disabled = false,
 }) => {
   const { t } = useTranslationWithBackend();
@@ -40,17 +42,26 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
   );
 
   const values = (valuesData as any)?.data || [];
+  const visibleValues = values.filter((value: any) => {
+    const scope = String(value?.scope || 'GLOBAL').toUpperCase();
+    if (scope === 'GLOBAL') {
+      return true;
+    }
+
+    // Keep LOCAL values visible only when selected or newly created in this editor session.
+    return selectedValueIds.includes(value.id) || Boolean(localValueNames[value.id]);
+  });
 
   // Notify parent about value names when loaded (optional)
   useEffect(() => {
-    if (values.length > 0 && onValueNamesLoad) {
+    if (visibleValues.length > 0 && onValueNamesLoad) {
       const valueNames: Record<string, string> = {};
-      values.forEach((value: any) => {
+      visibleValues.forEach((value: any) => {
         valueNames[value.id] = value.displayValue || value.value;
       });
       onValueNamesLoad(valueNames);
     }
-  }, [values, onValueNamesLoad]);
+  }, [visibleValues, onValueNamesLoad]);
 
   const handleValueAdd = (valueId: string) => {
     if (!selectedValueIds.includes(valueId)) {
@@ -109,7 +120,7 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
     );
   }
 
-  if (values.length === 0 && !allowCustomValueInput) {
+  if (visibleValues.length === 0 && !allowCustomValueInput) {
     return (
       <div className="text-sm text-gray-500 dark:text-gray-400">
         {t('products.no_values_available', 'No values available for this attribute')}
@@ -162,8 +173,13 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
           </div>
           <div className="flex flex-wrap gap-2">
             {selectedValueIds.map((valueId) => {
-              const value = values.find((v: any) => v.id === valueId);
-              const displayName = value?.displayValue || value?.value || localValueNames[valueId] || valueId;
+              const value = visibleValues.find((v: any) => v.id === valueId) || values.find((v: any) => v.id === valueId);
+              const displayName =
+                value?.displayValue ||
+                value?.value ||
+                localValueNames[valueId] ||
+                fallbackValueNames[valueId] ||
+                valueId;
               return (
                 <Badge
                   key={valueId}
@@ -195,7 +211,7 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
             : t('products.available_values', 'Available Values')}
         </div>
         <div className="flex flex-wrap gap-2">
-          {values.map((value: any) => {
+          {visibleValues.map((value: any) => {
             const isSelected = selectedValueIds.includes(value.id);
             if (isSelected) return null; // Don't show selected values in available section
 
@@ -216,7 +232,7 @@ export const AttributeValuesSelector: React.FC<AttributeValuesSelectorProps> = (
       </div>
 
       {/* Empty state when no available values */}
-      {values.filter((v: any) => !selectedValueIds.includes(v.id)).length === 0 && values.length > 0 && (
+      {visibleValues.filter((v: any) => !selectedValueIds.includes(v.id)).length === 0 && visibleValues.length > 0 && (
         <div className="text-center py-4">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {t('products.all_values_selected', 'All available values have been selected')}
