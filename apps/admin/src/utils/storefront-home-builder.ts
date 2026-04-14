@@ -141,7 +141,7 @@ export const parseBuilderSelectSectionMessage = (payload: unknown): BuilderSelec
   }
   return {
     type: 'BUILDER_SELECT_SECTION',
-    payload: { page, sectionId },
+    payload: { page, sectionId: sectionId as string | null },
   };
 };
 

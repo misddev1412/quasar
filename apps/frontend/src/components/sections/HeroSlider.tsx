@@ -44,6 +44,7 @@ export interface HeroSliderConfig {
   fieldVisibility?: HeroSliderFieldVisibility;
   buttonVisibility?: HeroSliderButtonVisibility;
   height?: number;
+  aspectRatio?: string | number;
   containerPaddingY?: string;
   containerBorderRadius?: string;
 }
@@ -81,6 +82,7 @@ const defaultSlides: HeroSlideConfig[] = [
 
 const DEFAULT_BACKGROUND = 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #0f172a 100%)';
 const DEFAULT_OVERLAY_COLOR = 'rgba(15, 23, 42, 0.55)';
+const DEFAULT_HERO_ASPECT_RATIO = 1550 / 450;
 type ParsedColor = { r: number; g: number; b: number; a: number };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -193,6 +195,25 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const resolvedHeight = typeof config.height === 'number' && Number.isFinite(config.height)
     ? Math.min(1200, Math.max(200, config.height))
     : 650;
+  const resolvedAspectRatio = (() => {
+    if (typeof config.aspectRatio === 'number' && Number.isFinite(config.aspectRatio) && config.aspectRatio > 0) {
+      return config.aspectRatio;
+    }
+    if (typeof config.aspectRatio === 'string') {
+      const trimmed = config.aspectRatio.trim();
+      if (trimmed.includes('/')) {
+        const [widthRaw, heightRaw] = trimmed.split('/').map((part) => Number.parseFloat(part.trim()));
+        if (Number.isFinite(widthRaw) && Number.isFinite(heightRaw) && widthRaw > 0 && heightRaw > 0) {
+          return widthRaw / heightRaw;
+        }
+      }
+      const parsed = Number.parseFloat(trimmed);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+    return DEFAULT_HERO_ASPECT_RATIO;
+  })();
 
   const overlaySettings = config.overlay ?? {};
   const overlayEnabled = overlaySettings.enabled ?? true;
@@ -307,7 +328,6 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : undefined;
   const constrainedWrapperClass = isFullWidth ? '' : 'w-full';
 
-  // Keep a fixed pixel height from section config across breakpoints.
   const heroShellClass = isFullWidth
     ? 'relative overflow-hidden text-white'
     : 'relative overflow-hidden text-white rounded-none lg:rounded-[var(--hero-radius)] shadow-none lg:shadow-2xl border-none lg:border lg:border-white/10 dark:lg:border-white/5';
@@ -315,7 +335,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const heroShellStyle: CSSProperties = {
     ...containerStyle,
     width: '100%',
-    height: `${resolvedHeight}px`,
+    height: 'auto',
+    aspectRatio: `${resolvedAspectRatio}`,
+    maxHeight: `${resolvedHeight}px`,
+    minHeight: '220px',
     '--hero-radius': containerBorderRadius || '1.5rem',
   } as CSSProperties;
 
