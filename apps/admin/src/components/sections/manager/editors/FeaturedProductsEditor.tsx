@@ -8,7 +8,14 @@ import SelectComponent, { components as selectComponents, type MenuListProps } f
 import { ConfigChangeHandler, ProductOption } from '@admin/components/sections/manager/types';
 import { ensureNumber, mapProductToOption } from '@admin/components/sections/manager/utils';
 import { Image as ImageIcon } from 'lucide-react';
-import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '@admin/components/sections/manager/common/SectionHeadingConfig';
+import {
+    SectionHeadingConfig,
+    SectionHeadingConfigData,
+    SectionHeadingDescriptionSize,
+    SectionHeadingSubtitleSize,
+    SectionHeadingTextTransform,
+    SectionHeadingTitleSize,
+} from '@admin/components/sections/manager/common/SectionHeadingConfig';
 
 interface FeaturedProductsConfigEditorProps {
     value: Record<string, unknown>;
@@ -29,6 +36,8 @@ interface FeaturedProductsConfig {
     headingTextColor?: string;
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
+    headingSubtitleSize?: SectionHeadingSubtitleSize;
+    headingDescriptionSize?: SectionHeadingDescriptionSize;
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
@@ -56,6 +65,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
         headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
         headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
+        headingSubtitleSize: typeof value?.headingSubtitleSize === 'string' ? (value.headingSubtitleSize as SectionHeadingSubtitleSize) : undefined,
+        headingDescriptionSize: typeof value?.headingDescriptionSize === 'string' ? (value.headingDescriptionSize as SectionHeadingDescriptionSize) : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
         headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
         headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
@@ -383,6 +394,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                                     headingTextColor: config.headingTextColor,
                                     headingTextTransform: config.headingTextTransform,
                                     headingTitleSize: config.headingTitleSize,
+                                    headingSubtitleSize: config.headingSubtitleSize,
+                                    headingDescriptionSize: config.headingDescriptionSize,
                                     headingBarHeight: config.headingBarHeight,
                                     headingBorderRadius: config.headingBorderRadius,
                                     headingPaddingY: config.headingPaddingY,

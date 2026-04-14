@@ -2,8 +2,8 @@ import React from 'react';
 import { useTheme } from '@admin/contexts/ThemeContext';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'chip';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   fullWidth?: boolean;
   startIcon?: React.ReactNode;
@@ -63,6 +63,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
         ? `${active ? 'bg-primary-500/20 text-primary-400' : 'bg-transparent text-theme-primary'} hover:bg-theme-surface`
         : `${active ? 'bg-primary-100 text-primary-700' : 'bg-transparent text-slate-800'} hover:bg-slate-100 font-medium`,
       danger: 'bg-error-600 hover:bg-error-700 text-white font-semibold shadow-md',
+      chip: isDarkMode
+        ? `${active
+          ? 'bg-primary-500/20 border-primary-400 text-primary-300'
+          : 'bg-theme-surface border-theme-border text-theme-secondary'} border hover:border-primary-400 hover:text-primary-300`
+        : `${active
+          ? 'bg-primary-50 border-primary-500 text-primary-700'
+          : 'bg-white border-neutral-300 text-neutral-700'} border hover:border-primary-400 hover:text-primary-700`,
     };
 
     return classes[variant];
@@ -70,18 +77,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
 
   // Explicit height classes to match input components exactly
   const sizeClasses = {
+    xs: 'h-7 px-2.5 text-xs',    // 28px for compact inline actions
     sm: 'h-10 px-3 text-sm',      // 40px height (matches input sm)
     md: 'h-11 px-4',              // 44px height (matches input md)
     lg: 'h-12 px-6 text-lg',      // 48px height (matches input lg)
   };
 
   const getAnimationClass = () => {
+    if (variant === 'chip') {
+      return 'transition-colors duration-200';
+    }
     return isLoginPage && variant === 'primary' && !disabled && !isLoading
       ? 'hover:scale-[1.02] hover:-translate-y-0.5 transform transition-all duration-200'
       : 'hover:scale-[1.01] transition-all duration-200';
   };
 
-  const borderRadiusClass = 'rounded-[var(--border-radius)]';
+  const borderRadiusClass = variant === 'chip' ? 'rounded-full' : 'rounded-[var(--border-radius)]';
 
   const getShadowClass = () => {
     if (disabled || isLoading) return '';

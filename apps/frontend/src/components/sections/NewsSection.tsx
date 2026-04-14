@@ -25,6 +25,8 @@ export interface NewsSectionRowConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -41,6 +43,8 @@ export interface NewsSectionConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -192,6 +196,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
   const baseCard = sanitizeCardConfig((config as any)?.card);
   const baseHeadingTransform = parseHeadingTransform(config?.headingTextTransform);
   const baseHeadingTitleSize = parseHeadingTitleSize(config?.headingTitleSize);
+  const baseHeadingSubtitleSize = parseHeadingTitleSize(config?.headingSubtitleSize);
+  const baseHeadingDescriptionSize = parseHeadingTitleSize(config?.headingDescriptionSize);
   const baseHeadingBarHeight = parseHeadingBarHeight(config?.headingBarHeight);
   const baseHeadingBorderRadius = parseHeadingNumber(config?.headingBorderRadius);
   const baseHeadingPaddingY = parseHeadingNumber(config?.headingPaddingY);
@@ -210,6 +216,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
       headingTextTransform: parseHeadingTransform(row?.headingTextTransform) ?? baseHeadingTransform,
       headingTitleSize: parseHeadingTitleSize(row?.headingTitleSize) ?? baseHeadingTitleSize,
+      headingSubtitleSize: parseHeadingTitleSize(row?.headingSubtitleSize) ?? baseHeadingSubtitleSize,
+      headingDescriptionSize: parseHeadingTitleSize(row?.headingDescriptionSize) ?? baseHeadingDescriptionSize,
       headingBarHeight: parseHeadingBarHeight(row?.headingBarHeight) ?? baseHeadingBarHeight,
       headingBorderRadius: parseHeadingNumber(row?.headingBorderRadius) ?? baseHeadingBorderRadius,
       headingPaddingY: parseHeadingNumber(row?.headingPaddingY) ?? baseHeadingPaddingY,
@@ -307,6 +315,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingTextColor: config?.headingTextColor,
         headingTextTransform: parseHeadingTransform(config?.headingTextTransform),
         headingTitleSize: parseHeadingTitleSize(config?.headingTitleSize),
+        headingSubtitleSize: parseHeadingTitleSize(config?.headingSubtitleSize),
+        headingDescriptionSize: parseHeadingTitleSize(config?.headingDescriptionSize),
         headingBarHeight: parseHeadingBarHeight(config?.headingBarHeight),
         headingBorderRadius: parseHeadingNumber(config?.headingBorderRadius),
         headingPaddingY: parseHeadingNumber(config?.headingPaddingY),
@@ -328,6 +338,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingTextColor: row.headingTextColor,
         headingTextTransform: row.headingTextTransform,
         headingTitleSize: row.headingTitleSize,
+        headingSubtitleSize: row.headingSubtitleSize,
+        headingDescriptionSize: row.headingDescriptionSize,
         headingBarHeight: row.headingBarHeight,
         headingBorderRadius: row.headingBorderRadius,
         headingPaddingY: row.headingPaddingY,
@@ -485,6 +497,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
                   headingTextColor={row.headingTextColor}
                   headingTextTransform={row.headingTextTransform}
                   headingTitleSize={row.headingTitleSize}
+                  headingSubtitleSize={row.headingSubtitleSize}
+                  headingDescriptionSize={row.headingDescriptionSize}
                   headingBarHeight={row.headingBarHeight}
                   headingBorderRadius={row.headingBorderRadius}
                   headingPaddingY={row.headingPaddingY}

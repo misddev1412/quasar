@@ -33,7 +33,12 @@ import type { AdminSection } from '@admin/hooks/useSectionsManager';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { createMainMenuConfig, type MainMenuConfig } from '@shared/types/navigation.types';
 import MainMenuAppearanceEditor from '@admin/components/component-configs/MainMenuAppearanceEditor';
-import AddToCartButtonEditor, { type AddToCartButtonConfig, type AddToCartButtonSize, type AddToCartButtonTextTransform } from '@admin/components/component-configs/AddToCartButtonEditor';
+import AddToCartButtonEditor, {
+  type AddToCartButtonConfig,
+  type AddToCartButtonSize,
+  type AddToCartButtonTextTransform,
+  type AddToCartPreviewLabelKey,
+} from '@admin/components/component-configs/AddToCartButtonEditor';
 
 type TranslationFn = ReturnType<typeof useTranslationWithBackend>['t'];
 
@@ -106,6 +111,7 @@ type ProductCardFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 type ProductCardFontSize = 'sm' | 'base' | 'lg' | 'xl';
 type ProductCardPriceTone = 'muted' | 'default' | 'emphasis' | 'custom';
 type ProductCardThumbnailOrientation = 'portrait' | 'landscape';
+type ProductCardContentBlock = 'title' | 'sku' | 'shortDescription' | 'price' | 'button';
 
 interface ProductCardTitleStyle {
   fontWeight: ProductCardFontWeight;
@@ -119,6 +125,13 @@ interface ProductCardPriceStyle {
 
 interface ProductCardThumbnailSettings {
   orientation: ProductCardThumbnailOrientation;
+}
+
+interface ProductCardContentFontSizes {
+  sku: ProductCardFontSize;
+  shortDescription: ProductCardFontSize;
+  contactPrice: ProductCardFontSize;
+  actionLabel: ProductCardFontSize;
 }
 
 interface ProductCardConfigState extends Record<string, unknown> {
@@ -135,6 +148,8 @@ interface ProductCardConfigState extends Record<string, unknown> {
   titleStyle: ProductCardTitleStyle;
   priceStyle: ProductCardPriceStyle;
   thumbnail: ProductCardThumbnailSettings;
+  contentFontSizes: ProductCardContentFontSizes;
+  contentOrder: ProductCardContentBlock[];
 }
 
 interface ProductCardTitleConfigState extends Record<string, unknown> {
@@ -353,6 +368,7 @@ const PRODUCT_CARD_FONT_WEIGHTS: ProductCardFontWeight[] = ['normal', 'medium', 
 const PRODUCT_CARD_FONT_SIZES: ProductCardFontSize[] = ['sm', 'base', 'lg', 'xl'];
 const PRODUCT_CARD_PRICE_TONES: ProductCardPriceTone[] = ['muted', 'default', 'emphasis', 'custom'];
 const PRODUCT_CARD_ORIENTATIONS: ProductCardThumbnailOrientation[] = ['portrait', 'landscape'];
+const PRODUCT_CARD_CONTENT_BLOCKS: ProductCardContentBlock[] = ['title', 'sku', 'shortDescription', 'price', 'button'];
 
 type ViewMoreButtonSize = NonNullable<ViewMoreButtonConfig['size']>;
 
@@ -371,6 +387,9 @@ const isProductCardPriceTone = (value: unknown): value is ProductCardPriceTone =
 
 const isProductCardOrientation = (value: unknown): value is ProductCardThumbnailOrientation =>
   typeof value === 'string' && PRODUCT_CARD_ORIENTATIONS.includes(value as ProductCardThumbnailOrientation);
+
+const isProductCardContentBlock = (value: unknown): value is ProductCardContentBlock =>
+  typeof value === 'string' && PRODUCT_CARD_CONTENT_BLOCKS.includes(value as ProductCardContentBlock);
 
 const isViewMoreButtonSize = (value: unknown): value is ViewMoreButtonSize =>
   typeof value === 'string' && VIEW_MORE_BUTTON_SIZES.includes(value as ViewMoreButtonSize);
@@ -400,6 +419,18 @@ const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardC
     typeof source.priceStyle === 'object' && source.priceStyle !== null ? (source.priceStyle as Record<string, unknown>) : {};
   const thumbnailSource =
     typeof source.thumbnail === 'object' && source.thumbnail !== null ? (source.thumbnail as Record<string, unknown>) : {};
+  const contentFontSizesSource =
+    typeof source.contentFontSizes === 'object' && source.contentFontSizes !== null
+      ? (source.contentFontSizes as Record<string, unknown>)
+      : {};
+  const rawContentOrder = Array.isArray(source.contentOrder) ? source.contentOrder : [];
+  const normalizedContentOrder = rawContentOrder.filter(isProductCardContentBlock);
+  const contentOrder = PRODUCT_CARD_CONTENT_BLOCKS.filter((block) => normalizedContentOrder.includes(block));
+  PRODUCT_CARD_CONTENT_BLOCKS.forEach((block) => {
+    if (!contentOrder.includes(block)) {
+      contentOrder.push(block);
+    }
+  });
 
   const normalized: ProductCardConfigState = {
     ...source,
@@ -424,6 +455,15 @@ const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardC
     thumbnail: {
       orientation: isProductCardOrientation(thumbnailSource.orientation) ? thumbnailSource.orientation : 'portrait',
     },
+    contentFontSizes: {
+      sku: isProductCardFontSize(contentFontSizesSource.sku) ? contentFontSizesSource.sku : 'sm',
+      shortDescription: isProductCardFontSize(contentFontSizesSource.shortDescription)
+        ? contentFontSizesSource.shortDescription
+        : 'sm',
+      contactPrice: isProductCardFontSize(contentFontSizesSource.contactPrice) ? contentFontSizesSource.contactPrice : 'lg',
+      actionLabel: isProductCardFontSize(contentFontSizesSource.actionLabel) ? contentFontSizesSource.actionLabel : 'base',
+    },
+    contentOrder,
   };
 
   if (normalized.priceStyle.colorTone !== 'custom') {
@@ -639,6 +679,15 @@ const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCar
   const outOfStockTextColorSource = (source.outOfStockTextColor && typeof source.outOfStockTextColor === 'object'
     ? source.outOfStockTextColor
     : {}) as ThemeColors;
+  const previewLabelsSource =
+    source.previewLabels && typeof source.previewLabels === 'object'
+      ? source.previewLabels as Partial<Record<AddToCartPreviewLabelKey, unknown>>
+      : {};
+
+  const normalizePreviewLabel = (key: AddToCartPreviewLabelKey): string | undefined => {
+    const value = previewLabelsSource[key];
+    return typeof value === 'string' ? value : undefined;
+  };
 
   return {
     backgroundColor: {
@@ -678,6 +727,13 @@ const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCar
       ? source.textTransform
       : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textTransform,
     icon: typeof source.icon === 'string' ? source.icon : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.icon,
+    previewLabels: {
+      add: normalizePreviewLabel('add'),
+      out: normalizePreviewLabel('out'),
+      contact: normalizePreviewLabel('contact'),
+      select: normalizePreviewLabel('select'),
+      incart: normalizePreviewLabel('incart'),
+    },
   };
 };
 
@@ -690,6 +746,7 @@ const serializeAddToCartButtonConfig = (config: AddToCartButtonConfig): Record<s
     size: config.size,
     textTransform: config.textTransform,
     icon: config.icon,
+    previewLabels: config.previewLabels,
   };
 };
 
@@ -1086,7 +1143,7 @@ const structureOptions = Object.values(ComponentStructureType).map((value) => ({
   label: value.charAt(0).toUpperCase() + value.slice(1),
 }));
 
-type JsonErrorState = Partial<Record<'defaultConfig' | 'configSchema' | 'metadata', string>>;
+type JsonErrorState = Partial<Record<'defaultConfig' | 'configSchema', string>>;
 
 export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   initialValues,
@@ -1210,9 +1267,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const [defaultConfigEntries, setDefaultConfigEntries] = useState<KeyValueEntry[]>(() =>
     objectToKeyValueEntries(sanitizedInitialDefaultConfig),
   );
-  const [metadataEntries, setMetadataEntries] = useState<KeyValueEntry[]>(() =>
-    objectToKeyValueEntries(initialMetadata),
-  );
   const [productCardConfig, setProductCardConfig] = useState<ProductCardConfigState>(() =>
     normalizeProductCardConfig(sanitizedInitialDefaultConfig),
   );
@@ -1235,13 +1289,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     normalizeAddToCartButtonConfig(sanitizedInitialDefaultConfig),
   );
   const [defaultConfigEntryErrors, setDefaultConfigEntryErrors] = useState<Record<string, string | undefined>>({});
-  const [metadataEntryErrors, setMetadataEntryErrors] = useState<Record<string, string | undefined>>({});
   const [defaultConfigMode, setDefaultConfigMode] = useState<'friendly' | 'json'>('friendly');
-  const [metadataMode, setMetadataMode] = useState<'friendly' | 'json'>('friendly');
   const [defaultConfigRaw, setDefaultConfigRaw] = useState(() =>
     JSON.stringify(sanitizedInitialDefaultConfig, null, 2),
   );
-  const [metadataRaw, setMetadataRaw] = useState(() => JSON.stringify(initialMetadata, null, 2));
   const [configSchemaValue, setConfigSchemaValue] = useState(() =>
     JSON.stringify(initialConfigSchema, null, 2),
   );
@@ -1361,11 +1412,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     isAddToCartButton,
     sanitizedInitialDefaultConfig,
   ]);
-
-  useEffect(() => {
-    setMetadataRaw(JSON.stringify(initialMetadata, null, 2));
-    setMetadataEntries(objectToKeyValueEntries(initialMetadata));
-  }, [initialMetadata]);
 
   useEffect(() => {
     setConfigSchemaValue(JSON.stringify(initialConfigSchema, null, 2));
@@ -1571,11 +1617,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     event.preventDefault();
     setJsonErrors({});
     setDefaultConfigEntryErrors({});
-    setMetadataEntryErrors({});
 
     let parsedDefault: Record<string, unknown> = {};
     let parsedSchema: Record<string, unknown> = {};
-    let parsedMetadata: Record<string, unknown> = {};
+    const parsedMetadata: Record<string, unknown> = initialMetadata;
 
     if (defaultConfigMode === 'json') {
       try {
@@ -1605,22 +1650,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         return;
       }
       parsedDefault = result.data;
-    }
-
-    if (metadataMode === 'json') {
-      try {
-        parsedMetadata = metadataRaw.trim() ? JSON.parse(metadataRaw) : {};
-      } catch (error) {
-        setJsonErrors((prev) => ({ ...prev, metadata: (error as Error)?.message || t('componentConfigs.invalidJson') }));
-        return;
-      }
-    } else {
-      const result = parseEntriesToObject(metadataEntries);
-      setMetadataEntryErrors(result.errors);
-      if (!result.isValid) {
-        return;
-      }
-      parsedMetadata = result.data;
     }
 
     try {
@@ -1670,25 +1699,9 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     }
   };
 
-  const handleMetadataEntriesChange = (entries: KeyValueEntry[]) => {
-    const normalized = entries.length > 0 ? entries : [createKeyValueEntry()];
-    setMetadataEntries(normalized);
-    const validation = parseEntriesToObject(normalized);
-    setMetadataEntryErrors(validation.errors);
-    if (validation.isValid) {
-      setMetadataRaw(JSON.stringify(validation.data, null, 2));
-      setJsonErrors((prev) => ({ ...prev, metadata: undefined }));
-    }
-  };
-
   const handleDefaultJsonChange = (value: string) => {
     setDefaultConfigRaw(value);
     setJsonErrors((prev) => ({ ...prev, defaultConfig: undefined }));
-  };
-
-  const handleMetadataJsonChange = (value: string) => {
-    setMetadataRaw(value);
-    setJsonErrors((prev) => ({ ...prev, metadata: undefined }));
   };
 
   const handleConfigSchemaChange = (value: string) => {
@@ -1837,37 +1850,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       setJsonErrors((prev) => ({
         ...prev,
         defaultConfig: (error as Error)?.message || t('componentConfigs.invalidJson'),
-      }));
-    }
-  };
-
-  const switchMetadataMode = (nextMode: 'friendly' | 'json') => {
-    if (nextMode === metadataMode) {
-      return;
-    }
-
-    if (nextMode === 'json') {
-      const validation = parseEntriesToObject(metadataEntries);
-      setMetadataEntryErrors(validation.errors);
-      if (!validation.isValid) {
-        return;
-      }
-      setMetadataRaw(JSON.stringify(validation.data, null, 2));
-      setJsonErrors((prev) => ({ ...prev, metadata: undefined }));
-      setMetadataMode('json');
-      return;
-    }
-
-    try {
-      const parsed = metadataRaw.trim() ? JSON.parse(metadataRaw) : {};
-      setMetadataEntries(objectToKeyValueEntries(parsed));
-      setMetadataEntryErrors({});
-      setJsonErrors((prev) => ({ ...prev, metadata: undefined }));
-      setMetadataMode('friendly');
-    } catch (error) {
-      setJsonErrors((prev) => ({
-        ...prev,
-        metadata: (error as Error)?.message || t('componentConfigs.invalidJson'),
       }));
     }
   };
@@ -2193,43 +2175,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.metadata')}</p>
-            <p className="text-xs text-neutral-500">{t('componentConfigs.metadataDesc')}</p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => switchMetadataMode(metadataMode === 'friendly' ? 'json' : 'friendly')}
-            startIcon={
-              metadataMode === 'friendly' ? <FiCode className="h-3.5 w-3.5" /> : <FiList className="h-3.5 w-3.5" />
-            }
-          >
-            {metadataMode === 'friendly' ? t('componentConfigs.editJson') : t('componentConfigs.simpleMode')}
-          </Button>
-        </div>
-        <div className="mt-4">
-          {metadataMode === 'friendly' ? (
-            <KeyValueEditor
-              entries={metadataEntries}
-              errors={metadataEntryErrors}
-              onChange={handleMetadataEntriesChange}
-              t={t}
-              keyValueTypeOptions={KEY_VALUE_TYPE_OPTIONS}
-            />
-          ) : (
-            <JsonEditor
-              value={metadataRaw}
-              onChange={(value) => handleMetadataJsonChange(value)}
-              height="300px"
-              error={jsonErrors.metadata}
-            />
-          )}
-        </div>
-      </div>
     </div>
   );
 
@@ -2812,6 +2757,9 @@ const NewsCardDefaultsEditor: React.FC<NewsCardDefaultsEditorProps> = ({ value, 
 
 const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ value, onChange }) => {
   const { t } = useTranslationWithBackend();
+  const [editorTab, setEditorTab] = useState<'builder' | 'detail'>('builder');
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [draggingBlock, setDraggingBlock] = useState<ProductCardContentBlock | null>(null);
   const {
     PRODUCT_CARD_LAYOUT_OPTIONS,
     PRODUCT_CARD_BADGE_STYLE_OPTIONS,
@@ -2857,6 +2805,15 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
     });
   };
 
+  const handleContentFontSizesChange = (updates: Partial<ProductCardContentFontSizes>) => {
+    handleChange({
+      contentFontSizes: {
+        ...value.contentFontSizes,
+        ...updates,
+      },
+    });
+  };
+
   const handleToneChange = (tone: ProductCardPriceTone) => {
     handlePriceStyleChange({
       colorTone: tone,
@@ -2868,27 +2825,343 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
     handleChange({ [key]: checked } as Partial<ProductCardConfigState>);
   };
 
-  const toggleItems: Array<{ key: keyof ProductCardConfigState; label: string; description: string }> = [
-    { key: 'showShortDescription', label: t('componentConfigs.showShortDescription'), description: t('componentConfigs.showShortDescriptionDesc') },
-    { key: 'showSku', label: t('componentConfigs.showSku'), description: t('componentConfigs.showSkuDesc') },
-    { key: 'showRating', label: t('componentConfigs.showRating'), description: t('componentConfigs.showRatingDesc') },
-    { key: 'showAddToCart', label: t('componentConfigs.showAddToCart'), description: t('componentConfigs.showAddToCartDesc') },
-    { key: 'showWishlist', label: t('componentConfigs.showWishlist'), description: t('componentConfigs.showWishlistDesc') },
-    { key: 'showQuickView', label: t('componentConfigs.showQuickView'), description: t('componentConfigs.showQuickViewDesc') },
+  const toggleItems: Array<{ key: keyof ProductCardConfigState; label: string }> = [
+    { key: 'showShortDescription', label: t('componentConfigs.showShortDescription') },
+    { key: 'showSku', label: t('componentConfigs.showSku') },
+    { key: 'showRating', label: t('componentConfigs.showRating') },
+    { key: 'showAddToCart', label: t('componentConfigs.showAddToCart') },
+    { key: 'showWishlist', label: t('componentConfigs.showWishlist') },
+    { key: 'showQuickView', label: t('componentConfigs.showQuickView') },
   ];
 
-  const layoutHelper =
-    value.layout === 'horizontal'
-      ? t('componentConfigs.layoutHorizontalHelper')
-      : t('componentConfigs.layoutVerticalHelper');
+  const previewTextSizeClassMap: Record<ProductCardFontSize, string> = {
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl',
+  };
+  const skuPreviewClass = previewTextSizeClassMap[value.contentFontSizes.sku] ?? previewTextSizeClassMap.sm;
+  const shortDescPreviewClass = previewTextSizeClassMap[value.contentFontSizes.shortDescription] ?? previewTextSizeClassMap.sm;
+  const contactPricePreviewClass = previewTextSizeClassMap[value.contentFontSizes.contactPrice] ?? previewTextSizeClassMap.lg;
+  const actionLabelPreviewClass = previewTextSizeClassMap[value.contentFontSizes.actionLabel] ?? previewTextSizeClassMap.base;
+  const normalizedContentOrder = PRODUCT_CARD_CONTENT_BLOCKS.filter((block) => value.contentOrder.includes(block));
+  PRODUCT_CARD_CONTENT_BLOCKS.forEach((block) => {
+    if (!normalizedContentOrder.includes(block)) {
+      normalizedContentOrder.push(block);
+    }
+  });
+  const blockLabelMap: Record<ProductCardContentBlock, string> = {
+    title: t('componentConfigs.productCardBlockTitle', 'Tên sản phẩm'),
+    sku: t('componentConfigs.productCardBlockSku', 'Mã SKU'),
+    shortDescription: t('componentConfigs.productCardBlockShortDescription', 'Mô tả ngắn'),
+    price: t('componentConfigs.productCardBlockPrice', 'Giá'),
+    button: t('componentConfigs.productCardBlockButton', 'Nút mua hàng'),
+  };
+  const imageHeightPresets = [
+    { value: 'h-48', label: t('componentConfigs.productCardImageCompact', 'Gọn (h-48)') },
+    { value: 'h-56', label: t('componentConfigs.productCardImageBalanced', 'Cân đối (h-56)') },
+    { value: 'h-72', label: t('componentConfigs.productCardImageLarge', 'Lớn (h-72)') },
+  ];
 
-  return (
+  const applyBuilderPreset = (preset: 'compact' | 'balanced' | 'premium') => {
+    if (preset === 'compact') {
+      handleChange({
+        layout: 'vertical',
+        imageHeight: 'h-48',
+        showShortDescription: false,
+        showSku: true,
+        priceDisplay: 'inline',
+        titleStyle: { ...value.titleStyle, fontSize: 'base', fontWeight: 'semibold' },
+        contentFontSizes: {
+          ...value.contentFontSizes,
+          sku: 'sm',
+          shortDescription: 'sm',
+          contactPrice: 'base',
+          actionLabel: 'sm',
+        },
+        contentOrder: ['title', 'price', 'button', 'sku', 'shortDescription'],
+      });
+      return;
+    }
+
+    if (preset === 'premium') {
+      handleChange({
+        layout: 'vertical',
+        imageHeight: 'h-72',
+        showShortDescription: true,
+        showSku: false,
+        priceDisplay: 'stacked',
+        badgeStyle: 'pill',
+        titleStyle: { ...value.titleStyle, fontSize: 'lg', fontWeight: 'bold' },
+        priceStyle: { ...value.priceStyle, colorTone: 'emphasis' },
+        contentFontSizes: {
+          ...value.contentFontSizes,
+          sku: 'sm',
+          shortDescription: 'base',
+          contactPrice: 'lg',
+          actionLabel: 'base',
+        },
+        contentOrder: ['title', 'shortDescription', 'price', 'button', 'sku'],
+      });
+      return;
+    }
+
+    handleChange({
+      layout: 'vertical',
+      imageHeight: 'h-56',
+      showShortDescription: true,
+      showSku: true,
+      priceDisplay: 'stacked',
+      titleStyle: { ...value.titleStyle, fontSize: 'lg', fontWeight: 'semibold' },
+      contentFontSizes: {
+        ...value.contentFontSizes,
+        sku: 'sm',
+        shortDescription: 'sm',
+        contactPrice: 'lg',
+        actionLabel: 'base',
+      },
+      contentOrder: ['title', 'sku', 'shortDescription', 'price', 'button'],
+    });
+  };
+
+  const updateContentOrder = (nextOrder: ProductCardContentBlock[]) => {
+    handleChange({ contentOrder: nextOrder });
+  };
+
+  const moveBlock = (source: ProductCardContentBlock, target: ProductCardContentBlock) => {
+    if (source === target) return;
+    const order = [...normalizedContentOrder];
+    const sourceIndex = order.indexOf(source);
+    const targetIndex = order.indexOf(target);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+    order.splice(sourceIndex, 1);
+    order.splice(targetIndex, 0, source);
+    updateContentOrder(order);
+  };
+
+  const onDropBlock = (target: ProductCardContentBlock) => {
+    if (!draggingBlock) return;
+    moveBlock(draggingBlock, target);
+    setDraggingBlock(null);
+  };
+
+  const builderTabContent = (
     <div className="space-y-5">
+      <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-5">
+        <p className="text-sm font-semibold text-blue-900">
+          {t('componentConfigs.productCardQuickBuilder', 'Quick builder (dễ dùng)')}
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            className="rounded-xl border border-blue-200 bg-white px-4 py-3 text-left hover:border-blue-300 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('compact')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetCompact', 'Gọn nhẹ')}</p>
+          </button>
+          <button
+            type="button"
+            className="rounded-xl border border-blue-300 bg-white px-4 py-3 text-left ring-1 ring-blue-200 hover:border-blue-400 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('balanced')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetBalanced', 'Cân bằng')}</p>
+          </button>
+          <button
+            type="button"
+            className="rounded-xl border border-blue-200 bg-white px-4 py-3 text-left hover:border-blue-300 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('premium')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetPremium', 'Nổi bật')}</p>
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[320px,1fr]">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardBuilderOrder', 'Thứ tự hiển thị (kéo thả)')}</p>
+          <div className="mt-3 space-y-2">
+            {normalizedContentOrder.map((block) => (
+              <div
+                key={block}
+                draggable
+                onDragStart={() => setDraggingBlock(block)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => onDropBlock(block)}
+                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm cursor-move"
+              >
+                <span className="text-neutral-700">{blockLabelMap[block]}</span>
+                <span className="text-neutral-400">⋮⋮</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.preview', 'Preview')}</p>
+          <div className="mt-4 max-w-sm rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <div className={`rounded-lg bg-neutral-100 ${value.imageHeight === 'h-48' ? 'h-20' : value.imageHeight === 'h-56' ? 'h-24' : 'h-28'}`} />
+            <div className="mt-3 space-y-2">
+              {normalizedContentOrder.map((block) => (
+                <div key={`preview-${block}`} className="rounded-md border border-dashed border-neutral-200 p-2">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{blockLabelMap[block]}</span>
+                    {block === 'sku' && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-neutral-500">
+                          {value.showSku ? t('componentConfigs.visibleState', 'Đang hiển thị') : t('componentConfigs.hiddenState', 'Đang ẩn')}
+                        </span>
+                        <Toggle
+                          checked={value.showSku}
+                          onChange={(checked) => handleToggleChange('showSku', checked)}
+                          size="sm"
+                          aria-label={t('componentConfigs.showSku')}
+                        />
+                      </div>
+                    )}
+                    {block === 'shortDescription' && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-neutral-500">
+                          {value.showShortDescription ? t('componentConfigs.visibleState', 'Đang hiển thị') : t('componentConfigs.hiddenState', 'Đang ẩn')}
+                        </span>
+                        <Toggle
+                          checked={value.showShortDescription}
+                          onChange={(checked) => handleToggleChange('showShortDescription', checked)}
+                          size="sm"
+                          aria-label={t('componentConfigs.showShortDescription')}
+                        />
+                      </div>
+                    )}
+                    {block === 'button' && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-neutral-500">
+                          {value.showAddToCart ? t('componentConfigs.visibleState', 'Đang hiển thị') : t('componentConfigs.hiddenState', 'Đang ẩn')}
+                        </span>
+                        <Toggle
+                          checked={value.showAddToCart}
+                          onChange={(checked) => handleToggleChange('showAddToCart', checked)}
+                          size="sm"
+                          aria-label={t('componentConfigs.showAddToCart')}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {block === 'title' && (
+                    <div className="space-y-2">
+                      <p className={`${previewTextSizeClassMap[value.titleStyle.fontSize]} font-semibold text-neutral-900`}>Sample Product Title</p>
+                      <select
+                        className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs"
+                        value={value.titleStyle.fontSize}
+                        onChange={(event) => handleTitleStyleChange({ fontSize: event.target.value as ProductCardFontSize })}
+                      >
+                        {PRODUCT_CARD_FONT_SIZE_OPTIONS.map((option) => (
+                          <option key={`title-size-${option.value}`} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {block === 'sku' && value.showSku && (
+                    <div className="space-y-2">
+                      <p className={`${skuPreviewClass} text-neutral-500`}>SKU: QSR-0001</p>
+                      <select
+                        className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs"
+                        value={value.contentFontSizes.sku}
+                        onChange={(event) => handleContentFontSizesChange({ sku: event.target.value as ProductCardFontSize })}
+                      >
+                        {PRODUCT_CARD_FONT_SIZE_OPTIONS.map((option) => (
+                          <option key={`sku-size-${option.value}`} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {block === 'shortDescription' && value.showShortDescription && (
+                    <div className="space-y-2">
+                      <p className={`${shortDescPreviewClass} text-neutral-600`}>Short description preview text</p>
+                      <select
+                        className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs"
+                        value={value.contentFontSizes.shortDescription}
+                        onChange={(event) => handleContentFontSizesChange({ shortDescription: event.target.value as ProductCardFontSize })}
+                      >
+                        {PRODUCT_CARD_FONT_SIZE_OPTIONS.map((option) => (
+                          <option key={`short-size-${option.value}`} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {block === 'price' && (
+                    <div className="space-y-2">
+                      <p className={`${contactPricePreviewClass} font-bold text-neutral-900`}>{t('ecommerce.product.contactPriceLabel', 'Liên hệ')}</p>
+                      <select
+                        className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs"
+                        value={value.contentFontSizes.contactPrice}
+                        onChange={(event) => handleContentFontSizesChange({ contactPrice: event.target.value as ProductCardFontSize })}
+                      >
+                        {PRODUCT_CARD_FONT_SIZE_OPTIONS.map((option) => (
+                          <option key={`price-size-${option.value}`} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {block === 'button' && value.showAddToCart && (
+                    <div className="space-y-2">
+                      <button type="button" className="w-full rounded-lg bg-blue-600 px-3 py-2 text-white">
+                        <span className={actionLabelPreviewClass}>{t('ecommerce.cart.addToCart', 'Thêm vào giỏ')}</span>
+                      </button>
+                      <select
+                        className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs"
+                        value={value.contentFontSizes.actionLabel}
+                        onChange={(event) => handleContentFontSizesChange({ actionLabel: event.target.value as ProductCardFontSize })}
+                      >
+                        {PRODUCT_CARD_FONT_SIZE_OPTIONS.map((option) => (
+                          <option key={`btn-size-${option.value}`} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const detailTabContent = (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-5">
+        <p className="text-sm font-semibold text-blue-900">
+          {t('componentConfigs.productCardQuickBuilder', 'Quick builder (dễ dùng)')}
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            className="rounded-xl border border-blue-200 bg-white px-4 py-3 text-left hover:border-blue-300 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('compact')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetCompact', 'Gọn nhẹ')}</p>
+          </button>
+          <button
+            type="button"
+            className="rounded-xl border border-blue-300 bg-white px-4 py-3 text-left ring-1 ring-blue-200 hover:border-blue-400 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('balanced')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetBalanced', 'Cân bằng')}</p>
+          </button>
+          <button
+            type="button"
+            className="rounded-xl border border-blue-200 bg-white px-4 py-3 text-left hover:border-blue-300 hover:bg-blue-50"
+            onClick={() => applyBuilderPreset('premium')}
+          >
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productCardPresetPremium', 'Nổi bật')}</p>
+          </button>
+        </div>
+      </div>
+
       <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.layoutOverview')}</p>
-            <p className="text-xs text-neutral-500">{layoutHelper}</p>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.layoutOverview', 'Bố cục hiển thị')}</p>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -2901,14 +3174,31 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
               placeholder={t('componentConfigs.selectLayout')}
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.imageHeight')}</label>
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              {t('componentConfigs.imageHeight')}
+            </label>
             <Input
               value={value.imageHeight}
               onChange={(event) => handleChange({ imageHeight: event.target.value })}
               placeholder={t('componentConfigs.imageHeightPlaceholder')}
+              inputSize="md"
             />
-            <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.imageHeightDesc')}</p>
+            <div className="flex flex-wrap gap-2">
+              {imageHeightPresets.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  onClick={() => handleChange({ imageHeight: preset.value })}
+                  className={`rounded-full border px-3 py-1 text-xs transition ${value.imageHeight === preset.value
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-neutral-300 bg-white text-neutral-600 hover:border-blue-300 hover:text-blue-700'
+                    }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -2939,74 +3229,12 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
               }
               options={PRODUCT_CARD_ORIENTATION_OPTIONS}
             />
-            <p className="text-[11px] text-neutral-500 mb-0">
-              {t('componentConfigs.thumbnailFormatDesc')}
-            </p>
           </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitle')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.productTitleDesc')}</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div className="space-y-1">
-            <Select
-              label={t('componentConfigs.fontWeight')}
-              value={value.titleStyle.fontWeight}
-              onChange={(next) =>
-                handleTitleStyleChange({
-                  fontWeight: (next as ProductCardFontWeight) || 'semibold',
-                })
-              }
-              options={PRODUCT_CARD_FONT_WEIGHT_OPTIONS}
-            />
-          </div>
-          <div className="space-y-1">
-            <Select
-              label={t('componentConfigs.fontSize')}
-              value={value.titleStyle.fontSize}
-              onChange={(next) =>
-                handleTitleStyleChange({
-                  fontSize: (next as ProductCardFontSize) || 'lg',
-                })
-              }
-              options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.priceStyle')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.priceStyleDesc')}</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div className="space-y-1">
-            <Select
-              label={t('componentConfigs.colorContrast')}
-              value={value.priceStyle.colorTone}
-              onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
-              options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
-            />
-            <p className="text-[11px] text-neutral-500 mb-0">{PRICE_TONE_DESCRIPTIONS[value.priceStyle.colorTone]}</p>
-          </div>
-          {value.priceStyle.colorTone === 'custom' && (
-            <div className="space-y-1">
-              <ColorSelector
-                value={value.priceStyle.customColor || undefined}
-                onChange={(color) => handlePriceStyleChange({ customColor: color || '' })}
-                label={t('componentConfigs.customColor')}
-                placeholder={t('componentConfigs.customColorPlaceholder')}
-              />
-              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.leaveEmptyForDefault')}</p>
-            </div>
-          )}
         </div>
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
         <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.contentActions')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.contentActionsDesc')}</p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {toggleItems.map((item) => (
             <div
@@ -3015,7 +3243,6 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
             >
               <div>
                 <p className="text-sm font-medium text-neutral-900 mb-0">{item.label}</p>
-                <p className="text-xs text-neutral-500 mb-0">{item.description}</p>
               </div>
               <Toggle
                 checked={Boolean(value[item.key])}
@@ -3027,6 +3254,187 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
           ))}
         </div>
       </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-neutral-900">
+              {t('componentConfigs.advancedOptions', 'Tùy chọn nâng cao')}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowAdvancedOptions((prev) => !prev)}
+          >
+            {showAdvancedOptions
+              ? t('componentConfigs.hideAdvanced', 'Ẩn nâng cao')
+              : t('componentConfigs.showAdvanced', 'Mở nâng cao')}
+          </Button>
+        </div>
+        {showAdvancedOptions && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitle')}</p>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Select
+                    label={t('componentConfigs.fontWeight')}
+                    value={value.titleStyle.fontWeight}
+                    onChange={(next) =>
+                      handleTitleStyleChange({
+                        fontWeight: (next as ProductCardFontWeight) || 'semibold',
+                      })
+                    }
+                    options={PRODUCT_CARD_FONT_WEIGHT_OPTIONS}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Select
+                    label={t('componentConfigs.fontSize')}
+                    value={value.titleStyle.fontSize}
+                    onChange={(next) =>
+                      handleTitleStyleChange({
+                        fontSize: (next as ProductCardFontSize) || 'lg',
+                      })
+                    }
+                    options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.priceStyle')}</p>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Select
+                    label={t('componentConfigs.colorContrast')}
+                    value={value.priceStyle.colorTone}
+                    onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
+                    options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
+                  />
+                  <p className="text-[11px] text-neutral-500 mb-0">{PRICE_TONE_DESCRIPTIONS[value.priceStyle.colorTone]}</p>
+                </div>
+                {value.priceStyle.colorTone === 'custom' && (
+                  <div className="space-y-1">
+                    <ColorSelector
+                      value={value.priceStyle.customColor || undefined}
+                      onChange={(color) => handlePriceStyleChange({ customColor: color || '' })}
+                      label={t('componentConfigs.customColor')}
+                      placeholder={t('componentConfigs.customColorPlaceholder')}
+                    />
+                    <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.leaveEmptyForDefault')}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm font-semibold text-neutral-900">
+                {t('componentConfigs.productCardContentTypography', 'Product card content typography')}
+              </p>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Select
+                  label={t('componentConfigs.productCardSkuFontSize', 'SKU font size')}
+                  value={value.contentFontSizes.sku}
+                  onChange={(next) =>
+                    handleContentFontSizesChange({
+                      sku: (next as ProductCardFontSize) || 'sm',
+                    })
+                  }
+                  options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+                />
+                <Select
+                  label={t('componentConfigs.productCardShortDescriptionFontSize', 'Short description font size')}
+                  value={value.contentFontSizes.shortDescription}
+                  onChange={(next) =>
+                    handleContentFontSizesChange({
+                      shortDescription: (next as ProductCardFontSize) || 'sm',
+                    })
+                  }
+                  options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+                />
+                <Select
+                  label={t('componentConfigs.productCardContactPriceFontSize', 'Contact price font size')}
+                  value={value.contentFontSizes.contactPrice}
+                  onChange={(next) =>
+                    handleContentFontSizesChange({
+                      contactPrice: (next as ProductCardFontSize) || 'lg',
+                    })
+                  }
+                  options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+                />
+                <Select
+                  label={t('componentConfigs.productCardActionLabelFontSize', 'Button label font size')}
+                  value={value.contentFontSizes.actionLabel}
+                  onChange={(next) =>
+                    handleContentFontSizesChange({
+                      actionLabel: (next as ProductCardFontSize) || 'base',
+                    })
+                  }
+                  options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">
+          {t('componentConfigs.preview', 'Preview')}
+        </p>
+        <div className="mt-4 max-w-sm rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="h-28 rounded-lg bg-neutral-100" />
+          <div className="mt-3 space-y-2">
+            <p className="text-lg font-semibold text-neutral-900">Sample Product Title</p>
+            {value.showSku && <p className={`${skuPreviewClass} text-neutral-500`}>SKU: QSR-0001</p>}
+            {value.showShortDescription && (
+              <p className={`${shortDescPreviewClass} text-neutral-600`}>Short description preview text</p>
+            )}
+            <p className={`${contactPricePreviewClass} font-bold text-neutral-900`}>
+              {t('ecommerce.product.contactPriceLabel', 'Liên hệ')}
+            </p>
+            <button
+              type="button"
+              className="w-full rounded-lg bg-blue-600 px-3 py-2 text-white"
+            >
+              <span className={actionLabelPreviewClass}>{t('ecommerce.cart.addToCart', 'Thêm vào giỏ')}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex items-center rounded-lg border border-neutral-200 bg-neutral-50 p-1">
+        <button
+          type="button"
+          className={`rounded-md px-3 py-2 text-sm font-medium transition ${editorTab === 'builder'
+            ? 'bg-white text-blue-700 shadow-sm'
+            : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          onClick={() => setEditorTab('builder')}
+        >
+          {t('componentConfigs.builderTab', 'Builder')}
+        </button>
+        <button
+          type="button"
+          className={`rounded-md px-3 py-2 text-sm font-medium transition ${editorTab === 'detail'
+            ? 'bg-white text-blue-700 shadow-sm'
+            : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          onClick={() => setEditorTab('detail')}
+        >
+          {t('componentConfigs.detailTab', 'Chi tiết')}
+        </button>
+      </div>
+
+      {editorTab === 'builder' ? builderTabContent : detailTabContent}
     </div>
   );
 };

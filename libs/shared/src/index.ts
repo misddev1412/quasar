@@ -18,6 +18,7 @@ export * from './types/floating-widget.types';
 export * from './types/footer.types';
 export * from './types/component.types';
 export * from './types/navigation.types';
+export * from './types/storefront-builder.types';
 
 // Enums (all enums from index)
 export * from './enums';

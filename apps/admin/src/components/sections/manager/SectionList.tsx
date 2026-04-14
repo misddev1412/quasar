@@ -497,20 +497,21 @@ const getSectionDetails = (
 };
 
 export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) => {
+    const DEFAULT_STATUS_FILTER = 'enabled';
     const { t } = useTranslationWithBackend();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const initialSearch = searchParams.get('q') || '';
     const initialTypeParam = searchParams.get('type') || 'all';
-    const initialStatusParam = searchParams.get('status') || 'all';
+    const initialStatusParam = searchParams.get('status') || DEFAULT_STATUS_FILTER;
     const isValidInitialType = initialTypeParam === 'all' || Object.values(SectionType).includes(initialTypeParam as SectionType);
     const isValidInitialStatus = initialStatusParam === 'all' || initialStatusParam === 'enabled' || initialStatusParam === 'disabled';
     const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState<string>(isValidInitialType ? initialTypeParam : 'all');
-    const [selectedStatus, setSelectedStatus] = useState<string>(isValidInitialStatus ? initialStatusParam : 'all');
+    const [selectedStatus, setSelectedStatus] = useState<string>(isValidInitialStatus ? initialStatusParam : DEFAULT_STATUS_FILTER);
     const [showFilters, setShowFilters] = useState(
-        Boolean(initialSearch.trim()) || (isValidInitialType && initialTypeParam !== 'all') || (isValidInitialStatus && initialStatusParam !== 'all')
+        Boolean(initialSearch.trim()) || (isValidInitialType && initialTypeParam !== 'all') || (isValidInitialStatus && initialStatusParam !== DEFAULT_STATUS_FILTER)
     );
     const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set());
     const { sections, languages, sectionsQuery, sectionsStats, sectionsStatsQuery, languagesQuery, updateSection, deleteSection, reorderSections, cloneSection } = useSectionsManager(page, {
@@ -586,8 +587,8 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
     }, [searchQuery, selectedType, selectedStatus, searchParams, setSearchParams]);
 
     const defaultLanguage = useMemo(() => languages.find((language) => language.isDefault)?.code || languages[0]?.code || 'vi', [languages]);
-    const hasActiveFilters = selectedType !== 'all' || selectedStatus !== 'all' || searchQuery.trim().length > 0;
-    const activeFilterCount = (selectedType !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0);
+    const hasActiveFilters = selectedType !== 'all' || selectedStatus !== DEFAULT_STATUS_FILTER || searchQuery.trim().length > 0;
+    const activeFilterCount = (selectedType !== 'all' ? 1 : 0) + (selectedStatus !== DEFAULT_STATUS_FILTER ? 1 : 0);
 
     useEffect(() => {
         if (hasActiveFilters && !showFilters) {
@@ -701,8 +702,8 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
 
     const handleClearFilters = useCallback(() => {
         setSelectedType('all');
-        setSelectedStatus('all');
-    }, []);
+        setSelectedStatus(DEFAULT_STATUS_FILTER);
+    }, [DEFAULT_STATUS_FILTER]);
 
     const sectionColumns = useMemo<ReorderableColumn<AdminSection>[]>(() => [
         {

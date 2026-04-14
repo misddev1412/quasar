@@ -2,21 +2,16 @@ import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiBox } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { ComponentConfigForm } from '@admin/components/component-configs';
-import type { ComponentConfigFormValues } from '@admin/components/component-configs';
+import { ComponentConfigVisualBuilder } from '@admin/components/component-configs';
+import type { ComponentConfigVisualBuilderSubmitPayload } from '@admin/components/component-configs';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import {
-  collectDescendantIds,
   findComponentById,
-  flattenComponents,
   type ComponentConfigNode,
 } from '@admin/components/component-configs';
 import { Button, StandardFormPage } from '@admin/components/common';
-import { useUrlTabs } from '@admin/hooks/useUrlTabs';
-
-const TAB_KEYS = ['structure', 'defaults', 'advanced', 'sidebar'];
 
 type ComponentConfigResponse = ApiResponse<ComponentConfigNode>;
 type ComponentConfigsApiResponse = ApiResponse<ComponentConfigNode[]>;
@@ -46,44 +41,64 @@ const ComponentConfigEditPage: React.FC = () => {
   );
 
   const updateMutation = trpc.adminComponentConfigs.update.useMutation();
+  const childReorderMutation = trpc.adminComponentConfigs.update.useMutation();
 
   const componentTree = listQuery.data?.data ?? [];
-  const flattenedComponents = useMemo(() => flattenComponents(componentTree), [componentTree]);
   const treeNode = useMemo(() => findComponentById(componentTree, componentId), [componentTree, componentId]);
-  const disallowedParentIds = useMemo(
-    () => (treeNode ? [treeNode.id, ...collectDescendantIds(treeNode)] : []),
-    [treeNode],
-  );
-  const { activeTab, handleTabChange } = useUrlTabs({
-    defaultTab: 0,
-    tabParam: 'tab',
-    tabKeys: TAB_KEYS,
-  });
 
-  const parentOptions = useMemo(
-    () => [
-      { value: '', label: t('componentConfigs.topLevelComponent') },
-      ...flattenedComponents.map(({ node, depth }) => ({
-        value: node.id,
-        label: `${'— '.repeat(depth)}${node.displayName}`,
-      })),
-    ],
-    [flattenedComponents, t],
-  );
-
-  const componentOptions = useMemo(
-    () => flattenedComponents.map(({ node, depth }) => ({
-      id: node.id,
-      componentKey: node.componentKey,
-      displayName: node.displayName,
-      depth,
-    })),
-    [flattenedComponents],
-  );
-
-  const handleSubmit = async (values: ComponentConfigFormValues) => {
+  const handleSubmit = async (payload: ComponentConfigVisualBuilderSubmitPayload) => {
     try {
-      await updateMutation.mutateAsync({ id: componentId, data: values });
+      await updateMutation.mutateAsync({
+        id: componentId,
+        data: {
+          defaultConfig: payload.defaultConfig,
+        },
+      });
+
+      const currentChildren = treeNode?.children ?? [];
+      if (currentChildren.length > 0) {
+        const childById = new Map(currentChildren.map((child) => [child.id, child]));
+        const positions = currentChildren.map((child) => child.position).sort((a, b) => a - b);
+        const nextOrder = payload.childOrder.filter((childId) => childById.has(childId));
+        const failedChildren: string[] = [];
+
+        for (let index = 0; index < nextOrder.length; index += 1) {
+          const childId = nextOrder[index];
+          const child = childById.get(childId);
+          if (!child) {
+            continue;
+          }
+
+          const nextPosition = positions[index] ?? index;
+          if (child.position === nextPosition) {
+            continue;
+          }
+
+          try {
+            await childReorderMutation.mutateAsync({
+              id: child.id,
+              data: {
+                position: nextPosition,
+              },
+            });
+          } catch (_error) {
+            failedChildren.push(child.displayName || child.componentKey || child.id);
+          }
+        }
+
+        if (failedChildren.length > 0) {
+          addToast({
+            title: t('componentConfigs.partialUpdateFailed', 'Saved with reorder issues'),
+            description: t(
+              'componentConfigs.partialUpdateFailedDescription',
+              `Default config was saved, but ${failedChildren.length} child component(s) could not be reordered. Please retry.`,
+            ),
+            type: 'error',
+          });
+          return;
+        }
+      }
+
       addToast({
         title: t('componentConfigs.updateSuccess'),
         description: t('componentConfigs.updateSuccessDescription'),
@@ -123,7 +138,7 @@ const ComponentConfigEditPage: React.FC = () => {
 
   const componentResponse = componentQuery.data as ComponentConfigResponse | undefined;
   const component = componentResponse?.data;
-  const isSubmitting = updateMutation.isPending;
+  const isSubmitting = updateMutation.isPending || childReorderMutation.isPending;
   const isLoading = componentQuery.isLoading || listQuery.isLoading;
 
   const formId = 'component-config-edit-form';
@@ -136,6 +151,8 @@ const ComponentConfigEditPage: React.FC = () => {
     entityNamePlural: t('componentConfigs.title'),
     backUrl: '/component-configs',
     onBack: handleCancel,
+    maxWidth: 'full' as const,
+    mode: 'update' as const,
   };
 
   if (isLoading) {
@@ -197,20 +214,12 @@ const ComponentConfigEditPage: React.FC = () => {
       isSubmitting={isSubmitting}
       formId={formId}
     >
-      <ComponentConfigForm
+      <ComponentConfigVisualBuilder
         key={componentId}
-        mode="edit"
-        initialValues={component}
-        parentOptions={parentOptions}
-        disallowedParentIds={disallowedParentIds}
-        componentOptions={componentOptions}
+        component={component}
         childComponents={treeNode?.children ?? []}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
+        onSave={handleSubmit}
         isSubmitting={isSubmitting}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        showActions={false}
         formId={formId}
       />
     </StandardFormPage>

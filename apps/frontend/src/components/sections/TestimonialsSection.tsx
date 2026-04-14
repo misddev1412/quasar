@@ -28,6 +28,8 @@ export interface TestimonialsSectionConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -152,10 +154,11 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
           headingTextColor={config.headingTextColor}
           headingTextTransform={config.headingTextTransform}
           headingTitleSize={config.headingTitleSize}
+          headingSubtitleSize={config.headingSubtitleSize}
+          headingDescriptionSize={config.headingDescriptionSize}
           headingBarHeight={config.headingBarHeight}
           headingBorderRadius={config.headingBorderRadius}
           headingPaddingY={config.headingPaddingY}
-          className="mb-12"
         />
 
         {layout === 'grid' ? (

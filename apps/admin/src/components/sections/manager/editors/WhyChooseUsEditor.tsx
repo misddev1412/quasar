@@ -11,7 +11,9 @@ import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 import {
     SectionHeadingConfig,
     SectionHeadingConfigData,
+    SectionHeadingDescriptionSize,
     SectionHeadingStyle,
+    SectionHeadingSubtitleSize,
     SectionHeadingTextTransform,
     SectionHeadingTitleSize,
 } from '@admin/components/sections/manager/common/SectionHeadingConfig';
@@ -63,6 +65,12 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
             : undefined,
         headingTitleSize: typeof value?.headingTitleSize === 'string'
             ? (value.headingTitleSize as SectionHeadingTitleSize)
+            : undefined,
+        headingSubtitleSize: typeof value?.headingSubtitleSize === 'string'
+            ? (value.headingSubtitleSize as SectionHeadingSubtitleSize)
+            : undefined,
+        headingDescriptionSize: typeof value?.headingDescriptionSize === 'string'
+            ? (value.headingDescriptionSize as SectionHeadingDescriptionSize)
             : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
         headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,

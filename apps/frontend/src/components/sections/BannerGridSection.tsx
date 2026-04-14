@@ -234,7 +234,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
 
               const imageElement = (
                 <div
-                  className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 shadow-xl"
+                  className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900"
                   style={{ borderRadius: cardBorderRadius }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}

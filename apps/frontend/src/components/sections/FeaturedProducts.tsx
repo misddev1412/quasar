@@ -22,6 +22,8 @@ export interface FeaturedProductsConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -330,7 +332,6 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
                   showAddToCart={true}
                   showWishlist={false}
                   showQuickView={false}
-                  imageHeight="h-56"
                   className="h-full"
                 />
               </div>
@@ -372,7 +373,6 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             showAddToCart={true}
             showWishlist={false}
             showQuickView={false}
-            imageHeight="h-56"
           />
         ))}
       </div>
@@ -411,6 +411,8 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             headingTextColor={config.headingTextColor}
             headingTextTransform={config.headingTextTransform}
             headingTitleSize={config.headingTitleSize}
+            headingSubtitleSize={config.headingSubtitleSize}
+            headingDescriptionSize={config.headingDescriptionSize}
             headingBarHeight={config.headingBarHeight}
             headingBorderRadius={config.headingBorderRadius}
             headingPaddingY={config.headingPaddingY}
@@ -424,4 +426,3 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
 };
 
 export default FeaturedProducts;
-

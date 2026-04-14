@@ -363,7 +363,6 @@ export const VideoGridSection: React.FC<VideoGridSectionProps> = ({ config, tran
                         title={title}
                         subtitle={subtitle}
                         description={description}
-                        className="mb-12"
                     />
                 )}
 

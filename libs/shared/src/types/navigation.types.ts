@@ -18,6 +18,7 @@ export interface MainMenuConfig extends Record<string, unknown> {
   itemTransform: MainMenuItemTransform;
   paddingTop?: string;
   paddingBottom?: string;
+  previewItems?: string[];
 }
 
 export const MAIN_MENU_ITEM_SIZES: MainMenuItemSize[] = ['compact', 'comfortable', 'spacious'];
@@ -63,6 +64,7 @@ export const DEFAULT_MAIN_MENU_CONFIG: MainMenuConfig = {
   itemTransform: 'normal',
   paddingTop: undefined,
   paddingBottom: undefined,
+  previewItems: ['Shop', 'Collections', 'Brands', 'Contact'],
 };
 
 const isMainMenuItemSize = (value: unknown): value is MainMenuItemSize =>
@@ -96,6 +98,19 @@ export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuC
     return trimmed.length > 0 ? trimmed : undefined;
   };
 
+  const normalizePreviewItems = (value: unknown): string[] => {
+    if (!Array.isArray(value)) {
+      return [...(DEFAULT_MAIN_MENU_CONFIG.previewItems ?? [])];
+    }
+
+    const items = value
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter((item) => item.length > 0)
+      .slice(0, 10);
+
+    return items.length > 0 ? items : [...(DEFAULT_MAIN_MENU_CONFIG.previewItems ?? [])];
+  };
+
   return {
     backgroundColor: {
       light: normalizeColor(backgroundColor.light, DEFAULT_MAIN_MENU_CONFIG.backgroundColor.light),
@@ -116,5 +131,6 @@ export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuC
       : DEFAULT_MAIN_MENU_CONFIG.itemTransform,
     paddingTop: normalizePadding(input?.paddingTop) ?? DEFAULT_MAIN_MENU_CONFIG.paddingTop,
     paddingBottom: normalizePadding(input?.paddingBottom) ?? DEFAULT_MAIN_MENU_CONFIG.paddingBottom,
+    previewItems: normalizePreviewItems(input?.previewItems),
   };
 };

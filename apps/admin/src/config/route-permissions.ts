@@ -176,6 +176,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Storefront Footer
   '/storefront/checkout': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/storefront/footer': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/storefront/builder/home': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
   // Component Configs
   '/component-configs': { resource: 'component_config', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/component-configs/create': { resource: 'component_config', action: PermissionAction.CREATE, scope: PermissionScope.ANY },

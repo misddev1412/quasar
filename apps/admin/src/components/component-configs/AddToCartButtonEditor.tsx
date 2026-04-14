@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColorSelector } from '@admin/components/common/ColorSelector';
 import { Select } from '@admin/components/common/Select';
 import { Input } from '@admin/components/common/Input';
@@ -7,6 +7,7 @@ import { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
 
 export type AddToCartButtonTextTransform = 'normal' | 'uppercase' | 'capitalize';
 export type AddToCartButtonSize = 'sm' | 'md' | 'lg';
+export type AddToCartPreviewLabelKey = 'add' | 'out' | 'contact' | 'select' | 'incart';
 
 export interface AddToCartButtonConfig {
   backgroundColor: {
@@ -28,6 +29,7 @@ export interface AddToCartButtonConfig {
   size: AddToCartButtonSize;
   textTransform: AddToCartButtonTextTransform;
   icon: string;
+  previewLabels?: Partial<Record<AddToCartPreviewLabelKey, string>>;
 }
 
 const TEXT_TRANSFORM_OPTIONS: AddToCartButtonTextTransform[] = ['normal', 'uppercase', 'capitalize'];
@@ -56,6 +58,34 @@ interface AddToCartButtonEditorProps {
 }
 
 export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ value, onChange, t }) => {
+  const [editingPreviewKey, setEditingPreviewKey] = useState<AddToCartPreviewLabelKey | null>(null);
+
+  const defaultPreviewLabels: Record<AddToCartPreviewLabelKey, string> = useMemo(() => ({
+    add: t('componentConfigs.storefront.addToCartButton.previewText', 'Add to Cart'),
+    out: t('componentConfigs.storefront.addToCartButton.previewOutOfStock', 'Out of Stock'),
+    contact: t('componentConfigs.storefront.addToCartButton.previewContactPrice', 'Contact Price'),
+    select: t('componentConfigs.storefront.addToCartButton.previewSelectOptions', 'Select Options'),
+    incart: t('componentConfigs.storefront.addToCartButton.previewInCart', 'In Cart: 2'),
+  }), [t]);
+
+  const resolvedPreviewLabels: Record<AddToCartPreviewLabelKey, string> = useMemo(() => ({
+    add: value.previewLabels?.add?.trim() || defaultPreviewLabels.add,
+    out: value.previewLabels?.out?.trim() || defaultPreviewLabels.out,
+    contact: value.previewLabels?.contact?.trim() || defaultPreviewLabels.contact,
+    select: value.previewLabels?.select?.trim() || defaultPreviewLabels.select,
+    incart: value.previewLabels?.incart?.trim() || defaultPreviewLabels.incart,
+  }), [value.previewLabels, defaultPreviewLabels]);
+
+  const updatePreviewLabel = (key: AddToCartPreviewLabelKey, label: string) => {
+    onChange({
+      ...value,
+      previewLabels: {
+        ...(value.previewLabels || {}),
+        [key]: label,
+      },
+    });
+  };
+
   const updateBackgroundColor = (mode: keyof AddToCartButtonConfig['backgroundColor'], color?: string) => {
     onChange({
       ...value,
@@ -146,12 +176,12 @@ export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ va
     color: value.outOfStockTextColor.dark || '#ffffff',
   };
 
-  const previewStates = [
-    { key: 'add', label: t('componentConfigs.storefront.addToCartButton.previewText', 'Add to Cart'), outOfStock: false },
-    { key: 'out', label: t('componentConfigs.storefront.addToCartButton.previewOutOfStock', 'Out of Stock'), outOfStock: true },
-    { key: 'contact', label: t('componentConfigs.storefront.addToCartButton.previewContactPrice', 'Contact Price'), outOfStock: false },
-    { key: 'select', label: t('componentConfigs.storefront.addToCartButton.previewSelectOptions', 'Select Options'), outOfStock: false },
-    { key: 'incart', label: t('componentConfigs.storefront.addToCartButton.previewInCart', 'In Cart: 2'), outOfStock: false },
+  const previewStates: Array<{ key: AddToCartPreviewLabelKey; label: string; outOfStock: boolean }> = [
+    { key: 'add', label: resolvedPreviewLabels.add, outOfStock: false },
+    { key: 'out', label: resolvedPreviewLabels.out, outOfStock: true },
+    { key: 'contact', label: resolvedPreviewLabels.contact, outOfStock: false },
+    { key: 'select', label: resolvedPreviewLabels.select, outOfStock: false },
+    { key: 'incart', label: resolvedPreviewLabels.incart, outOfStock: false },
   ];
   const sizeClass = value.size === 'sm' ? 'min-w-[200px] h-10 text-base' : value.size === 'lg' ? 'min-w-[280px] h-16 text-xl' : 'min-w-[240px] h-14 text-lg';
 
@@ -285,7 +315,6 @@ export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ va
                     state.outOfStock ? 'cursor-not-allowed opacity-70' : ''
                   }`}
                   style={state.outOfStock ? outOfStockLightStyle : { ...defaultLightStyle, ...previewLightTextStyle }}
-                  disabled={state.outOfStock}
                 >
                   <div className="flex items-center justify-center gap-2">
                     {value.icon && (
@@ -295,7 +324,42 @@ export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ va
                         color={(state.outOfStock ? outOfStockLightStyle.color : defaultLightStyle.color) as string}
                       />
                     )}
-                    <span>{state.label}</span>
+                    {editingPreviewKey === state.key ? (
+                      <input
+                        autoFocus
+                        value={state.label}
+                        onChange={(event) => updatePreviewLabel(state.key, event.target.value)}
+                        onBlur={() => setEditingPreviewKey(null)}
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === 'Escape') {
+                            event.preventDefault();
+                            setEditingPreviewKey(null);
+                          }
+                        }}
+                        className="ml-2 w-36 rounded border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-900 outline-none ring-1 ring-primary-500"
+                      />
+                    ) : (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          setEditingPreviewKey(state.key);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setEditingPreviewKey(state.key);
+                          }
+                        }}
+                        className="ml-2 rounded border border-transparent px-1 text-[11px] opacity-80 hover:border-white/60"
+                        title={t('componentConfigs.storefront.addToCartButton.clickToEdit', 'Click to edit text')}
+                      >
+                        {state.label}
+                      </span>
+                    )}
                   </div>
                 </button>
               </div>
@@ -317,7 +381,6 @@ export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ va
                     state.outOfStock ? 'cursor-not-allowed opacity-70' : ''
                   }`}
                   style={state.outOfStock ? outOfStockDarkStyle : { ...defaultDarkStyle, ...previewDarkTextStyle }}
-                  disabled={state.outOfStock}
                 >
                   <div className="flex items-center justify-center gap-2">
                     {value.icon && (
@@ -327,7 +390,42 @@ export const AddToCartButtonEditor: React.FC<AddToCartButtonEditorProps> = ({ va
                         color={(state.outOfStock ? outOfStockDarkStyle.color : defaultDarkStyle.color) as string}
                       />
                     )}
-                    <span>{state.label}</span>
+                    {editingPreviewKey === state.key ? (
+                      <input
+                        autoFocus
+                        value={state.label}
+                        onChange={(event) => updatePreviewLabel(state.key, event.target.value)}
+                        onBlur={() => setEditingPreviewKey(null)}
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === 'Escape') {
+                            event.preventDefault();
+                            setEditingPreviewKey(null);
+                          }
+                        }}
+                        className="ml-2 w-36 rounded border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-900 outline-none ring-1 ring-primary-500"
+                      />
+                    ) : (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          setEditingPreviewKey(state.key);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setEditingPreviewKey(state.key);
+                          }
+                        }}
+                        className="ml-2 rounded border border-transparent px-1 text-[11px] opacity-80 hover:border-white/60"
+                        title={t('componentConfigs.storefront.addToCartButton.clickToEdit', 'Click to edit text')}
+                      >
+                        {state.label}
+                      </span>
+                    )}
                   </div>
                 </button>
               </div>

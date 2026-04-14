@@ -9,6 +9,7 @@ type ProductCardFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 type ProductCardFontSize = 'sm' | 'base' | 'lg' | 'xl';
 type ProductCardPriceTone = 'muted' | 'default' | 'emphasis' | 'custom';
 type ProductCardThumbnailOrientation = 'portrait' | 'landscape';
+type ProductCardContentBlock = 'title' | 'sku' | 'shortDescription' | 'price' | 'button';
 
 interface ComponentConfigResponse {
   id: string;
@@ -30,6 +31,13 @@ interface ProductCardBaseConfig {
   showShortDescription: boolean;
   badgeStyle: ProductCardBadgeStyle;
   priceDisplay: ProductCardPriceDisplay;
+  contentFontSizes: {
+    sku: ProductCardFontSize;
+    shortDescription: ProductCardFontSize;
+    contactPrice: ProductCardFontSize;
+    actionLabel: ProductCardFontSize;
+  };
+  contentOrder: ProductCardContentBlock[];
   thumbnail: {
     orientation: ProductCardThumbnailOrientation;
   };
@@ -69,7 +77,7 @@ const PRODUCT_CARD_COMPONENT_KEYS = [
 
 const DEFAULT_CARD_CONFIG: ProductCardBaseConfig = {
   layout: 'vertical',
-  imageHeight: 'h-72',
+  imageHeight: 'h-60',
   showAddToCart: true,
   showWishlist: true,
   showQuickView: false,
@@ -78,6 +86,13 @@ const DEFAULT_CARD_CONFIG: ProductCardBaseConfig = {
   showShortDescription: false,
   badgeStyle: 'pill',
   priceDisplay: 'stacked',
+  contentFontSizes: {
+    sku: 'sm',
+    shortDescription: 'sm',
+    contactPrice: 'lg',
+    actionLabel: 'base',
+  },
+  contentOrder: ['title', 'sku', 'shortDescription', 'price', 'button'],
   thumbnail: {
     orientation: 'portrait',
   },
@@ -87,7 +102,7 @@ const DEFAULT_TITLE_CONFIG: ProductCardTitleConfig = {
   clampLines: 2,
   htmlTag: 'h3',
   fontWeight: 'semibold',
-  fontSize: 'lg',
+  fontSize: 'base',
   uppercase: false,
 };
 
@@ -97,7 +112,7 @@ const DEFAULT_PRICE_CONFIG: ProductCardPriceConfig = {
   showCompareAtPrice: true,
   showDivider: false,
   fontWeight: 'bold',
-  fontSize: 'lg',
+  fontSize: 'base',
   colorTone: 'emphasis',
 };
 
@@ -122,6 +137,9 @@ const isPriceTone = (value: unknown): value is ProductCardPriceTone =>
 const isThumbnailOrientation = (value: unknown): value is ProductCardThumbnailOrientation =>
   value === 'portrait' || value === 'landscape';
 
+const isContentBlock = (value: unknown): value is ProductCardContentBlock =>
+  value === 'title' || value === 'sku' || value === 'shortDescription' || value === 'price' || value === 'button';
+
 const normalizeBoolean = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback;
 
@@ -132,6 +150,18 @@ const normalizeCardConfig = (raw?: Record<string, unknown> | null): ProductCardB
 
   const thumbnailSource =
     typeof raw.thumbnail === 'object' && raw.thumbnail !== null ? raw.thumbnail as Record<string, unknown> : {};
+  const contentFontSizesSource =
+    typeof raw.contentFontSizes === 'object' && raw.contentFontSizes !== null
+      ? raw.contentFontSizes as Record<string, unknown>
+      : {};
+  const rawContentOrder = Array.isArray(raw.contentOrder) ? raw.contentOrder : [];
+  const normalizedContentOrder = rawContentOrder.filter(isContentBlock);
+  const contentOrder = DEFAULT_CARD_CONFIG.contentOrder.filter((block) => normalizedContentOrder.includes(block));
+  DEFAULT_CARD_CONFIG.contentOrder.forEach((block) => {
+    if (!contentOrder.includes(block)) {
+      contentOrder.push(block);
+    }
+  });
 
   return {
     layout: isLayout(raw.layout) ? raw.layout : DEFAULT_CARD_CONFIG.layout,
@@ -146,6 +176,21 @@ const normalizeCardConfig = (raw?: Record<string, unknown> | null): ProductCardB
     showShortDescription: normalizeBoolean(raw.showShortDescription, DEFAULT_CARD_CONFIG.showShortDescription),
     badgeStyle: isBadgeStyle(raw.badgeStyle) ? raw.badgeStyle : DEFAULT_CARD_CONFIG.badgeStyle,
     priceDisplay: isPriceDisplay(raw.priceDisplay) ? raw.priceDisplay : DEFAULT_CARD_CONFIG.priceDisplay,
+    contentFontSizes: {
+      sku: isFontSize(contentFontSizesSource.sku)
+        ? contentFontSizesSource.sku
+        : DEFAULT_CARD_CONFIG.contentFontSizes.sku,
+      shortDescription: isFontSize(contentFontSizesSource.shortDescription)
+        ? contentFontSizesSource.shortDescription
+        : DEFAULT_CARD_CONFIG.contentFontSizes.shortDescription,
+      contactPrice: isFontSize(contentFontSizesSource.contactPrice)
+        ? contentFontSizesSource.contactPrice
+        : DEFAULT_CARD_CONFIG.contentFontSizes.contactPrice,
+      actionLabel: isFontSize(contentFontSizesSource.actionLabel)
+        ? contentFontSizesSource.actionLabel
+        : DEFAULT_CARD_CONFIG.contentFontSizes.actionLabel,
+    },
+    contentOrder,
     thumbnail: {
       orientation: isThumbnailOrientation(thumbnailSource.orientation)
         ? thumbnailSource.orientation

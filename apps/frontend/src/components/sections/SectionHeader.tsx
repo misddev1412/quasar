@@ -6,6 +6,8 @@ import { ArrowRight } from 'lucide-react';
 export type SectionHeadingStyle = 'default' | 'banner' | 'curved';
 export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 export type SectionHeadingTitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type SectionHeadingSubtitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type SectionHeadingDescriptionSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface SectionHeaderProps {
     title?: string;
@@ -18,6 +20,8 @@ export interface SectionHeaderProps {
     headingTextColor?: string;
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
+    headingSubtitleSize?: SectionHeadingSubtitleSize;
+    headingDescriptionSize?: SectionHeadingDescriptionSize;
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
@@ -36,12 +40,15 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     headingTextColor,
     headingTextTransform,
     headingTitleSize,
+    headingSubtitleSize,
+    headingDescriptionSize,
     headingBarHeight,
     headingBorderRadius,
     headingPaddingY,
     className,
     theme,
 }) => {
+    const SECTION_HEADER_SPACING_CLASS = 'mb-6';
     // Determine effective text colors based on theme
     const isDarkTheme = theme === 'dark';
     const headingTextStyle = headingTextColor ? { color: headingTextColor } : undefined;
@@ -64,6 +71,24 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     const resolvedTitleSize: SectionHeadingTitleSize =
         headingTitleSize || (headingStyle === 'banner' ? 'md' : 'lg');
     const titleSizeClass = titleSizeClassMap[resolvedTitleSize] || titleSizeClassMap.lg;
+    const subtitleSizeClassMap: Record<SectionHeadingSubtitleSize, string> = {
+        xs: 'text-xs',
+        sm: 'text-sm',
+        md: 'text-base',
+        lg: 'text-lg',
+        xl: 'text-xl',
+    };
+    const descriptionSizeClassMap: Record<SectionHeadingDescriptionSize, string> = {
+        xs: 'text-sm',
+        sm: 'text-base',
+        md: 'text-lg',
+        lg: 'text-xl',
+        xl: 'text-2xl',
+    };
+    const resolvedSubtitleSize: SectionHeadingSubtitleSize = headingSubtitleSize || 'sm';
+    const resolvedDescriptionSize: SectionHeadingDescriptionSize = headingDescriptionSize || 'md';
+    const subtitleSizeClass = subtitleSizeClassMap[resolvedSubtitleSize] || subtitleSizeClassMap.sm;
+    const descriptionSizeClass = descriptionSizeClassMap[resolvedDescriptionSize] || descriptionSizeClassMap.md;
 
     // Helper to get text color classes
     const getTitleColor = () => {
@@ -88,10 +113,10 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         const paddingX = Math.max(16, Math.floor(resolvedBarHeight * 0.3));
 
         return (
-            <div className={cn("mb-8 md:mb-10", className)}>
+            <div className={cn(SECTION_HEADER_SPACING_CLASS, className)}>
                 {subtitle && (
                     <p className={cn(
-                        "mb-2 text-sm font-bold uppercase tracking-widest",
+                        `mb-2 ${subtitleSizeClass} font-bold uppercase tracking-widest`,
                         getSubtitleColor()
                     )}>
                         {subtitle}
@@ -144,7 +169,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 
                 {description && (
                     <p className={cn(
-                        "mt-3 text-lg",
+                        `mt-3 ${descriptionSizeClass}`,
                         getDescriptionColor()
                     )}>
                         {description}
@@ -159,7 +184,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         const resolvedBarHeight = 4; // Height of the bottom border in px
 
         return (
-            <div className={cn("mb-8 md:mb-10", className)}>
+            <div className={cn(SECTION_HEADER_SPACING_CLASS, className)}>
                 <div className="flex items-end justify-between">
                     <div className="relative">
                         {/* The Tab Shape */}
@@ -210,7 +235,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 
                 {description && (
                     <p className={cn(
-                        "mt-4 text-lg",
+                        `mt-4 ${descriptionSizeClass}`,
                         getDescriptionColor()
                     )}>
                         {description}
@@ -221,11 +246,11 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     }
 
     return (
-        <div className={cn("mb-8 md:mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between", className)}>
+        <div className={cn(`${SECTION_HEADER_SPACING_CLASS} flex flex-col gap-4 md:flex-row md:items-end md:justify-between`, className)}>
             <div className="max-w-3xl">
                 {subtitle && (
                     <p className={cn(
-                        "mb-2 text-sm font-bold uppercase tracking-widest",
+                        `mb-2 ${subtitleSizeClass} font-bold uppercase tracking-widest`,
                         getSubtitleColor()
                     )}>
                         {subtitle}
@@ -245,7 +270,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                 )}
                 {description && (
                     <p className={cn(
-                        "mt-3 text-lg",
+                        `mt-3 ${descriptionSizeClass}`,
                         getDescriptionColor()
                     )}>
                         {description}

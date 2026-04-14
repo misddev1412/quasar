@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   MAIN_MENU_ITEM_SIZES,
   MAIN_MENU_ITEM_SIZE_LABELS,
@@ -43,6 +43,43 @@ interface MainMenuAppearanceEditorProps {
 }
 
 export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> = ({ value, onChange, t }) => {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const previewItems = useMemo(() => {
+    const fromConfig = Array.isArray(value.previewItems)
+      ? value.previewItems.map((item) => (typeof item === 'string' ? item.trim() : '')).filter((item) => item.length > 0)
+      : [];
+    return fromConfig.length > 0 ? fromConfig : PREVIEW_ITEMS;
+  }, [value.previewItems]);
+
+  const updatePreviewItems = (items: string[]) => {
+    const normalizedItems = items
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .slice(0, 10);
+
+    onChange({
+      ...value,
+      previewItems: normalizedItems.length > 0 ? normalizedItems : PREVIEW_ITEMS,
+    });
+  };
+
+  const updatePreviewItemLabel = (index: number, nextValue: string) => {
+    const nextItems = [...previewItems];
+    nextItems[index] = nextValue;
+    updatePreviewItems(nextItems);
+  };
+
+  const movePreviewItem = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= previewItems.length || toIndex >= previewItems.length) {
+      return;
+    }
+    const nextItems = [...previewItems];
+    const [moved] = nextItems.splice(fromIndex, 1);
+    nextItems.splice(toIndex, 0, moved);
+    updatePreviewItems(nextItems);
+  };
+
   const updateBackgroundColor = (mode: keyof MainMenuConfig['backgroundColor'], color?: string) => {
     onChange({
       ...value,
@@ -119,6 +156,71 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
   const previewLightItemStyle: React.CSSProperties | undefined = lightTextColor ? { color: lightTextColor } : undefined;
   const previewDarkItemStyle: React.CSSProperties | undefined = darkTextColor ? { color: darkTextColor } : undefined;
 
+  const renderEditablePreviewItems = ({
+    dark,
+  }: {
+    dark: boolean;
+  }) => (
+    <div className="flex flex-wrap gap-2">
+      {previewItems.map((label, index) => (
+        <span
+          key={`${dark ? 'dark' : 'light'}-${index}-${label}`}
+          draggable
+          onDragStart={(event) => {
+            event.dataTransfer.setData('text/plain', String(index));
+            event.dataTransfer.effectAllowed = 'move';
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            const fromIndex = Number(event.dataTransfer.getData('text/plain'));
+            if (Number.isNaN(fromIndex)) {
+              return;
+            }
+            movePreviewItem(fromIndex, index);
+          }}
+          className={`inline-flex items-center rounded-xl ${
+            dark ? 'bg-black/30' : 'bg-white/70'
+          } ${
+            dark ? (darkTextColor ? '' : 'text-white') : (lightTextColor ? '' : 'text-gray-700')
+          } ${ITEM_WEIGHT_CLASSES[value.itemWeight]} ${ITEM_TRANSFORM_CLASSES[value.itemTransform]} ${PREVIEW_ITEM_CLASSES[value.itemSize]} shadow-sm backdrop-blur`}
+          style={dark ? previewDarkItemStyle : previewLightItemStyle}
+          title={t('storefront.mainMenu.dragToReorder', 'Drag to reorder')}
+        >
+          {editingIndex === index ? (
+            <input
+              autoFocus
+              value={label}
+              onChange={(event) => updatePreviewItemLabel(index, event.target.value)}
+              onBlur={() => setEditingIndex(null)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === 'Escape') {
+                  event.preventDefault();
+                  setEditingIndex(null);
+                }
+              }}
+              className={`w-28 rounded border border-neutral-300 bg-white/90 px-2 py-0.5 text-xs text-neutral-900 outline-none ring-1 ring-primary-500 ${
+                value.itemSize === 'spacious' ? 'text-sm' : 'text-xs'
+              }`}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditingIndex(index)}
+              className="bg-transparent p-0 text-inherit"
+              title={t('storefront.mainMenu.clickToEditLabel', 'Click to edit label')}
+            >
+              {label}
+            </button>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,12 +283,6 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             }))}
             size="md"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'storefront.mainMenu.itemSizeDescription',
-              'Adjusts padding and font size for each menu link on desktop and mobile.',
-            )}
-          </p>
         </div>
 
         <div>
@@ -204,12 +300,6 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             }))}
             size="md"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'storefront.mainMenu.itemWeightDescription',
-              'Controls how bold each top-level menu item appears.',
-            )}
-          </p>
         </div>
 
         <div>
@@ -227,12 +317,6 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             }))}
             size="md"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'storefront.mainMenu.itemTransformDescription',
-              'Uppercase or capitalize labels to match your typography system.',
-            )}
-          </p>
         </div>
       </div>
 
@@ -247,12 +331,6 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             placeholder={t('storefront.mainMenu.paddingPlaceholder', 'e.g., 1rem, 16px, 0.5')}
             inputSize="md"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'storefront.mainMenu.paddingTopDescription',
-              'CSS padding top value for the menu container (e.g., 1rem, 16px). Leave empty to use default.',
-            )}
-          </p>
         </div>
 
         <div>
@@ -265,12 +343,6 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             placeholder={t('storefront.mainMenu.paddingPlaceholder', 'e.g., 1rem, 16px, 0.5')}
             inputSize="md"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'storefront.mainMenu.paddingBottomDescription',
-              'CSS padding bottom value for the menu container (e.g., 1rem, 16px). Leave empty to use default.',
-            )}
-          </p>
         </div>
       </div>
 
@@ -282,17 +354,7 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             </p>
           </div>
           <div className="p-4" style={previewLightStyle}>
-            <div className="flex flex-wrap gap-2">
-              {PREVIEW_ITEMS.map((label) => (
-                <span
-                  key={label}
-                  className={`rounded-xl bg-white/70 ${lightTextColor ? '' : 'text-gray-700'} ${ITEM_WEIGHT_CLASSES[value.itemWeight]} ${ITEM_TRANSFORM_CLASSES[value.itemTransform]} ${PREVIEW_ITEM_CLASSES[value.itemSize]} shadow-sm`}
-                  style={previewLightItemStyle}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
+            {renderEditablePreviewItems({ dark: false })}
           </div>
         </div>
 
@@ -303,17 +365,7 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             </p>
           </div>
           <div className="p-4" style={previewDarkStyle}>
-            <div className="flex flex-wrap gap-2">
-              {PREVIEW_ITEMS.map((label) => (
-                <span
-                  key={label}
-                  className={`rounded-xl bg-black/30 ${darkTextColor ? '' : 'text-white'} ${ITEM_WEIGHT_CLASSES[value.itemWeight]} ${ITEM_TRANSFORM_CLASSES[value.itemTransform]} ${PREVIEW_ITEM_CLASSES[value.itemSize]} backdrop-blur`}
-                  style={previewDarkItemStyle}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
+            {renderEditablePreviewItems({ dark: true })}
           </div>
         </div>
       </div>

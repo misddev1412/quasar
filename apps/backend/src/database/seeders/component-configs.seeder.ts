@@ -40,6 +40,13 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       showShortDescription: false,
       badgeStyle: 'pill',
       priceDisplay: 'stacked',
+      contentFontSizes: {
+        sku: 'sm',
+        shortDescription: 'sm',
+        contactPrice: 'lg',
+        actionLabel: 'base',
+      },
+      contentOrder: ['title', 'sku', 'shortDescription', 'price', 'button'],
       titleStyle: {
         fontWeight: 'semibold',
         fontSize: 'lg',
@@ -65,6 +72,19 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       showShortDescription: { type: 'boolean' },
       badgeStyle: { type: 'enum', options: ['pill', 'square'] },
       priceDisplay: { type: 'enum', options: ['stacked', 'inline'] },
+      contentFontSizes: {
+        type: 'object',
+        properties: {
+          sku: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+          shortDescription: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+          contactPrice: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+          actionLabel: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+        },
+      },
+      contentOrder: {
+        type: 'array',
+        items: { type: 'enum', options: ['title', 'sku', 'shortDescription', 'price', 'button'] },
+      },
       titleStyle: {
         type: 'object',
         properties: {

@@ -10,7 +10,14 @@ import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import SelectComponent, { components as selectComponents, type MenuListProps, type FilterOptionOption } from 'react-select';
 import { ConfigChangeHandler, ProductOption, SelectOption } from '@admin/components/sections/manager/types';
-import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '@admin/components/sections/manager/common/SectionHeadingConfig';
+import {
+    SectionHeadingConfig,
+    SectionHeadingConfigData,
+    SectionHeadingDescriptionSize,
+    SectionHeadingSubtitleSize,
+    SectionHeadingTextTransform,
+    SectionHeadingTitleSize,
+} from '@admin/components/sections/manager/common/SectionHeadingConfig';
 import { ensureNumber, mapProductToOption } from '@admin/components/sections/manager/utils';
 import { Image as ImageIcon } from 'lucide-react';
 
@@ -39,6 +46,8 @@ interface ProductsByCategoryAdminRow {
     headingTextColor?: string;
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
+    headingSubtitleSize?: SectionHeadingSubtitleSize;
+    headingDescriptionSize?: SectionHeadingDescriptionSize;
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
@@ -78,6 +87,8 @@ const buildHeadingConfigFromRow = (row?: ProductsByCategoryAdminRow): SectionHea
     headingTextColor: row?.headingTextColor,
     headingTextTransform: row?.headingTextTransform,
     headingTitleSize: row?.headingTitleSize,
+    headingSubtitleSize: row?.headingSubtitleSize,
+    headingDescriptionSize: row?.headingDescriptionSize,
     headingBarHeight: row?.headingBarHeight,
     headingBorderRadius: row?.headingBorderRadius,
     headingPaddingY: row?.headingPaddingY,
@@ -137,6 +148,8 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
                 headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
                 headingTextTransform: typeof row?.headingTextTransform === 'string' ? (row.headingTextTransform as SectionHeadingTextTransform) : undefined,
                 headingTitleSize: typeof row?.headingTitleSize === 'string' ? (row.headingTitleSize as SectionHeadingTitleSize) : undefined,
+                headingSubtitleSize: typeof row?.headingSubtitleSize === 'string' ? (row.headingSubtitleSize as SectionHeadingSubtitleSize) : undefined,
+                headingDescriptionSize: typeof row?.headingDescriptionSize === 'string' ? (row.headingDescriptionSize as SectionHeadingDescriptionSize) : undefined,
                 headingBarHeight: typeof row?.headingBarHeight === 'number' ? row.headingBarHeight : undefined,
                 headingBorderRadius: typeof row?.headingBorderRadius === 'number' ? row.headingBorderRadius : undefined,
                 headingPaddingY: typeof row?.headingPaddingY === 'number' ? row.headingPaddingY : undefined,
@@ -170,6 +183,8 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
             headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
             headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
             headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
+            headingSubtitleSize: typeof value?.headingSubtitleSize === 'string' ? (value.headingSubtitleSize as SectionHeadingSubtitleSize) : undefined,
+            headingDescriptionSize: typeof value?.headingDescriptionSize === 'string' ? (value.headingDescriptionSize as SectionHeadingDescriptionSize) : undefined,
             headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
             headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
             headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
@@ -197,6 +212,8 @@ const sanitizeConfigValue = (originalValue: any, rows: ProductsByCategoryAdminRo
             headingTextColor: row.headingTextColor,
             headingTextTransform: row.headingTextTransform,
             headingTitleSize: row.headingTitleSize,
+            headingSubtitleSize: row.headingSubtitleSize,
+            headingDescriptionSize: row.headingDescriptionSize,
             headingBarHeight: row.headingBarHeight,
             headingBorderRadius: row.headingBorderRadius,
             headingPaddingY: row.headingPaddingY,
@@ -228,6 +245,8 @@ const rowsAreEqual = (rows: ProductsByCategoryAdminRow[], otherRows: ProductsByC
         if (row.headingTextColor !== other.headingTextColor) return false;
         if (row.headingTextTransform !== other.headingTextTransform) return false;
         if (row.headingTitleSize !== other.headingTitleSize) return false;
+        if (row.headingSubtitleSize !== other.headingSubtitleSize) return false;
+        if (row.headingDescriptionSize !== other.headingDescriptionSize) return false;
         if (row.headingBarHeight !== other.headingBarHeight) return false;
         if (row.headingBorderRadius !== other.headingBorderRadius) return false;
         if (row.headingPaddingY !== other.headingPaddingY) return false;
@@ -874,6 +893,8 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         headingTextColor: row.headingTextColor,
                         headingTextTransform: row.headingTextTransform,
                         headingTitleSize: row.headingTitleSize,
+                        headingSubtitleSize: row.headingSubtitleSize,
+                        headingDescriptionSize: row.headingDescriptionSize,
                         headingBarHeight: row.headingBarHeight,
                         headingBorderRadius: row.headingBorderRadius,
                         headingPaddingY: row.headingPaddingY,
@@ -967,6 +988,8 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
             headingTextColor: commonHeadingConfig.headingTextColor,
             headingTextTransform: commonHeadingConfig.headingTextTransform,
             headingTitleSize: commonHeadingConfig.headingTitleSize,
+            headingSubtitleSize: commonHeadingConfig.headingSubtitleSize,
+            headingDescriptionSize: commonHeadingConfig.headingDescriptionSize,
             headingBarHeight: commonHeadingConfig.headingBarHeight,
             headingBorderRadius: commonHeadingConfig.headingBorderRadius,
             headingPaddingY: commonHeadingConfig.headingPaddingY,

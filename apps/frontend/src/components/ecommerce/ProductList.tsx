@@ -82,7 +82,6 @@ const ProductList: React.FC<ProductListProps> = ({
           showAddToCart={showAddToCart}
           showWishlist={showWishlist}
           showQuickView={showQuickView}
-          imageHeight="h-32"
           onAddToCart={onAddToCart}
           onWishlistToggle={onWishlistToggle}
           onQuickView={onQuickView}

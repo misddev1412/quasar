@@ -11,6 +11,8 @@ import { ensureNumber } from '@admin/components/sections/manager/utils';
 import {
     SectionHeadingConfig,
     SectionHeadingConfigData,
+    SectionHeadingDescriptionSize,
+    SectionHeadingSubtitleSize,
     SectionHeadingTextTransform,
     SectionHeadingTitleSize,
 } from '@admin/components/sections/manager/common/SectionHeadingConfig';
@@ -48,6 +50,8 @@ interface NewsByCategoryAdminRow {
     headingTextColor?: string;
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
+    headingSubtitleSize?: SectionHeadingSubtitleSize;
+    headingDescriptionSize?: SectionHeadingDescriptionSize;
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
@@ -107,6 +111,8 @@ const getHeadingConfigFromRow = (row?: NewsByCategoryAdminRow): SectionHeadingCo
     headingTextColor: row?.headingTextColor,
     headingTextTransform: row?.headingTextTransform,
     headingTitleSize: row?.headingTitleSize,
+    headingSubtitleSize: row?.headingSubtitleSize,
+    headingDescriptionSize: row?.headingDescriptionSize,
     headingBarHeight: row?.headingBarHeight,
     headingBorderRadius: row?.headingBorderRadius,
     headingPaddingY: row?.headingPaddingY,
@@ -138,6 +144,12 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
         headingTitleSize: typeof value?.headingTitleSize === 'string'
             ? (value.headingTitleSize as SectionHeadingTitleSize)
             : undefined,
+        headingSubtitleSize: typeof value?.headingSubtitleSize === 'string'
+            ? (value.headingSubtitleSize as SectionHeadingSubtitleSize)
+            : undefined,
+        headingDescriptionSize: typeof value?.headingDescriptionSize === 'string'
+            ? (value.headingDescriptionSize as SectionHeadingDescriptionSize)
+            : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
         headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
         headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
@@ -161,6 +173,12 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingTitleSize: typeof row?.headingTitleSize === 'string'
                 ? (row.headingTitleSize as SectionHeadingTitleSize)
                 : baseHeadingConfig.headingTitleSize,
+            headingSubtitleSize: typeof row?.headingSubtitleSize === 'string'
+                ? (row.headingSubtitleSize as SectionHeadingSubtitleSize)
+                : baseHeadingConfig.headingSubtitleSize,
+            headingDescriptionSize: typeof row?.headingDescriptionSize === 'string'
+                ? (row.headingDescriptionSize as SectionHeadingDescriptionSize)
+                : baseHeadingConfig.headingDescriptionSize,
             headingBarHeight: typeof row?.headingBarHeight === 'number'
                 ? row.headingBarHeight
                 : baseHeadingConfig.headingBarHeight,
@@ -187,6 +205,8 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingTextColor: baseHeadingConfig.headingTextColor,
             headingTextTransform: baseHeadingConfig.headingTextTransform,
             headingTitleSize: baseHeadingConfig.headingTitleSize,
+            headingSubtitleSize: baseHeadingConfig.headingSubtitleSize,
+            headingDescriptionSize: baseHeadingConfig.headingDescriptionSize,
             headingBarHeight: baseHeadingConfig.headingBarHeight,
             headingBorderRadius: baseHeadingConfig.headingBorderRadius,
             headingPaddingY: baseHeadingConfig.headingPaddingY,
@@ -207,6 +227,8 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingTextColor: baseHeadingConfig.headingTextColor,
             headingTextTransform: baseHeadingConfig.headingTextTransform,
             headingTitleSize: baseHeadingConfig.headingTitleSize,
+            headingSubtitleSize: baseHeadingConfig.headingSubtitleSize,
+            headingDescriptionSize: baseHeadingConfig.headingDescriptionSize,
             headingBarHeight: baseHeadingConfig.headingBarHeight,
             headingBorderRadius: baseHeadingConfig.headingBorderRadius,
             headingPaddingY: baseHeadingConfig.headingPaddingY,
@@ -238,6 +260,8 @@ const sanitizeConfigValue = (originalValue: Record<string, unknown>, rows: NewsB
         headingTextColor: row.headingTextColor,
         headingTextTransform: row.headingTextTransform,
         headingTitleSize: row.headingTitleSize,
+        headingSubtitleSize: row.headingSubtitleSize,
+        headingDescriptionSize: row.headingDescriptionSize,
         headingBarHeight: row.headingBarHeight,
         headingBorderRadius: row.headingBorderRadius,
         headingPaddingY: row.headingPaddingY,
@@ -265,6 +289,8 @@ const rowsAreEqual = (rows: NewsByCategoryAdminRow[], otherRows: NewsByCategoryA
             && row.headingTextColor === other.headingTextColor
             && row.headingTextTransform === other.headingTextTransform
             && row.headingTitleSize === other.headingTitleSize
+            && row.headingSubtitleSize === other.headingSubtitleSize
+            && row.headingDescriptionSize === other.headingDescriptionSize
             && row.headingBarHeight === other.headingBarHeight
             && row.headingBorderRadius === other.headingBorderRadius
             && row.headingPaddingY === other.headingPaddingY
@@ -509,6 +535,8 @@ const NewsRowEditor: React.FC<NewsRowEditorProps> = ({
                         headingTextColor: row.headingTextColor,
                         headingTextTransform: row.headingTextTransform,
                         headingTitleSize: row.headingTitleSize,
+                        headingSubtitleSize: row.headingSubtitleSize,
+                        headingDescriptionSize: row.headingDescriptionSize,
                         headingBarHeight: row.headingBarHeight,
                         headingBorderRadius: row.headingBorderRadius,
                         headingPaddingY: row.headingPaddingY,
@@ -599,6 +627,8 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
             headingTextColor: commonHeadingConfig.headingTextColor,
             headingTextTransform: commonHeadingConfig.headingTextTransform,
             headingTitleSize: commonHeadingConfig.headingTitleSize,
+            headingSubtitleSize: commonHeadingConfig.headingSubtitleSize,
+            headingDescriptionSize: commonHeadingConfig.headingDescriptionSize,
             headingBarHeight: commonHeadingConfig.headingBarHeight,
             headingBorderRadius: commonHeadingConfig.headingBorderRadius,
             headingPaddingY: commonHeadingConfig.headingPaddingY,

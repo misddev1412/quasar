@@ -71,17 +71,24 @@ const FONT_WEIGHT_CLASS_MAP: Record<string, string> = {
 };
 
 const TITLE_FONT_SIZE_CLASS_MAP: Record<string, string> = {
-  sm: 'text-sm',
-  base: 'text-base',
-  lg: 'text-lg',
-  xl: 'text-xl',
+  sm: 'text-xs',
+  base: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
 };
 
 const PRICE_FONT_SIZE_CLASS_MAP: Record<string, string> = {
-  sm: 'text-sm',
-  base: 'text-base',
-  lg: 'text-lg',
-  xl: 'text-2xl',
+  sm: 'text-xs',
+  base: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-xl',
+};
+
+const CONTENT_FONT_SIZE_CLASS_MAP: Record<string, string> = {
+  sm: 'text-xs',
+  base: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
 };
 
 const PRICE_TONE_CLASS_MAP: Record<string, string> = {
@@ -90,6 +97,8 @@ const PRICE_TONE_CLASS_MAP: Record<string, string> = {
   emphasis: 'storefront-product-card-accent',
   custom: '',
 };
+const PRODUCT_CARD_CONTENT_BLOCK_ORDER = ['title', 'sku', 'shortDescription', 'price', 'button'] as const;
+type ProductCardContentBlock = (typeof PRODUCT_CARD_CONTENT_BLOCK_ORDER)[number];
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
@@ -208,11 +217,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
   const unifiedCtaSizeClass =
     addToCartButtonConfig.size === 'sm'
-      ? 'h-9 min-h-[36px] text-xs sm:text-sm'
+      ? 'h-9 min-h-[36px]'
       : addToCartButtonConfig.size === 'lg'
-        ? 'h-11 min-h-[44px] text-sm sm:text-base'
-        : 'h-10 min-h-[40px] text-sm';
-  const unifiedCtaClassName = `${unifiedCtaSizeClass} rounded-lg px-4 font-medium leading-tight ${addToCartTextTransformClass}`;
+        ? 'h-11 min-h-[44px]'
+        : 'h-10 min-h-[40px]';
+  const actionLabelClass =
+    CONTENT_FONT_SIZE_CLASS_MAP[cardSettings.contentFontSizes?.actionLabel] ?? CONTENT_FONT_SIZE_CLASS_MAP.base;
+  const unifiedCtaClassName = `${unifiedCtaSizeClass} ${actionLabelClass} rounded-lg px-4 font-medium leading-tight ${addToCartTextTransformClass}`;
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -417,7 +428,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const titleBaseColorClass = titleSettings.textColor ? '' : 'storefront-product-card-text';
   const titleClassName = clsx(
     titleHoverClass,
-    'transition-colors leading-tight',
+    'transition-colors leading-tight m-0 mb-0',
     FONT_WEIGHT_CLASS_MAP[titleSettings.fontWeight] ?? FONT_WEIGHT_CLASS_MAP.semibold,
     TITLE_FONT_SIZE_CLASS_MAP[titleSettings.fontSize] ?? TITLE_FONT_SIZE_CLASS_MAP.lg,
     titleSettings.uppercase && 'uppercase tracking-wide',
@@ -440,6 +451,141 @@ const ProductCard: React.FC<ProductCardProps> = ({
     priceSettings.showDivider && shouldShowOriginalPrice && cardSettings.priceDisplay === 'inline',
   );
   const featuredBadgeShape = cardSettings.badgeStyle === 'square' ? 'rounded-lg' : 'rounded-full';
+  const skuTextClass = CONTENT_FONT_SIZE_CLASS_MAP[cardSettings.contentFontSizes?.sku] ?? CONTENT_FONT_SIZE_CLASS_MAP.sm;
+  const shortDescriptionTextClass =
+    CONTENT_FONT_SIZE_CLASS_MAP[cardSettings.contentFontSizes?.shortDescription] ?? CONTENT_FONT_SIZE_CLASS_MAP.sm;
+  const contactPriceTextClass =
+    CONTENT_FONT_SIZE_CLASS_MAP[cardSettings.contentFontSizes?.contactPrice] ?? CONTENT_FONT_SIZE_CLASS_MAP.lg;
+  const contentOrder = useMemo(() => {
+    const configured = Array.isArray(cardSettings.contentOrder)
+      ? cardSettings.contentOrder.filter((block): block is ProductCardContentBlock =>
+        PRODUCT_CARD_CONTENT_BLOCK_ORDER.includes(block as ProductCardContentBlock))
+      : [];
+    const uniqueConfigured = configured.filter((block, index) => configured.indexOf(block) === index);
+    const finalOrder = PRODUCT_CARD_CONTENT_BLOCK_ORDER.filter((block) => uniqueConfigured.includes(block));
+    PRODUCT_CARD_CONTENT_BLOCK_ORDER.forEach((block) => {
+      if (!finalOrder.includes(block)) {
+        finalOrder.push(block);
+      }
+    });
+    return finalOrder;
+  }, [cardSettings.contentOrder]);
+
+  const renderPriceBlock = () => (
+    <div className="h-9">
+      {isContactOnlyProduct ? (
+        <div className="mt-1">
+          <span className={`${contactPriceTextClass} font-bold storefront-product-card-text`}>
+            {contactPriceLabel || t('ecommerce.product.contactPriceLabel')}
+          </span>
+        </div>
+      ) : showPriceSkeleton ? (
+        <div className="mt-1">
+          <div className="h-5 w-28 rounded-full bg-gray-200/80 dark:bg-gray-700/60 animate-pulse" />
+        </div>
+      ) : (
+        currentPrice !== undefined && currentPrice !== null && (
+          <div className="mt-1 space-y-1">
+            <div className={priceWrapperClasses}>
+              {isPriceUpdating ? (
+                <span className={clsx(priceValueBaseClass, 'storefront-product-card-muted')}>
+                  {t('ecommerce.product.priceUpdating', 'Giá đang cập nhật')}
+                </span>
+              ) : (
+                <>
+                  <span className={clsx(priceValueBaseClass, priceToneClass)} style={priceColorStyle}>
+                    {formatCurrency(currentPrice)}
+                  </span>
+                  {showPriceDivider && <span className="w-px h-4 storefront-product-card-divider" />}
+                  {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
+                    <span className="text-xs storefront-product-card-muted line-through">
+                      {formatCurrency(displayOriginalPrice)}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )
+      )}
+    </div>
+  );
+
+  const renderButtonBlock = () => (
+    <div className="h-10 flex items-end">
+      {resolvedShowAddToCart && isContactOnlyProduct && (
+        <Button
+          size="md"
+          className={`w-full ${unifiedCtaClassName}`}
+          style={defaultButtonStyle}
+          onPress={onOpenContactModal}
+        >
+          <span className="inline-flex items-center gap-2">
+            {addToCartButtonConfig.icon && (
+              <UnifiedIcon
+                icon={addToCartButtonConfig.icon}
+                variant="button"
+                size={18}
+                color={defaultButtonStyle.color as string}
+              />
+            )}
+            <span>{contactPriceLabel || t('ecommerce.product.contactPrice')}</span>
+          </span>
+        </Button>
+      )}
+      {resolvedShowAddToCart && !isContactOnlyProduct && ((variants && variants.length > 0) || (currentPrice !== undefined && currentPrice > 0)) && (
+        <AddToCartButton
+          product={product}
+          onAddToCart={handleAddToCartDirect}
+          quantity={1}
+          fullWidth
+          size={addToCartButtonConfig.size}
+          useInternalVariantSelection={false}
+          className={unifiedCtaClassName}
+        />
+      )}
+    </div>
+  );
+
+  const renderContentBlock = (block: ProductCardContentBlock) => {
+    if (block === 'title') {
+      return (
+        <Link href={createProductUrl(productSlug)} className="block">
+          <TitleTag className={titleClassName} style={titleStyle}>
+            {displayName}
+          </TitleTag>
+        </Link>
+      );
+    }
+
+    if (block === 'sku') {
+      if (!cardSettings.showSku || !sku) return null;
+      return (
+        <div className={`${skuTextClass} storefront-product-card-muted font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block`}>
+          SKU: {sku}
+        </div>
+      );
+    }
+
+    if (block === 'shortDescription') {
+      if (!cardSettings.showShortDescription || !shortDescription) return null;
+      return (
+        <p className={`${shortDescriptionTextClass} storefront-product-card-muted`}>
+          {shortDescription}
+        </p>
+      );
+    }
+
+    if (block === 'price') {
+      return renderPriceBlock();
+    }
+
+    if (block === 'button') {
+      return renderButtonBlock();
+    }
+
+    return null;
+  };
 
   return (
     <div
@@ -454,6 +600,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         className={clsx(
           'relative overflow-hidden storefront-product-card-media',
           resolvedImageHeight,
+          'max-h-60',
           isHorizontalLayout && 'md:w-1/2',
         )}
       >
@@ -533,103 +680,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Info */}
-      <div className={clsx('p-5 flex flex-col flex-1', isHorizontalLayout && 'md:w-1/2')}>
-        <div className="flex flex-col gap-1 flex-1 min-h-[120px] sm:min-h-[140px]">
-          {/* Product Name */}
-          <Link href={createProductUrl(productSlug)} className="block">
-            <TitleTag className={titleClassName} style={titleStyle}>
-              {displayName}
-            </TitleTag>
-          </Link>
-
-          {/* SKU */}
-          {cardSettings.showSku && sku && (
-            <div className="text-xs storefront-product-card-muted font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
-              SKU: {sku}
-            </div>
-          )}
-
-          {cardSettings.showShortDescription && shortDescription && (
-            <p className="text-sm storefront-product-card-muted">
-              {shortDescription}
-            </p>
-          )}
-
-          {/* Price */}
-          <div className="h-10">
-            {isContactOnlyProduct ? (
-              <div className="mt-1">
-                <span className="text-lg font-bold storefront-product-card-text">
-                  {contactPriceLabel || t('ecommerce.product.contactPriceLabel')}
-                </span>
-              </div>
-            ) : showPriceSkeleton ? (
-              <div className="mt-1">
-                <div className="h-5 w-28 rounded-full bg-gray-200/80 dark:bg-gray-700/60 animate-pulse" />
-              </div>
-            ) : (
-              currentPrice !== undefined && currentPrice !== null && (
-                <div className="mt-1 space-y-1">
-                  <div className={priceWrapperClasses}>
-                    {isPriceUpdating ? (
-                      <span className={clsx(priceValueBaseClass, 'storefront-product-card-muted')}>
-                        {t('ecommerce.product.priceUpdating', 'Giá đang cập nhật')}
-                      </span>
-                    ) : (
-                      <>
-                        <span className={clsx(priceValueBaseClass, priceToneClass)} style={priceColorStyle}>
-                          {formatCurrency(currentPrice)}
-                        </span>
-                        {showPriceDivider && <span className="w-px h-4 storefront-product-card-divider" />}
-                        {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
-                          <span className="text-sm storefront-product-card-muted line-through">
-                            {formatCurrency(displayOriginalPrice)}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Add to Cart Button */}
-        <div className="mt-1 pt-1">
-          <div className="h-10 flex items-end">
-            {resolvedShowAddToCart && isContactOnlyProduct && (
-              <Button
-                size="md"
-                className={`w-full ${unifiedCtaClassName}`}
-                style={defaultButtonStyle}
-                onPress={onOpenContactModal}
-              >
-                <span className="inline-flex items-center gap-2">
-                  {addToCartButtonConfig.icon && (
-                    <UnifiedIcon
-                      icon={addToCartButtonConfig.icon}
-                      variant="button"
-                      size={18}
-                      color={defaultButtonStyle.color as string}
-                    />
-                  )}
-                  <span>{contactPriceLabel || t('ecommerce.product.contactPrice')}</span>
-                </span>
-              </Button>
-            )}
-            {resolvedShowAddToCart && !isContactOnlyProduct && ((variants && variants.length > 0) || (currentPrice !== undefined && currentPrice > 0)) && (
-              <AddToCartButton
-                product={product}
-                onAddToCart={handleAddToCartDirect}
-                quantity={1}
-                fullWidth
-                size={addToCartButtonConfig.size}
-                useInternalVariantSelection={false}
-                className={unifiedCtaClassName}
-              />
-            )}
-          </div>
+      <div className={clsx('p-4 flex flex-col flex-1', isHorizontalLayout && 'md:w-1/2')}>
+        <div className="flex flex-col gap-1.5 flex-1 min-h-[105px] sm:min-h-[120px]">
+          {contentOrder.map((block) => (
+            <React.Fragment key={block}>
+              {renderContentBlock(block)}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 

@@ -27,7 +27,7 @@ export const ProductListSection: React.FC<ProductListSectionProps> = ({ config, 
   const showHeader = config.showHeader !== false && !(heading === '' && subheading === '');
 
   return (
-    <section className="py-6 lg:py-10">
+    <section className="py-2 lg:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ProductsContainer
           showSidebar={config.showSidebar}

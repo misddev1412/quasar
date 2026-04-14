@@ -6,6 +6,8 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 export type SectionHeadingStyle = 'default' | 'banner' | 'curved';
 export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 export type SectionHeadingTitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type SectionHeadingSubtitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type SectionHeadingDescriptionSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface SectionHeadingConfigData {
     headingStyle?: SectionHeadingStyle;
@@ -14,6 +16,8 @@ export interface SectionHeadingConfigData {
     headingBackgroundImage?: string;
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
+    headingSubtitleSize?: SectionHeadingSubtitleSize;
+    headingDescriptionSize?: SectionHeadingDescriptionSize;
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
@@ -73,6 +77,20 @@ export const SectionHeadingConfig: React.FC<SectionHeadingConfigProps> = ({ data
         });
     };
 
+    const handleSubtitleSizeChange = (value: string) => {
+        onChange({
+            ...data,
+            headingSubtitleSize: value ? (value as SectionHeadingSubtitleSize) : undefined,
+        });
+    };
+
+    const handleDescriptionSizeChange = (value: string) => {
+        onChange({
+            ...data,
+            headingDescriptionSize: value ? (value as SectionHeadingDescriptionSize) : undefined,
+        });
+    };
+
     return (
         <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm space-y-4">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
@@ -117,6 +135,45 @@ export const SectionHeadingConfig: React.FC<SectionHeadingConfigProps> = ({ data
                         value={resolveSizePreset()}
                         onChange={handleSizePresetChange}
                         options={sizePresets.map(({ value, label }) => ({ value, label }))}
+                        className="text-sm"
+                    />
+                </label>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {t('sections.manager.headingConfig.subtitleSize', 'Subtitle Size')}
+                    </span>
+                    <Select
+                        value={data.headingSubtitleSize || ''}
+                        onChange={handleSubtitleSizeChange}
+                        options={[
+                            { value: '', label: t('sections.manager.headingConfig.default', 'Default') },
+                            { value: 'xs', label: 'XS' },
+                            { value: 'sm', label: 'SM' },
+                            { value: 'md', label: 'MD' },
+                            { value: 'lg', label: 'LG' },
+                            { value: 'xl', label: 'XL' },
+                        ]}
+                        className="text-sm"
+                    />
+                </label>
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {t('sections.manager.headingConfig.descriptionSize', 'Description Size')}
+                    </span>
+                    <Select
+                        value={data.headingDescriptionSize || ''}
+                        onChange={handleDescriptionSizeChange}
+                        options={[
+                            { value: '', label: t('sections.manager.headingConfig.default', 'Default') },
+                            { value: 'xs', label: 'XS' },
+                            { value: 'sm', label: 'SM' },
+                            { value: 'md', label: 'MD' },
+                            { value: 'lg', label: 'LG' },
+                            { value: 'xl', label: 'XL' },
+                        ]}
                         className="text-sm"
                     />
                 </label>

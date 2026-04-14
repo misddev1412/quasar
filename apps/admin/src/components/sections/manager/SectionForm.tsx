@@ -20,6 +20,7 @@ interface SectionFormProps {
     initialState: SectionFormState;
     onSubmit: (payload: SectionFormState) => Promise<void>;
     onCancel: () => void;
+    onChange?: (payload: SectionFormState) => void;
     submitLabel: string;
     isSubmitting: boolean;
     showActions?: boolean;
@@ -31,6 +32,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({
     initialState,
     onSubmit,
     onCancel,
+    onChange,
     submitLabel,
     isSubmitting,
     showActions = true,
@@ -61,6 +63,10 @@ export const SectionForm: React.FC<SectionFormProps> = ({
     useEffect(() => {
         setFormState(initialState);
     }, [initialState]);
+
+    useEffect(() => {
+        onChange?.(formState);
+    }, [formState, onChange]);
 
     const translationLocales = languages.length > 0 ? languages.map((language) => language.code) : ['vi'];
 

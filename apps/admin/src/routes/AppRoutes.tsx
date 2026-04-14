@@ -119,6 +119,7 @@ const MenusPage = lazy(() => import(/* webpackChunkName: "admin-content" */ '@ad
 const HelpPage = lazy(() => import(/* webpackChunkName: "admin-core" */ '@admin/pages/help'));
 const StorefrontFooterPage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/storefront/footer'));
 const StorefrontCheckoutSettingsPage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/storefront/checkout'));
+const StorefrontHomeBuilderPage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/storefront/builder/home'));
 const EcommerceSettingsPage = lazy(() => import(/* webpackChunkName: "admin-settings" */ '@admin/pages/settings/ecommerce'));
 const ComponentConfigsPage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/component-configs'));
 const ComponentConfigCreatePage = lazy(() => import(/* webpackChunkName: "admin-storefront" */ '@admin/pages/component-configs/create'));
@@ -341,6 +342,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/component-configs/:id/edit" element={<ProtectedRoute><ComponentConfigEditPage /></ProtectedRoute>} />
         <Route path="/storefront/checkout" element={<ProtectedRoute><StorefrontCheckoutSettingsPage /></ProtectedRoute>} />
         <Route path="/storefront/footer" element={<ProtectedRoute><StorefrontFooterPage /></ProtectedRoute>} />
+        <Route path="/storefront/builder/home" element={<ProtectedRoute><StorefrontHomeBuilderPage /></ProtectedRoute>} />
         <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
         <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
         <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />

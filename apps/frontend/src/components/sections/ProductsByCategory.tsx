@@ -34,6 +34,8 @@ export interface ProductsByCategoryRowConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -122,6 +124,8 @@ interface NormalizedRowConfig {
   headingTextColor?: string;
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingSubtitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingDescriptionSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -457,6 +461,8 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         headingTextColor: typeof row.headingTextColor === 'string' ? row.headingTextColor : undefined,
         headingTextTransform: normalizeHeadingTextTransform(row.headingTextTransform),
         headingTitleSize: normalizeHeadingTitleSize(row.headingTitleSize),
+        headingSubtitleSize: normalizeHeadingTitleSize(row.headingSubtitleSize),
+        headingDescriptionSize: normalizeHeadingTitleSize(row.headingDescriptionSize),
         headingBarHeight: normalizeHeadingBarHeight(row.headingBarHeight),
         headingBorderRadius: normalizeHeadingNumber(row.headingBorderRadius),
         headingPaddingY: normalizeHeadingNumber(row.headingPaddingY),
@@ -489,6 +495,8 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
     headingStyle: 'default',
     headingTextTransform: undefined,
     headingTitleSize: undefined,
+    headingSubtitleSize: undefined,
+    headingDescriptionSize: undefined,
     headingBarHeight: undefined,
     headingBorderRadius: undefined,
     headingPaddingY: undefined,
@@ -864,7 +872,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
           </div>
         )}
 
-        <div className={`flex flex-col gap-12 ${isSidebarEnabled ? 'lg:flex-row' : ''}`}>
+        <div className={`flex flex-col gap-8 ${isSidebarEnabled ? 'lg:flex-row lg:gap-6' : ''}`}>
           {isSidebarEnabled && (
             <ProductsByCategorySidebar
               sidebarLabel={t('sections.products_by_category.sidebar_label')}
@@ -1018,7 +1026,6 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                             showAddToCart={true}
                             showWishlist={false}
                             showQuickView={false}
-                            imageHeight="h-56"
                             className="h-full"
                           />
                         </div>
@@ -1046,7 +1053,6 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                       showAddToCart={true}
                       showWishlist={false}
                       showQuickView={false}
-                      imageHeight="h-56"
                       className="h-full"
                     />
                   ))}
@@ -1084,6 +1090,8 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                     headingTextColor={row.headingTextColor}
                     headingTextTransform={row.headingTextTransform}
                     headingTitleSize={row.headingTitleSize}
+                    headingSubtitleSize={row.headingSubtitleSize}
+                    headingDescriptionSize={row.headingDescriptionSize}
                     headingBarHeight={row.headingBarHeight}
                     headingBorderRadius={row.headingBorderRadius}
                     headingPaddingY={row.headingPaddingY}
@@ -1091,7 +1099,6 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                       ? t('sections.products_by_category.view_category', { category: categoryLabel })
                       : t('sections.products_by_category.view_more')}
                     ctaLink={hasCategoryNavigation ? ctaHref : localizedProductsPath}
-                    className="mb-8"
                   />
 
                   {bodyContent}

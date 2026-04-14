@@ -4,7 +4,14 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SectionTranslationContent } from './HeroSlider';
 import SectionContainer from './SectionContainer';
-import { SectionHeader, type SectionHeadingStyle, type SectionHeadingTextTransform, type SectionHeadingTitleSize } from './SectionHeader';
+import {
+  SectionHeader,
+  type SectionHeadingDescriptionSize,
+  type SectionHeadingStyle,
+  type SectionHeadingSubtitleSize,
+  type SectionHeadingTextTransform,
+  type SectionHeadingTitleSize,
+} from './SectionHeader';
 import UnifiedIcon from '../common/UnifiedIcon';
 
 export interface WhyChooseUsItemConfig {
@@ -37,6 +44,8 @@ export interface WhyChooseUsConfig {
   headingTextColor?: string;
   headingTextTransform?: SectionHeadingTextTransform;
   headingTitleSize?: SectionHeadingTitleSize;
+  headingSubtitleSize?: SectionHeadingSubtitleSize;
+  headingDescriptionSize?: SectionHeadingDescriptionSize;
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
@@ -285,10 +294,11 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
             headingTextColor={config.headingTextColor}
             headingTextTransform={config.headingTextTransform}
             headingTitleSize={config.headingTitleSize}
+            headingSubtitleSize={config.headingSubtitleSize}
+            headingDescriptionSize={config.headingDescriptionSize}
             headingBarHeight={config.headingBarHeight}
             headingBorderRadius={config.headingBorderRadius}
             headingPaddingY={config.headingPaddingY}
-            className="mb-12"
           />
         )}
 
