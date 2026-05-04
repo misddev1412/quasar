@@ -26,7 +26,7 @@ export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, tr
   const sectionDescription = translation?.description === null ? null : translation?.description;
 
   return (
-    <section className="py-2 lg:py-10 text-gray-900 dark:text-gray-100" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-2 lg:py-6 text-gray-900 dark:text-gray-100" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer paddingClassName="px-4 sm:px-6 lg:px-8">
         {(sectionTitle || sectionDescription) && (
           <div className="mb-6 max-w-3xl">
@@ -38,6 +38,25 @@ export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, tr
           className="custom-html-content prose prose-lg max-w-none text-black prose-headings:text-black prose-p:text-gray-800 dark:text-gray-100 dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: html }}
         />
+        <style jsx global>{`
+          .custom-html-content form:has(input[placeholder*='domain']),
+          .custom-html-content form:has(input[placeholder*='Domain']) {
+            gap: 0 !important;
+          }
+
+          .custom-html-content form [class*='MuiInputBase-root'],
+          .custom-html-content form [class*='MuiOutlinedInput-root'],
+          .custom-html-content form input[placeholder*='domain'],
+          .custom-html-content form input[placeholder*='Domain'] {
+            border-radius: 0 !important;
+          }
+
+          .custom-html-content form button[type='submit'],
+          .custom-html-content form button[type='submit'].MuiButton-root,
+          .custom-html-content form button[type='submit'][class*='MuiButtonBase-root-MuiButton-root'] {
+            border-radius: 0 !important;
+          }
+        `}</style>
       </SectionContainer>
     </section>
   );

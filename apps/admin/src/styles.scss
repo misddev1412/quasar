@@ -10,6 +10,43 @@
 /* Import shared CSS from Design System */
 /* This is separately imported in main.tsx */
 
+/* Hero/domain analyze form (MUI): force seamless input + submit button */
+form:has(.MuiInputBase-input[placeholder*='domain']),
+form:has(.MuiInputBase-input[placeholder*='Domain']) {
+  gap: 0 !important;
+}
+
+form:has(.MuiInputBase-input[placeholder*='domain']) .MuiInputBase-root,
+form:has(.MuiInputBase-input[placeholder*='Domain']) .MuiInputBase-root,
+form:has(input[placeholder*='domain']) input,
+form:has(input[placeholder*='Domain']) input {
+  border-radius: 0 !important;
+}
+
+form:has(.MuiInputBase-input[placeholder*='domain']) button.MuiButton-root[type='submit'],
+form:has(.MuiInputBase-input[placeholder*='Domain']) button.MuiButton-root[type='submit'],
+button.MuiButton-root.MuiButton-contained.MuiButton-colorWarning[type='submit'] {
+  border-radius: 0 !important;
+}
+
+/* Custom HTML sections often embed MUI-generated classes from DB content */
+.custom-html-content form {
+  gap: 0 !important;
+}
+
+.custom-html-content form [class*='MuiInputBase-root'],
+.custom-html-content form [class*='MuiOutlinedInput-root'],
+.custom-html-content form input[placeholder*='domain'],
+.custom-html-content form input[placeholder*='Domain'] {
+  border-radius: 0 !important;
+}
+
+.custom-html-content form button[type='submit'].MuiButton-root,
+.custom-html-content form button[type='submit'][class*='MuiButtonBase-root-MuiButton-root'],
+.custom-html-content form button[type='submit'].MuiButton-root.MuiButton-contained.MuiButton-colorWarning {
+  border-radius: 0 !important;
+}
+
 /* Global Layout Styles */
 html, body {
   width: 100%;

@@ -854,7 +854,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
   }
 
   return (
-    <section className="py-2 lg:py-10" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-2 lg:py-6" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
@@ -888,7 +888,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
               getLinkAriaLabel={(label) => t('sections.products_by_category.sidebar_link_aria', { label })}
             />
           )}
-          <div className={`${isSidebarEnabled ? 'w-full lg:w-4/5' : 'w-full'} space-y-16`}>
+          <div className={`${isSidebarEnabled ? 'w-full lg:w-4/5' : 'w-full'} space-y-4 lg:space-y-6`}>
             {rows.map((row) => {
               const state = rowStates[row.id] ?? {
                 products: [],
@@ -953,7 +953,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                 }
 
                 return (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     {placeholders.map((_, index) => (
                       <div key={`loading-${row.id}-${index}`} className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
                         <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
@@ -1045,7 +1045,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
               };
 
               const Grid = () => (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {state.products.map((product) => (
                     <ProductCard
                       key={`${row.id}-${product.id}`}
@@ -1080,7 +1080,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
               }
 
               return (
-                <div key={row.id} className="space-y-6">
+                <div key={row.id} className="space-y-4 sm:space-y-6">
                   <SectionHeader
                     title={showDisplayTitle ? (categoryLabel || undefined) : undefined}
                     subtitle={showStrategyLabel ? (strategyLabel || undefined) : undefined}

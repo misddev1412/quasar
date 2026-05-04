@@ -94,7 +94,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const gridClass = gridColumnClassMap[columns] || gridColumnClassMap[4];
 
   return (
-    <section className="py-2 lg:py-10" style={getSectionStyle()}>
+    <section className="py-2 lg:py-6" style={getSectionStyle()}>
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-300">{subtitle}</p>}

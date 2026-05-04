@@ -318,7 +318,7 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section style={getSectionStyle()} className="py-2 lg:py-10">
+    <section style={getSectionStyle()} className="py-2 lg:py-6">
       <SectionContainer>
         {hasHeaderContent && (
           <SectionHeader

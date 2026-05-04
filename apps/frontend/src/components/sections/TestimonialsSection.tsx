@@ -143,7 +143,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
   };
 
   return (
-    <section className="py-2 lg:py-10" style={getSectionStyle()}>
+    <section className="py-2 lg:py-6" style={getSectionStyle()}>
       <SectionContainer>
         <SectionHeader
           title={sectionTitle}

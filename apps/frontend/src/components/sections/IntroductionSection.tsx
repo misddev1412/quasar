@@ -46,7 +46,7 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({ config
     const ctaUrl = config.ctaUrl || '/about';
 
     return (
-        <section className="py-2 lg:py-10">
+        <section className="py-2 lg:py-6">
             <SectionContainer>
                 <div className="rounded-xl border border-orange-200 bg-white p-6 shadow-sm lg:p-12">
                     {customHtml ? (

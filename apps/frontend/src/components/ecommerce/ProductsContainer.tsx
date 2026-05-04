@@ -257,10 +257,10 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
 
   const gridClass =
     gridColumns >= 4
-      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+      ? 'grid-cols-2 lg:grid-cols-4'
       : gridColumns === 2
-        ? 'grid-cols-1 sm:grid-cols-2'
-        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+        ? 'grid-cols-2'
+        : 'grid-cols-2 lg:grid-cols-3';
 
   const shouldRenderHeader = showHeader || showSort;
 
@@ -332,7 +332,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
         )}
 
         {/* Products Grid */}
-        <div className={`grid ${gridClass} gap-6 lg:gap-8`}>
+        <div className={`grid ${gridClass} gap-4 sm:gap-6 lg:gap-8`}>
           {products.map((product) => (
             <ProductCard
               key={product.id}

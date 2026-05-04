@@ -15,7 +15,7 @@ export const ProductDetailsSection: React.FC<ProductDetailsSectionProps> = ({
 }) => {
     return (
         <SectionContainer>
-            <div className="py-12 text-center">
+            <div className="py-6 text-center">
                 <h2 className="text-2xl font-bold">{translation?.title || 'Product Details'}</h2>
                 <p className="text-gray-500">Coming Soon</p>
             </div>

@@ -313,7 +313,7 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
 
   if (config.layout === 'carousel') {
     return (
-      <section className="bg-[var(--video-bg-light)] py-2 lg:py-10 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
+      <section className="bg-[var(--video-bg-light)] py-2 lg:py-6 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
         <SectionContainer>
           {(translation?.title || translation?.description) && (
             <div className="mb-10 text-center">
@@ -426,7 +426,7 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
 
   // Fallback to original layout
   return (
-    <section className="bg-[var(--video-bg-light)] py-2 lg:py-10 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
+    <section className="bg-[var(--video-bg-light)] py-2 lg:py-6 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
       <SectionContainer className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div>
           <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">

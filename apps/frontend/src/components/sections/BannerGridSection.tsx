@@ -184,7 +184,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-2 lg:py-10" style={getSectionStyle()}>
+    <section className="py-2 lg:py-6" style={getSectionStyle()}>
       <SectionContainer>
         {hasHeaderContent && (
           <div className="mb-10 max-w-3xl">

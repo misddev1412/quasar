@@ -318,7 +318,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
     : 'px-6 sm:px-10 lg:px-16';
-  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 flex h-full flex-col justify-center';
+  const contentWrapperClass = 'py-8 sm:py-10 lg:py-12 xl:py-16 flex h-full flex-col justify-center';
 
   const outerWrapperClass = isFullWidth
     ? 'w-full py-0'

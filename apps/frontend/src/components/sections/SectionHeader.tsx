@@ -48,7 +48,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     className,
     theme,
 }) => {
-    const SECTION_HEADER_SPACING_CLASS = 'mb-6';
+    const SECTION_HEADER_SPACING_CLASS = 'mb-4 sm:mb-6';
     // Determine effective text colors based on theme
     const isDarkTheme = theme === 'dark';
     const headingTextStyle = headingTextColor ? { color: headingTextColor } : undefined;

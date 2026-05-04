@@ -445,7 +445,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
   };
 
   return (
-    <section className="py-2 lg:py-10" style={getSectionStyle()}>
+    <section className="py-2 lg:py-6" style={getSectionStyle()}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">

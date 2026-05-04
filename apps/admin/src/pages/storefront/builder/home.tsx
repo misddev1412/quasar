@@ -34,17 +34,10 @@ const StorefrontHomeBuilderPage: React.FC = () => {
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const initialPreviewOrigin = useMemo(
-    () => (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, ''),
+    () => (process.env.REACT_APP_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001').replace(/\/$/, ''),
     [],
   );
   const [previewOrigin, setPreviewOrigin] = useState(initialPreviewOrigin);
-
-  useEffect(() => {
-    if (initialPreviewOrigin || typeof window === 'undefined') {
-      return;
-    }
-    setPreviewOrigin(window.location.origin.replace(/\/$/, ''));
-  }, [initialPreviewOrigin]);
 
   useEffect(() => {
     if (sectionsQuery.isLoading) {

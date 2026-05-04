@@ -354,7 +354,7 @@ export const VideoGridSection: React.FC<VideoGridSectionProps> = ({ config, tran
 
     return (
         <section
-            className="py-2 lg:py-10"
+            className="py-2 lg:py-6"
             style={getSectionStyle()}
         >
             <SectionContainer>
