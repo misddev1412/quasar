@@ -60,6 +60,7 @@ type ProductCardContentBlock = 'title' | 'sku' | 'shortDescription' | 'price' | 
 interface ProductCardConfigState extends Record<string, unknown> {
   layout: ProductCardLayout;
   imageHeight: string;
+  imageBorderRadius: string;
   showAddToCart: boolean;
   showWishlist: boolean;
   showQuickView: boolean;
@@ -222,6 +223,7 @@ const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardC
     ...source,
     layout: source.layout === 'horizontal' ? 'horizontal' : 'vertical',
     imageHeight: normalizeStringValue(source.imageHeight, '16rem'),
+    imageBorderRadius: normalizeStringValue(source.imageBorderRadius),
     showAddToCart: normalizeBooleanValue(source.showAddToCart, true),
     showWishlist: normalizeBooleanValue(source.showWishlist, true),
     showQuickView: normalizeBooleanValue(source.showQuickView, false),
@@ -318,6 +320,17 @@ const ProductCardVisualEditor: React.FC<ProductCardVisualEditorProps> = ({ value
             placeholder="16rem"
           />
         </label>
+        <label className="space-y-1 text-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {t('componentConfigs.productCardImageBorderRadius', 'Image border radius')}
+          </span>
+          <input
+            className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
+            value={value.imageBorderRadius}
+            onChange={(event) => setField('imageBorderRadius', event.target.value)}
+            placeholder="0.75rem 0.75rem 0 0"
+          />
+        </label>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -346,7 +359,13 @@ const ProductCardVisualEditor: React.FC<ProductCardVisualEditorProps> = ({ value
       <div className="rounded-xl border border-neutral-200 bg-white p-4">
         <p className="mb-3 text-sm font-semibold text-neutral-900">{t('componentConfigs.preview', 'Preview')}</p>
         <div className={`rounded-xl border border-neutral-200 bg-neutral-50 p-3 ${value.layout === 'horizontal' ? 'flex gap-3' : 'space-y-3'}`}>
-          <div className={`${value.layout === 'horizontal' ? 'w-40 shrink-0' : 'w-full'} rounded-lg bg-neutral-200`} style={{ height: value.imageHeight || '16rem' }} />
+          <div
+            className={`${value.layout === 'horizontal' ? 'w-40 shrink-0' : 'w-full'} rounded-lg bg-neutral-200`}
+            style={{
+              height: value.imageHeight || '16rem',
+              borderRadius: value.imageBorderRadius || undefined,
+            }}
+          />
           <div className="flex-1 space-y-2">
             {value.contentOrder.map((block) => {
               if (block === 'sku' && !value.showSku) return null;

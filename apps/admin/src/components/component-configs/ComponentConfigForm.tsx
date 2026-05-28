@@ -137,6 +137,7 @@ interface ProductCardContentFontSizes {
 interface ProductCardConfigState extends Record<string, unknown> {
   layout: ProductCardLayout;
   imageHeight: string;
+  imageBorderRadius: string;
   showAddToCart: boolean;
   showWishlist: boolean;
   showQuickView: boolean;
@@ -436,6 +437,7 @@ const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardC
     ...source,
     layout: source.layout === 'horizontal' ? 'horizontal' : 'vertical',
     imageHeight: normalizeStringValue(source.imageHeight, 'h-72'),
+    imageBorderRadius: normalizeStringValue(source.imageBorderRadius),
     showAddToCart: normalizeBooleanValue(source.showAddToCart, true),
     showWishlist: normalizeBooleanValue(source.showWishlist, true),
     showQuickView: normalizeBooleanValue(source.showQuickView, false),
@@ -2999,7 +3001,10 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
         <div className="rounded-2xl border border-neutral-200 bg-white p-5">
           <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.preview', 'Preview')}</p>
           <div className="mt-4 max-w-sm rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-            <div className={`rounded-lg bg-neutral-100 ${value.imageHeight === 'h-48' ? 'h-20' : value.imageHeight === 'h-56' ? 'h-24' : 'h-28'}`} />
+            <div
+              className={`rounded-lg bg-neutral-100 ${value.imageHeight === 'h-48' ? 'h-20' : value.imageHeight === 'h-56' ? 'h-24' : 'h-28'}`}
+              style={value.imageBorderRadius ? { borderRadius: value.imageBorderRadius } : undefined}
+            />
             <div className="mt-3 space-y-2">
               {normalizedContentOrder.map((block) => (
                 <div key={`preview-${block}`} className="rounded-md border border-dashed border-neutral-200 p-2">
@@ -3230,6 +3235,23 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
               options={PRODUCT_CARD_ORIENTATION_OPTIONS}
             />
           </div>
+        </div>
+        <div className="mt-4 space-y-2">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            {t('componentConfigs.productCardImageBorderRadius', 'Image border radius')}
+          </label>
+          <Input
+            value={value.imageBorderRadius}
+            onChange={(event) => handleChange({ imageBorderRadius: event.target.value })}
+            placeholder={t('componentConfigs.productCardImageBorderRadiusPlaceholder', '0.75rem 0.75rem 0 0')}
+            inputSize="md"
+          />
+          <p className="mb-0 text-[11px] text-neutral-500">
+            {t(
+              'componentConfigs.productCardImageBorderRadiusHelp',
+              'Any valid CSS border-radius value, such as 12px, 1rem, or 16px 16px 0 0.',
+            )}
+          </p>
         </div>
       </div>
 

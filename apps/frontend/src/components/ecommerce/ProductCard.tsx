@@ -135,6 +135,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const resolvedShowWishlist = typeof showWishlist === 'boolean' ? showWishlist : cardSettings.showWishlist;
   const resolvedShowQuickView = typeof showQuickView === 'boolean' ? showQuickView : cardSettings.showQuickView;
   const isHorizontalLayout = cardSettings.layout === 'horizontal';
+  const imageBorderRadius = cardSettings.imageBorderRadius?.trim();
   const displayName = useMemo(() => (name || '').replace(/\s+/g, ' ').trim(), [name]);
   const titleStyle = useMemo<React.CSSProperties>(() => {
     const lineHeight = 1.3;
@@ -603,13 +604,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           'max-h-60',
           isHorizontalLayout && 'md:w-1/2',
         )}
+        style={imageBorderRadius ? { borderRadius: imageBorderRadius } : undefined}
       >
         <Link href={createProductUrl(productSlug)}>
           <Image
             src={getPrimaryImage()}
             alt={displayName || t('ecommerce.productCard.imageAlt', 'Product Image')}
-            className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${isImageHovered ? 'scale-110' : 'scale-100'
+            className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer ${imageBorderRadius ? '' : 'rounded-t-xl'} ${isImageHovered ? 'scale-110' : 'scale-100'
               }`}
+            style={imageBorderRadius ? { borderRadius: imageBorderRadius } : undefined}
             removeWrapper
             onMouseEnter={() => setIsImageHovered(true)}
             onMouseLeave={() => setIsImageHovered(false)}

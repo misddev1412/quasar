@@ -23,6 +23,7 @@ interface ComponentConfigResponse {
 interface ProductCardBaseConfig {
   layout: ProductCardLayout;
   imageHeight: string;
+  imageBorderRadius: string;
   showAddToCart: boolean;
   showWishlist: boolean;
   showQuickView: boolean;
@@ -78,6 +79,7 @@ const PRODUCT_CARD_COMPONENT_KEYS = [
 const DEFAULT_CARD_CONFIG: ProductCardBaseConfig = {
   layout: 'vertical',
   imageHeight: 'h-60',
+  imageBorderRadius: '',
   showAddToCart: true,
   showWishlist: true,
   showQuickView: false,
@@ -168,6 +170,7 @@ const normalizeCardConfig = (raw?: Record<string, unknown> | null): ProductCardB
     imageHeight: typeof raw.imageHeight === 'string' && raw.imageHeight.trim().length > 0
       ? raw.imageHeight
       : DEFAULT_CARD_CONFIG.imageHeight,
+    imageBorderRadius: typeof raw.imageBorderRadius === 'string' ? raw.imageBorderRadius : DEFAULT_CARD_CONFIG.imageBorderRadius,
     showAddToCart: normalizeBoolean(raw.showAddToCart, DEFAULT_CARD_CONFIG.showAddToCart),
     showWishlist: normalizeBoolean(raw.showWishlist, DEFAULT_CARD_CONFIG.showWishlist),
     showQuickView: normalizeBoolean(raw.showQuickView, DEFAULT_CARD_CONFIG.showQuickView),

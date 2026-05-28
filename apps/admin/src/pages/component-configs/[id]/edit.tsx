@@ -2,14 +2,22 @@ import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiBox } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { ComponentConfigVisualBuilder } from '@admin/components/component-configs';
-import type { ComponentConfigVisualBuilderSubmitPayload } from '@admin/components/component-configs';
+import {
+  collectDescendantIds,
+  ComponentConfigForm,
+  ComponentConfigVisualBuilder,
+  flattenComponents,
+} from '@admin/components/component-configs';
+import type {
+  ComponentConfigFormValues,
+  ComponentConfigNode,
+  ComponentConfigVisualBuilderSubmitPayload,
+} from '@admin/components/component-configs';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import {
   findComponentById,
-  type ComponentConfigNode,
 } from '@admin/components/component-configs';
 import { Button, StandardFormPage } from '@admin/components/common';
 
@@ -45,8 +53,32 @@ const ComponentConfigEditPage: React.FC = () => {
 
   const componentTree = listQuery.data?.data ?? [];
   const treeNode = useMemo(() => findComponentById(componentTree, componentId), [componentTree, componentId]);
+  const flattenedComponents = useMemo(() => flattenComponents(componentTree), [componentTree]);
+  const disallowedParentIds = useMemo(
+    () => [componentId, ...collectDescendantIds(treeNode ?? undefined)],
+    [componentId, treeNode],
+  );
+  const parentOptions = useMemo(
+    () => [
+      { value: '', label: 'Top-level component' },
+      ...flattenedComponents.map(({ node, depth }) => ({
+        value: node.id,
+        label: `${'— '.repeat(depth)}${node.displayName}`,
+      })),
+    ],
+    [flattenedComponents],
+  );
+  const componentOptions = useMemo(
+    () => flattenedComponents.map(({ node, depth }) => ({
+      id: node.id,
+      componentKey: node.componentKey,
+      displayName: node.displayName,
+      depth,
+    })),
+    [flattenedComponents],
+  );
 
-  const handleSubmit = async (payload: ComponentConfigVisualBuilderSubmitPayload) => {
+  const handleVisualBuilderSubmit = async (payload: ComponentConfigVisualBuilderSubmitPayload) => {
     try {
       await updateMutation.mutateAsync({
         id: componentId,
@@ -114,6 +146,28 @@ const ComponentConfigEditPage: React.FC = () => {
     }
   };
 
+  const handleFormSubmit = async (values: ComponentConfigFormValues) => {
+    try {
+      await updateMutation.mutateAsync({
+        id: componentId,
+        data: values,
+      });
+
+      addToast({
+        title: t('componentConfigs.updateSuccess'),
+        description: t('componentConfigs.updateSuccessDescription'),
+        type: 'success',
+      });
+      navigate('/component-configs');
+    } catch (error) {
+      addToast({
+        title: t('componentConfigs.updateFailed'),
+        description: error instanceof Error ? error.message : t('common.genericError'),
+        type: 'error',
+      });
+    }
+  };
+
   const handleCancel = () => navigate('/component-configs');
 
   useEffect(() => {
@@ -140,6 +194,7 @@ const ComponentConfigEditPage: React.FC = () => {
   const component = componentResponse?.data;
   const isSubmitting = updateMutation.isPending || childReorderMutation.isPending;
   const isLoading = componentQuery.isLoading || listQuery.isLoading;
+  const isProductsByCategory = component?.componentKey === 'products_by_category';
 
   const formId = 'component-config-edit-form';
 
@@ -214,14 +269,31 @@ const ComponentConfigEditPage: React.FC = () => {
       isSubmitting={isSubmitting}
       formId={formId}
     >
-      <ComponentConfigVisualBuilder
-        key={componentId}
-        component={component}
-        childComponents={treeNode?.children ?? []}
-        onSave={handleSubmit}
-        isSubmitting={isSubmitting}
-        formId={formId}
-      />
+      {isProductsByCategory ? (
+        <ComponentConfigForm
+          key={componentId}
+          mode="edit"
+          initialValues={component}
+          parentOptions={parentOptions}
+          disallowedParentIds={disallowedParentIds}
+          componentOptions={componentOptions}
+          childComponents={treeNode?.children ?? []}
+          onSubmit={handleFormSubmit}
+          onCancel={handleCancel}
+          isSubmitting={isSubmitting}
+          showActions={false}
+          formId={formId}
+        />
+      ) : (
+        <ComponentConfigVisualBuilder
+          key={componentId}
+          component={component}
+          childComponents={treeNode?.children ?? []}
+          onSave={handleVisualBuilderSubmit}
+          isSubmitting={isSubmitting}
+          formId={formId}
+        />
+      )}
     </StandardFormPage>
   );
 };
