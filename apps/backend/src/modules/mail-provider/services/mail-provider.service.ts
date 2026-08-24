@@ -5,7 +5,7 @@ import * as net from 'net';
 import * as tls from 'tls';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
-import AWS from 'aws-sdk';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { MailLogService } from '@backend/modules/mail-log/services/mail-log.service';
 import { MailLogStatus } from '@backend/modules/mail-log/entities/mail-log.entity';
 import { CreateMailLogDto } from '@backend/modules/mail-log/dto/mail-log.dto';
@@ -762,23 +762,27 @@ Quasar Platform`;
     const { subject, text, html } = emailContent ?? this.buildTestEmailContent(provider);
 
     try {
-      const ses = new AWS.SES({
-        accessKeyId: provider.apiKey,
-        secretAccessKey: provider.apiSecret,
+      const ses = new SESClient({
         region: provider.config?.region || process.env.AWS_REGION || 'us-east-1',
+        credentials: {
+          accessKeyId: provider.apiKey,
+          secretAccessKey: provider.apiSecret,
+        },
       });
 
-      await ses.sendEmail({
-        Source: this.formatFromAddress(from),
-        Destination: { ToAddresses: [recipient] },
-        Message: {
-          Subject: { Data: subject },
-          Body: {
-            Text: { Data: text },
-            Html: { Data: html },
+      await ses.send(
+        new SendEmailCommand({
+          Source: this.formatFromAddress(from),
+          Destination: { ToAddresses: [recipient] },
+          Message: {
+            Subject: { Data: subject },
+            Body: {
+              Text: { Data: text },
+              Html: { Data: html },
+            },
           },
-        },
-      }).promise();
+        }),
+      );
 
       return {
         success: true,

@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
-import * as admin from 'firebase-admin';
+import { App, cert, deleteApp, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth, UserRecord } from 'firebase-admin/auth';
 
 export interface FirebaseTokenPayload {
   uid: string;
@@ -17,7 +18,7 @@ export interface FirebaseTokenPayload {
 @Injectable()
 export class FirebaseAuthService {
   private readonly logger = new Logger(FirebaseAuthService.name);
-  private adminApp: admin.app.App | null = null;
+  private adminApp: App | null = null;
 
   constructor(
     private readonly firebaseConfigService: FirebaseConfigService,
@@ -31,13 +32,14 @@ export class FirebaseAuthService {
       
       if (adminConfig) {
         // Initialize Firebase Admin if service account key is available
-        if (!admin.apps.length) {
-          this.adminApp = admin.initializeApp({
-            credential: admin.credential.cert(adminConfig),
+        const apps = getApps();
+        if (!apps.length) {
+          this.adminApp = initializeApp({
+            credential: cert(adminConfig),
           });
           this.logger.log('Firebase Admin initialized successfully');
         } else {
-          this.adminApp = admin.apps[0];
+          this.adminApp = apps[0];
         }
       } else {
         this.logger.log('No Firebase admin config found. Firebase features will not be available until configured.');
@@ -62,7 +64,7 @@ export class FirebaseAuthService {
     }
 
     try {
-      const decodedToken = await admin.auth(this.adminApp).verifyIdToken(idToken);
+      const decodedToken = await getAuth(this.adminApp).verifyIdToken(idToken);
       return decodedToken as FirebaseTokenPayload;
     } catch (error) {
       this.logger.error('Error verifying Firebase ID token:', error);
@@ -80,14 +82,14 @@ export class FirebaseAuthService {
     }
 
     try {
-      return await admin.auth(this.adminApp).createCustomToken(uid, claims);
+      return await getAuth(this.adminApp).createCustomToken(uid, claims);
     } catch (error) {
       this.logger.error('Error creating custom token:', error);
       throw new Error('Failed to create custom token');
     }
   }
 
-  async getUserByUid(uid: string): Promise<admin.auth.UserRecord | null> {
+  async getUserByUid(uid: string): Promise<UserRecord | null> {
     if (!this.adminApp) {
       await this.initializeFirebaseAdmin();
     }
@@ -97,14 +99,14 @@ export class FirebaseAuthService {
     }
 
     try {
-      return await admin.auth(this.adminApp).getUser(uid);
+      return await getAuth(this.adminApp).getUser(uid);
     } catch (error) {
       this.logger.error('Error getting user by UID:', error);
       return null;
     }
   }
 
-  async getUserByEmail(email: string): Promise<admin.auth.UserRecord | null> {
+  async getUserByEmail(email: string): Promise<UserRecord | null> {
     if (!this.adminApp) {
       await this.initializeFirebaseAdmin();
     }
@@ -114,7 +116,7 @@ export class FirebaseAuthService {
     }
 
     try {
-      return await admin.auth(this.adminApp).getUserByEmail(email);
+      return await getAuth(this.adminApp).getUserByEmail(email);
     } catch (error) {
       this.logger.error('Error getting user by email:', error);
       return null;
@@ -131,7 +133,7 @@ export class FirebaseAuthService {
     }
 
     try {
-      await admin.auth(this.adminApp).setCustomUserClaims(uid, claims);
+      await getAuth(this.adminApp).setCustomUserClaims(uid, claims);
     } catch (error) {
       this.logger.error('Error setting custom claims:', error);
       throw new Error('Failed to set custom claims');
@@ -141,7 +143,7 @@ export class FirebaseAuthService {
   async refreshFirebaseConfig(): Promise<void> {
     // Reinitialize Firebase Admin with updated config
     if (this.adminApp) {
-      await this.adminApp.delete();
+      await deleteApp(this.adminApp);
       this.adminApp = null;
     }
     

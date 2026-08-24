@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
-import * as admin from 'firebase-admin';
+import { App, cert, getApps, initializeApp, ServiceAccount } from 'firebase-admin/app';
+import { Database, getDatabase } from 'firebase-admin/database';
 import { NotificationEvent } from '@backend/modules/notifications/entities/notification-event.enum';
 
 export interface RealtimeOrderNotificationPayload {
@@ -21,18 +22,18 @@ export interface RealtimeOrderNotificationPayload {
 export class FirebaseRealtimeDatabaseService {
   private readonly logger = new Logger(FirebaseRealtimeDatabaseService.name);
   private readonly appName = 'quasar-realtime-db';
-  private app: admin.app.App | null = null;
+  private app: App | null = null;
 
   constructor(
     private readonly firebaseConfigService: FirebaseConfigService,
   ) {}
 
-  private async getApp(): Promise<admin.app.App | null> {
+  private async getApp(): Promise<App | null> {
     if (this.app) {
       return this.app;
     }
 
-    const existingApp = admin.apps.find(app => app.name === this.appName);
+    const existingApp = getApps().find(app => app.name === this.appName);
     if (existingApp) {
       this.app = existingApp;
       return this.app;
@@ -48,9 +49,9 @@ export class FirebaseRealtimeDatabaseService {
     const databaseURL = projectId ? `https://${projectId}.firebaseio.com` : undefined;
 
     try {
-      this.app = admin.initializeApp(
+      this.app = initializeApp(
         {
-          credential: admin.credential.cert(adminConfig as admin.ServiceAccount),
+          credential: cert(adminConfig as ServiceAccount),
           ...(databaseURL ? { databaseURL } : {}),
         },
         this.appName,
@@ -63,14 +64,14 @@ export class FirebaseRealtimeDatabaseService {
     }
   }
 
-  private async getDatabase(): Promise<admin.database.Database | null> {
+  private async getDatabase(): Promise<Database | null> {
     const app = await this.getApp();
     if (!app) {
       return null;
     }
 
     try {
-      return admin.database(app);
+      return getDatabase(app);
     } catch (error) {
       this.logger.error('Unable to access Firebase realtime database', error as Error);
       return null;

@@ -2,7 +2,7 @@
 # =========================
 # Builder stage - Optimized for speed
 # =========================
-FROM node:20-bookworm-slim AS builder
+FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
 # ---- System / Node tuning for low-RAM CI ----
@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/app/.nx/cache,sharing=locked \
     SKIP_BUILD_INSTALL=1 bash deploy/build.sh
 
 # ---- Create production node_modules in separate stage ----
-FROM node:20-bookworm-slim AS prod-deps
+FROM node:22-bookworm-slim AS prod-deps
 WORKDIR /app
 
 RUN corepack enable
@@ -54,7 +54,7 @@ RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
 # =========================
 # Runtime stage
 # =========================
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

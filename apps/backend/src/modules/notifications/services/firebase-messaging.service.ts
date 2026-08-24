@@ -1,7 +1,18 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { FirebaseAuthService } from '@backend/modules/firebase/services/firebase-auth.service';
 import { FirebaseConfigService } from '@backend/modules/firebase/services/firebase-config.service';
-import * as admin from 'firebase-admin';
+import { App, cert, getApps, initializeApp } from 'firebase-admin/app';
+import {
+  AndroidConfig,
+  ApnsConfig,
+  BatchResponse,
+  FcmOptions,
+  getMessaging,
+  Message,
+  Messaging,
+  MulticastMessage,
+  WebpushConfig,
+} from 'firebase-admin/messaging';
 import { NotificationRepository, CreateNotificationDto } from '@backend/modules/notifications/repositories/notification.repository';
 import { NotificationEntity, NotificationType } from '@backend/modules/notifications/entities/notification.entity';
 import { UserDeviceRepository } from '@backend/modules/notifications/repositories/user-device.repository';
@@ -27,10 +38,10 @@ export interface SendNotificationOptions {
   topic?: string;
   condition?: string;
   data?: FCMData;
-  android?: admin.messaging.AndroidConfig;
-  apns?: admin.messaging.ApnsConfig;
-  webpush?: admin.messaging.WebpushConfig;
-  fcmOptions?: admin.messaging.FcmOptions;
+  android?: AndroidConfig;
+  apns?: ApnsConfig;
+  webpush?: WebpushConfig;
+  fcmOptions?: FcmOptions;
 }
 
 export interface SendToUserOptions {
@@ -54,31 +65,32 @@ export class FirebaseMessagingService {
     private readonly userDeviceRepository: UserDeviceRepository,
   ) { }
 
-  private async getMessaging(): Promise<admin.messaging.Messaging | null> {
+  private async getMessaging(): Promise<Messaging | null> {
     try {
       const adminApp = await this.getFirebaseAdminApp();
       if (!adminApp) {
         this.logger.warn('Firebase Admin not configured for messaging');
         return null;
       }
-      return admin.messaging(adminApp);
+      return getMessaging(adminApp);
     } catch (error) {
       this.logger.error('Error getting Firebase messaging instance:', error);
       return null;
     }
   }
 
-  private async getFirebaseAdminApp(): Promise<admin.app.App | null> {
+  private async getFirebaseAdminApp(): Promise<App | null> {
     try {
-      if (admin.apps.length > 0) {
-        return admin.apps[0];
+      const apps = getApps();
+      if (apps.length > 0) {
+        return apps[0];
       }
 
       // Initialize Firebase Admin if not already initialized
       const serviceAccountConfig = await this.firebaseConfigService.getAdminConfig();
       if (serviceAccountConfig) {
-        const app = admin.initializeApp({
-          credential: admin.credential.cert(serviceAccountConfig),
+        const app = initializeApp({
+          credential: cert(serviceAccountConfig),
         });
         this.logger.log('Firebase Admin initialized for messaging');
         return app;
@@ -100,7 +112,7 @@ export class FirebaseMessagingService {
     if (!messaging) return null;
 
     try {
-      const message: admin.messaging.Message = {
+      const message: Message = {
         token,
         notification: {
           title: payload.title,
@@ -149,12 +161,12 @@ export class FirebaseMessagingService {
     tokens: string[],
     payload: FCMPayload,
     options: Omit<SendNotificationOptions, 'token' | 'tokens'> = {}
-  ): Promise<admin.messaging.BatchResponse | null> {
+  ): Promise<BatchResponse | null> {
     const messaging = await this.getMessaging();
     if (!messaging || tokens.length === 0) return null;
 
     try {
-      const message: admin.messaging.MulticastMessage = {
+      const message: MulticastMessage = {
         tokens,
         notification: {
           title: payload.title,
@@ -183,7 +195,7 @@ export class FirebaseMessagingService {
         fcmOptions: options.fcmOptions,
       };
 
-      const response = await (messaging as admin.messaging.Messaging & { sendMulticast: (message: admin.messaging.MulticastMessage) => Promise<admin.messaging.BatchResponse> }).sendMulticast(message);
+      const response = await messaging.sendEachForMulticast(message);
       this.logger.log(
         `Successfully sent ${response.successCount}/${tokens.length} messages`
       );
@@ -225,7 +237,7 @@ export class FirebaseMessagingService {
     if (!messaging) return null;
 
     try {
-      const message: admin.messaging.Message = {
+      const message: Message = {
         topic,
         notification: {
           title: payload.title,

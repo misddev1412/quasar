@@ -2,7 +2,7 @@
 
 FROM ubuntu:24.04 AS node-base
 
-ARG NODE_MAJOR=20
+ARG NODE_MAJOR=22
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
