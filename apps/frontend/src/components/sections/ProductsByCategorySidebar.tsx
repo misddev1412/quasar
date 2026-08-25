@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { ChevronRight } from 'lucide-react';
 import type { NormalizedSidebarItem, NormalizedSidebarSection } from './ProductsByCategory';
 import { UnifiedIcon } from '../common/UnifiedIcon';
+import { getSidebarItemFontSizeClass } from './sidebarTypography';
 
 const SECTION_TITLE_FONT_WEIGHT_CLASSES: Record<NormalizedSidebarSection['titleFontWeight'], string> = {
   normal: 'font-normal',
@@ -87,7 +88,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
   const textClasses = clsx(
     'mb-0 transition-colors duration-150',
-    SECTION_TITLE_FONT_SIZE_CLASSES[itemFontSize] || 'text-sm',
+    getSidebarItemFontSizeClass(itemFontSize),
     SECTION_TITLE_FONT_WEIGHT_CLASSES[itemFontWeight] || 'font-normal',
     hasCustomColor ? '' : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-300',
     itemTextTransform === 'uppercase' && 'uppercase',
