@@ -8,6 +8,7 @@ import { Input } from '@admin/components/common';
 import { defaultThemeConfig, ThemeConfig } from '@admin/config/theme.config';
 import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
+import { LoadingOverlaySettingsForm } from '@admin/components/storefront';
 
 const ThemeSettingsPage: React.FC = () => {
     const { t } = useTranslationWithBackend();
@@ -205,6 +206,7 @@ const ThemeSettingsPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+                <LoadingOverlaySettingsForm />
             </div>
         </BaseLayout>
     );

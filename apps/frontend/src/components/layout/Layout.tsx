@@ -3,7 +3,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import ClientWrapper from '../ClientWrapper';
 import NavigationProgressBar from '../NavigationProgressBar';
 import { ChatWidget } from '../ChatWidget';
 import FloatingIcons from '../common/FloatingIcons';
@@ -49,7 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <ClientWrapper>
+    <>
       <Suspense fallback={null}>
         <NavigationProgressBar />
       </Suspense>
@@ -69,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <FloatingIcons />
 
       <CookieConsentBanner />
-    </ClientWrapper>
+    </>
   );
 };
 

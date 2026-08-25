@@ -3,6 +3,7 @@
 import React from 'react';
 import { Progress } from '@heroui/react';
 import { useSettings } from '../../hooks/useSettings';
+import { resolveLoadingOverlayConfig } from './loadingOverlayConfig';
 
 interface AppLoadingOverlayProps {
   isLoading: boolean;
@@ -15,18 +16,29 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
   progress = 0,
   message = 'Loading...'
 }) => {
-  const { getSetting, getSettingAsBoolean } = useSettings();
+  const { getSetting, getSiteLogo, isLoading: settingsLoading } = useSettings();
   const fallbackSiteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar Store';
   const configuredSiteName = (getSetting('site.name', '') || '').trim();
   const legacySiteName = (getSetting('site_name', '') || '').trim();
   const siteName = configuredSiteName || legacySiteName || fallbackSiteName;
-  const isOverlayEnabled = getSettingAsBoolean('storefront.loading_overlay_enabled', true);
+  const logoUrl = getSiteLogo();
+  const overlayConfig = resolveLoadingOverlayConfig({
+    isSettingsLoading: settingsLoading,
+    getSetting,
+  });
+  const displayTitle = overlayConfig.title || siteName;
+  const displayMessage = overlayConfig.message || message;
 
-  if (!isLoading || !isOverlayEnabled) return null;
+  if (!isLoading || !overlayConfig.enabled) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[10000] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center"
+      className={`fixed inset-0 z-[10000] flex items-center justify-center ${
+        overlayConfig.backgroundColor
+          ? ''
+          : 'bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800'
+      }`}
+      style={overlayConfig.backgroundColor ? { backgroundColor: overlayConfig.backgroundColor } : undefined}
       role="status"
       aria-live="polite"
       aria-label="Application loading"
@@ -34,24 +46,27 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
       <div className="relative">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-12 max-w-md w-full mx-4">
           <div className="flex flex-col items-center space-y-8">
+            {overlayConfig.showLogo && logoUrl && (
+              <img src={logoUrl} alt={displayTitle} className="h-14 max-w-48 object-contain" />
+            )}
             <div className="relative">
               <div className="w-20 h-20 relative">
                 <div className="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-900"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 dark:border-t-blue-400 animate-spin"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent animate-spin" style={{ borderTopColor: overlayConfig.accentColor }}></div>
                 <div className="absolute inset-2 rounded-full border-4 border-indigo-200 dark:border-indigo-900"></div>
-                <div className="absolute inset-2 rounded-full border-4 border-t-indigo-500 dark:border-t-indigo-400 animate-spin animation-delay-150"></div>
+                <div className="absolute inset-2 rounded-full border-4 border-transparent animate-spin animation-delay-150" style={{ borderTopColor: overlayConfig.accentColor }}></div>
                 <div className="absolute inset-4 rounded-full border-4 border-purple-200 dark:border-purple-900"></div>
-                <div className="absolute inset-4 rounded-full border-4 border-t-purple-500 dark:border-t-purple-400 animate-spin animation-delay-300"></div>
+                <div className="absolute inset-4 rounded-full border-4 border-transparent animate-spin animation-delay-300" style={{ borderTopColor: overlayConfig.accentColor }}></div>
               </div>
             </div>
 
             <div className="w-full space-y-4">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                  {siteName}
+                  {displayTitle}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
-                  {message}
+                  {displayMessage}
                 </p>
               </div>
 
@@ -70,9 +85,9 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
             </div>
 
             <div className="flex space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce animation-delay-0"></div>
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce animation-delay-150"></div>
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-300"></div>
+              <div className="w-2 h-2 rounded-full animate-bounce animation-delay-0" style={{ backgroundColor: overlayConfig.accentColor }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce animation-delay-150" style={{ backgroundColor: overlayConfig.accentColor }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce animation-delay-300" style={{ backgroundColor: overlayConfig.accentColor }}></div>
             </div>
           </div>
         </div>
